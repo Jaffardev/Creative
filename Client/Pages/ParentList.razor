@@ -1,0 +1,62 @@
+﻿@page "/parents"
+@using Creative.Client.Services;
+@using Creative.Shared;
+@using Creative.Shared.Models;
+@using MudBlazor;
+@inject IParentService parentService;
+
+
+@if (parentItems.Status == DataStatus.Loading)
+{
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px" Width="400px"></MudSkeleton>
+}
+
+@if (parentItems.Status == DataStatus.Loaded)
+{
+    @*QuickFilter = "@_quickFilter" RowClick = "@RowClicked" SelectedItemsChanged = "@SelectedItemsChanged"*@
+    <MudDataGrid T="ParentModel" MultiSelection="true" Items="@parentItems.Data" SortMode="SortMode.Multiple" Filterable="true"
+                 Hideable="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Parent List</MudText>
+            <MudSpacer />
+            @*    <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>*@
+        </ToolBarContent>
+        <Columns>
+            @*<SelectColumn T="ParentModel" />*@
+            <PropertyColumn Property="x => x.Code" Title="Code" Sortable="false" Filterable="false" />
+            <PropertyColumn Property="x => x.Name1" Title="Name (Ar)" />
+            <PropertyColumn Property="x => x.Name2" Title="Name (En)" />
+            <PropertyColumn Property="x => x.Tel1" />
+            <PropertyColumn Property="x => x.Tel2" />
+            <PropertyColumn Property="x => x.Address1" Title="Address" />
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="ParentModel" />
+        </PagerContent>
+    </MudDataGrid>
+}
+
+@code {
+
+
+    DataItem<IEnumerable<ParentModel>> parentItems { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadParents();
+    }
+
+    private async Task LoadParents()
+    {
+        parentItems.Loading();
+
+        var result = await parentService.GetAllParents();
+
+        if (result.IsSuccess)
+            parentItems.Success(result.Data);
+        else
+            parentItems.Fail(result.Message);
+
+    }
+
+}

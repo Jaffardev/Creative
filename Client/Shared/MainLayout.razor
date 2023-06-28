@@ -1,0 +1,67 @@
+﻿@using Creative.Client.Services;
+@using Creative.Shared.Models;
+@using Creative.Shared;
+@using MudBlazor
+@inherits LayoutComponentBase
+
+@inject ILookupService lookupService
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudOverlay @bind-Visible="ShowOverlay" DarkBackground="true" ZIndex="9999" />
+<MudLayout>
+    <MudAppBar Color="Color.Inherit" Fixed="false" Dense="true">
+        <MudLink Color="Color.Inherit" Href="/">Creative School</MudLink>
+        <MudToolBar>
+            <NavMenu />
+        </MudToolBar>
+        <MudSpacer></MudSpacer>
+        <MudAutocomplete InputMode="InputMode.search" DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true" Margin="Margin.Dense" Color="Color.Inherit" ResetValueOnEmptyText="true" MinCharacters="4" KeyDownPreventDefault="true" KeyUpPreventDefault="true" T="Item" Label="Parent / Student Name" SearchFuncWithCancel="@Search" ValueChanged="@LoadData" ShowProgressIndicator="true" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Inherit">
+            <ProgressIndicatorTemplate>
+                <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Info" />
+            </ProgressIndicatorTemplate>
+        </MudAutocomplete>
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+            <CascadingValue Name="ShowOverlay" Value="@ShowOverlay">
+                <CascadingValue Name="SelectedParentId" Value="@SelectedParentId">
+                    @Body
+                </CascadingValue>
+            </CascadingValue>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    public bool ShowOverlay { get; set; } = false;
+    public decimal? SelectedParentId { get; set; }
+    public Item searchCode { get; set; }
+
+    private async Task<IEnumerable<Item>> Search(string value, CancellationToken token)
+    {
+        await Task.Delay(1000);
+
+        if (string.IsNullOrEmpty(value))
+            return Enumerable.Empty<Item>();
+
+        ApiResult<AcademicLookups> parents = await lookupService.Get(Lookup.ParentsAndStudent, searchTerm: value);
+
+        if (parents.IsSuccess)
+            return parents.Data?.ParentsAndStudent ?? new();
+
+        return Enumerable.Empty<Item>();
+    }
+
+    private async Task LoadData(Item item)
+    {
+        if (item is not null)
+        {
+            Console.WriteLine(item.Name);
+            SelectedParentId = item.Id;
+            StateHasChanged();
+        }
+    }
+
+}

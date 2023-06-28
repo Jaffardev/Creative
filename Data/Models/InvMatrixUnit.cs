@@ -1,0 +1,54 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace Creative.Data.Models;
+
+[Table("inv_matrix_unit")]
+public partial class InvMatrixUnit
+{
+    [Key]
+    [Column("id", TypeName = "decimal(18, 0)")]
+    public decimal Id { get; set; }
+
+    [Column("code")]
+    [StringLength(15)]
+    [Unicode(false)]
+    public string? Code { get; set; }
+
+    [Column("matrix_id", TypeName = "decimal(18, 0)")]
+    public decimal? MatrixId { get; set; }
+
+    [Column("unit_id_1", TypeName = "decimal(18, 0)")]
+    public decimal? UnitId1 { get; set; }
+
+    [Column("unit_id_2", TypeName = "decimal(18, 0)")]
+    public decimal? UnitId2 { get; set; }
+
+    [Column("convertion", TypeName = "decimal(18, 5)")]
+    public decimal? Convertion { get; set; }
+
+    [Column("active")]
+    [StringLength(1)]
+    [Unicode(false)]
+    public string? Active { get; set; }
+
+    [Column("notes")]
+    [StringLength(500)]
+    [Unicode(false)]
+    public string? Notes { get; set; }
+
+    [Column("creation_by", TypeName = "decimal(18, 0)")]
+    public decimal? CreationBy { get; set; }
+
+    [Column("creation_date", TypeName = "datetime")]
+    public DateTime? CreationDate { get; set; }
+
+    [Column("modify_by", TypeName = "decimal(18, 0)")]
+    public decimal? ModifyBy { get; set; }
+
+    [Column("modify_date", TypeName = "datetime")]
+    public DateTime? ModifyDate { get; set; }
+}
