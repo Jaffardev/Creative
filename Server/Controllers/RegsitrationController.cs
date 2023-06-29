@@ -22,10 +22,38 @@ namespace Creative.Server.Controllers
             this._dbContext = dbContext;
         }
 
+        [HttpGet("GetNewCode")]
+        public async Task<ApiResult<decimal>> GetNewCode()
+        {
+            string code = (await _dbContext.AcpStudents.AsNoTracking().OrderByDescending(x => x.Id).FirstOrDefaultAsync())?.Code ?? "0";
+
+            if (decimal.TryParse(code, out decimal _code))
+                return new ApiResult<decimal>().Success(_code + 1);
+
+            return new ApiResult<decimal>().Success(1);
+        }
+
+
+        [HttpGet("{studentId:decimal}")]
+        public async Task<ApiResult<AdmissionModel>> GetStudent(decimal studentId)
+        {
+            var regStudent = await _dbContext.AcpStudents.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == studentId);
+
+            if (regStudent == null)
+            {
+                return new ApiResult<AdmissionModel>().Fail("Data not found");
+            }
+
+            return new ApiResult<AdmissionModel>().Success(regStudent?.Adapt<AdmissionModel>());
+        }
+
+
+
         [HttpGet("GetAll")]
         public async Task<IEnumerable<RegStudentModel>> GetStudent()
         {
-            return await _dbContext.RegStudents.AsNoTracking()
+            return await _dbContext.AcpStudents.AsNoTracking()
                 .OrderByDescending(x => x.Id).Select(x => new RegStudentModel()
                 {
                     Id = x.Id,
@@ -35,18 +63,18 @@ namespace Creative.Server.Controllers
                     Tel2 = x.Tel2,
                     ResedenceNo = x.ResedenceNo,
                     FinanceName = x.FinanceName,
-                    BranchId = x.AccBranchId,
-                    GradeId = x.AccGreadId,
-                    ClassId = x.AccClassId,
-                    YearId = x.AccYearId
+                    BranchId = x.CurBranchId,
+                    GradeId = x.CurGreadId,
+                    ClassId = x.CurClassId,
+                    YearId = x.CurYearId
                 }).Take(5).ToListAsync();
         }
 
 
         [HttpPost]
-        public async Task<ApiResult<bool>> Post([FromBody] AdmissionModel model)
+        public async Task<ApiResult<decimal>> Post([FromBody] AdmissionModel model)
         {
-            ApiResult<bool> result = new();
+            ApiResult<decimal> result = new();
             if (!ModelState.IsValid)
                 return result.Fail("Invalid Input");
 
@@ -55,15 +83,15 @@ namespace Creative.Server.Controllers
                 var student = new AcpStudent()
                 {
                     Code = model.Code,
-                    StuStatus = model.Status,
-                    ResponsibileId = model.ParentId,
-                    StuSex = model.Gender.ToString(),
+                    StuStatus = model.StuStatus,
+                    ParentId = model.ParentId,
+                    Gender = model.Gender.ToString(),
                     Name1 = $"{model.Name11} {model.Name12} {model.Name13} {model.Name14}",
                     Name2 = $"{model.Name21} {model.Name22} {model.Name23} {model.Name24}",
                     Notes = model.Notes,
                     DeptNotes = model.DeptNotes,
                     StuResult = model.Result,
-                    NationalId = model.NationalityId,
+                    NationalId = model.NationalId,
                     RelegionId = model.RelegionId,
                     StuType = model.StudentType.ToString(),
                     AcpDate = model.AdmissionDate?.ToDateTime(TimeOnly.MinValue),
@@ -142,7 +170,7 @@ namespace Creative.Server.Controllers
 
 
                 }
-                return result.Success(true);
+                return result.Success(student.Id);
             }
             //catch (DbEntityValidationException  ex)
             //{

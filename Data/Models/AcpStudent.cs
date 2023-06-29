@@ -157,7 +157,7 @@ public partial class AcpStudent
     [Column("stu_sex")]
     [StringLength(1)]
     [Unicode(false)]
-    public string? StuSex { get; set; }
+    public string? Gender { get; set; }
 
     [Column("national_id", TypeName = "decimal(18, 0)")]
     public decimal? NationalId { get; set; }
@@ -182,7 +182,7 @@ public partial class AcpStudent
     public DateTime? PassportEndDate { get; set; }
 
     [Column("responsibile_id", TypeName = "decimal(18, 0)")]
-    public decimal? ResponsibileId { get; set; }
+    public decimal? ParentId { get; set; }
 
     [Column("res_emp")]
     [StringLength(1)]
@@ -224,13 +224,13 @@ public partial class AcpStudent
     public decimal? PartId { get; set; }
 
     [Column("reg_date", TypeName = "datetime")]
-    public DateTime? RegDate { get; set; }
+    public DateTime? RegistrationDate { get; set; }
 
     [Column("join_date", TypeName = "datetime")]
     public DateTime? JoinDate { get; set; }
 
     [Column("come_gread_id", TypeName = "decimal(18, 0)")]
-    public decimal? ComeGreadId { get; set; }
+    public decimal? ComeGradeId { get; set; }
 
     [Column("cur_year_id", TypeName = "decimal(18, 0)")]
     public decimal? CurYearId { get; set; }
@@ -313,7 +313,7 @@ public partial class AcpStudent
     public decimal? CurBranchIdD { get; set; }
 
     [Column("cur_gread_id_d", TypeName = "decimal(18, 0)")]
-    public decimal? CurGreadIdD { get; set; }
+    public decimal? CurGradeIdD { get; set; }
 
     [Column("cur_class_id_d", TypeName = "decimal(18, 0)")]
     public decimal? CurClassIdD { get; set; }
@@ -340,10 +340,10 @@ public partial class AcpStudent
     [Column("helth_notes_1")]
     [StringLength(500)]
     [Unicode(false)]
-    public string? HealthNotes1 { get; set; }
+    public string? ExaminationResult { get; set; }
 
     [Column("helth_date_1", TypeName = "datetime")]
-    public DateTime? HealthDate1 { get; set; }
+    public DateTime? ExaminationDate { get; set; }
 
     [Column("helth_notes_2")]
     [StringLength(500)]
@@ -626,7 +626,7 @@ public partial class AcpStudent
     public string? AcpDirect { get; set; }
 
     [Column("acp_date", TypeName = "datetime")]
-    public DateTime? AcpDate { get; set; }
+    public DateTime? AdmissionDate { get; set; }
 
     [Column("Educational_decision")]
     [StringLength(50)]
@@ -641,7 +641,7 @@ public partial class AcpStudent
     [Column("Handicape_type")]
     [StringLength(100)]
     [Unicode(false)]
-    public string? HandicapeType { get; set; }
+    public string? DisablityAsPerTheDecision { get; set; }
 
     [Column("handicape_id", TypeName = "decimal(18, 0)")]
     public decimal? HandicapeId { get; set; }
@@ -657,7 +657,7 @@ public partial class AcpStudent
     [Column("edu_decision_no")]
     [StringLength(100)]
     [Unicode(false)]
-    public string? EduDecisionNo { get; set; }
+    public string? EducationDecisionNo { get; set; }
 
     [Column("edu_prove_date", TypeName = "datetime")]
     public DateTime? EduProveDate { get; set; }
@@ -674,17 +674,17 @@ public partial class AcpStudent
     public DateTime? EduProveEndDate { get; set; }
 
     [Column("handicape_certificate_id", TypeName = "decimal(18, 0)")]
-    public decimal? HandicapeCertificateId { get; set; }
+    public decimal? DisablityCertificateId { get; set; }
 
     [Column("mother_id_no")]
     [StringLength(20)]
     [Unicode(false)]
-    public string? MotherIdNo { get; set; }
+    public string? MotherCivilID { get; set; }
 
     [Column("acp_online")]
     [StringLength(1)]
     [Unicode(false)]
-    public string? AcpOnline { get; set; }
+    public string? OnlineStatus { get; set; }
 
     [Column("acp_approve")]
     [StringLength(1)]

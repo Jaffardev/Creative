@@ -1,4 +1,4 @@
-﻿namespace Creative.Data.Models;
+﻿namespace Creative.Shared.Models;
 
 public class RegStudentModel
 {

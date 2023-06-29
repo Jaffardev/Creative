@@ -32,6 +32,8 @@
         public IEnumerable<Item>? Employees { get; set; }
         public IEnumerable<Item>? ExamTypes { get; set; }
         public IEnumerable<Item>? Jobs { get; set; }
+        public IEnumerable<Item>? HandicapTypes { get; set; }
+
         public List<Item>? ParentsAndStudent { get; set; }
     }
 

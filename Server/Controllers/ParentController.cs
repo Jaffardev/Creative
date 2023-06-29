@@ -49,7 +49,7 @@ namespace Creative.Server.Controllers
 
                 //parent.Students = students.ProjectToType<StudentModel>();
 
-                parent.Students = (from student in _dbContext.AcpStudents.AsNoTracking().Where(x => x.ResponsibileId == parentId)
+                parent.Students = (from student in _dbContext.AcpStudents.AsNoTracking().Where(x => x.ParentId == parentId)
                                    join grade in _dbContext.RegGreads.AsNoTracking() on student.CurGreadId equals grade.Id
                                    join year in _dbContext.RegYears.AsNoTracking() on student.CurYearId equals year.Id
                                    join branch in _dbContext.RegBranches.AsNoTracking() on student.CurBranchId equals branch.Id

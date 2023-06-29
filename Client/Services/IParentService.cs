@@ -19,10 +19,7 @@ namespace Creative.Client.Services
         [Get($"{controller}")]
         Task<ApiResult<IEnumerable<ParentModel>>> GetAllParents(string? searchTerm = "", string? sortColumn = "", string? sortOrder = "", int page = 1, int pageSize = 5);
 
-
         [Get(controller + "{parentId}")]
         Task<ApiResult<ParentModel>> GetParent(decimal parentId);
-
-
     }
 }

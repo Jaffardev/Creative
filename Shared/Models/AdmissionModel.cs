@@ -4,8 +4,8 @@ public class AdmissionModel
 {
     public decimal Id { get; set; }
     public string? Code { get; set; }
-    public string? Status { get; set; }
-    public int? ParentId { get; set; } 
+    public StudentStatus? StuStatus { get; set; }
+    public int? ParentId { get; set; }
     public int? Gender { get; set; }
 
     public string? Name1 { get; set; }
@@ -22,54 +22,71 @@ public class AdmissionModel
     public string? Name25 { get; set; }
     public string? Notes { get; set; }
     public string? DeptNotes { get; set; }
-    public string? Result { get; set; }
-    public int? NationalityId { get; set; } 
+    public StudentResult? Result { get; set; }
+    public int? NationalId { get; set; }
+    public Item? SelectedNational { get; set; }
+
     public int? RelegionId { get; set; }
+    public Item? SelectedRelegion { get; set; }
     public int? StudentType { get; set; }
     public int? AgeAtAdmission { get; set; }
     public int? Age { get; set; }
     public string? LastYearClass { get; set; }
     public string? LastModifiedBy { get; set; }
-    public DateOnly? LastModifiedDate { get; set; }
-    public DateOnly? AdmissionDate { get; set; }
-    public DateOnly? RegistrationDate { get; set; }
-    public DateOnly? JoinDate { get; set; }
-    public int? NextBranch { get; set; }
-    public int? NextGrade { get; set; }
-    public int? NextYear { get; set; }
-    public int? Branch { get; set; }
-    public int? Grade { get; set; }
-    public int? Year { get; set; }
-    public int? Class{ get; set; }
-    public DateOnly? ExaminationDate { get; set; }
+    public DateTime? LastModifiedDate { get; set; }
+    public DateTime? AdmissionDate { get; set; }
+    public DateTime? RegistrationDate { get; set; }
+    public DateTime? JoinDate { get; set; }
+    public int? ComeBranchId { get; set; }
+    public Item? ComeBranch { get; set; }
+
+    public int? ComeGradeId { get; set; }
+    public Item? ComeGrade { get; set; }
+
+    public int? ComeYearId { get; set; }
+    public Item? ComeYear { get; set; }
+
+    public int? CurBranchIdD { get; set; }
+    public Item? CurBranch { get; set; }
+
+    public int? CurGradeIdD { get; set; }
+    public Item? CurGrade { get; set; }
+
+    public int? CurYearId { get; set; }
+    public Item? CurYear { get; set; }
+
+    public int? CurClassId { get; set; }
+    public Item? CurClass { get; set; }
+
+    public DateTime? ExaminationDate { get; set; }
     public bool HealthStatus { get; set; }
     public string? ExaminationResult { get; set; }
-    public string? FileNumber { get; set; }
+    public string? HealthFileNo { get; set; }
     public string? EducationDecisionNo { get; set; }
     public string? DisablityAsPerTheDecision { get; set; }
-    public DateOnly? DecisionDate { get; set; }
-    public DateOnly? DecisionDateEnd { get; set; }
+    public DateTime? EduDecisionDate { get; set; }
+    public DateTime? NextVisitDate { get; set; }
 
-    public string? DisablityCertificate { get; set; }
-    public DateOnly? CertificateDate { get; set; }
-    public DateOnly? CertificateDateEnd { get; set; }
+    public string? DisablityCertificateId { get; set; }
+    public DateTime? EduProveDate { get; set; }
+    public DateTime? EduProveEndDate { get; set; }
 
     public string? MotherName { get; set; }
     public string? MotherCivilID { get; set; }
     public string? Tel1 { get; set; }
-    public string? Tel2{ get; set; }
+    public string? Tel2 { get; set; }
     public string? Email { get; set; }
-    public string? Address { get; set; }
-    public DateOnly? PassportDate { get; set; }
-    public DateOnly? BirthDate { get; set; }
+    public string? Address1 { get; set; }
+    public DateTime? PassportDate { get; set; }
+    public DateTime? BirthDate { get; set; }
 
-    
+
     public string? BirthPlace { get; set; }
     public string? BirthDocPlace { get; set; }
     public string? CertificateNumber { get; set; }
     public string? IdNumber { get; set; }
-    public DateOnly? EndDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public int? EmployeeId { get; set; }
-
+    public OnlineStatus OnlineStatus { get; set; }
     public List<ExamEditModel> Exams { get; set; } = new();
 }

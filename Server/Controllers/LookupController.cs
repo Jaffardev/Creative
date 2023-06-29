@@ -265,9 +265,24 @@ namespace Creative.Server.Controllers
             try
             {
                 List<Item>? grades = null, branches = null, years = null, classes = null, parents = null,
-                    religions = null, nationals = null, employees = null, examTypes = null, Jobs = null, parentsAndStudent = null;
+                    religions = null, nationals = null, employees = null, examTypes = null, Jobs = null, parentsAndStudent = null, handicapTypes;
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
+
+                if (lookup is (Lookup.HandicapType or Lookup.All))
+                {
+                    handicapTypes = await GetCache<List<Item>>(nameof(handicapTypes));
+                    if (handicapTypes is null)
+                    {
+                        handicapTypes = await _dbContext.RegHandicapeTypes.AsNoTracking().Select(x => new Item()
+                        {
+                            Id = x.Id,
+                            Name = x.Name1
+                        }).ToListAsync();
+
+                        await SetCache(nameof(handicapTypes), handicapTypes);
+                    }
+                }
 
                 if (lookup is (Lookup.Jobs or Lookup.All))
                 {
@@ -377,13 +392,17 @@ namespace Creative.Server.Controllers
                         parentsQuery = parentsQuery.Union(_dbContext.AcpResponsibiles.AsNoTracking().Select(x => new { x.Id, x.Name1, x.Name2, x.Code, x.IdNo, Identity = Identity.Parent }));
                     }
 
-                    parentsAndStudent = await parentsQuery.Where(x => searchTerm == "" || (searchTerm != null && (x.Name1.Contains(searchTerm) || x.IdNo.Contains(searchTerm) || x.Name2.Contains(searchTerm))))
+                    parentsAndStudent = await parentsQuery.Where(x => searchTerm == "" ||
+                    (searchTerm != null && (x.Name1.Contains(searchTerm) ||
+                    x.IdNo.Trim().Equals(searchTerm) ||
+                    x.Name2.Trim().StartsWith(searchTerm) ||
+                    x.Code.Trim().Equals(searchTerm))))
                                 .Skip((page - 1) * pageSize)
                                 .Take(pageSize)
                                 .Select(x => new Item()
                                 {
                                     Id = x.Id,
-                                    Name = x.Name1,
+                                    Name = x.Name1.Trim(),
                                     Identity = x.Identity
                                 }).ToListAsync();
                 }
@@ -449,6 +468,7 @@ namespace Creative.Server.Controllers
                     Employees = employees,
                     ExamTypes = examTypes,
                     ParentsAndStudent = parentsAndStudent,
+                    HandicapTypes=handicapTypes,
                     ExecutedIn = stopwatch.ElapsedMilliseconds
                 });
             }

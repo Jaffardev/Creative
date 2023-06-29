@@ -7,9 +7,12 @@
 @inject NavigationManager navManager;
 @inject ILookupService _lookupService;
 @inject IParentService _parentService;
+@inject IStudentService _studentService;
+@inject IDialogService DialogService;
 @inject ISnackbar Snackbar
 
-@if (IsParentDataLoaded && model is { Code: { } })
+
+@if (IsDataLoaded && model is { Code: { } })
 {
     <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
         <DataAnnotationsValidator />
@@ -25,38 +28,7 @@
                         <MudTextField ReadOnly="true" Label="Code" InputType="InputType.Number" @bind-Value="model.Code" For="@(() => model.Code)" HideSpinButtons="true" />
                     </MudItem>
 
-                    @* <MudItem xs="6">
-                <MudStack Row=true Justify="Justify.SpaceEvenly">
-                <MudTextField Label="First Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                @bind-Value="model.Name11" For="@(() => model.Name11)" />
-
-                <MudTextField Label="Mid Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                @bind-Value="model.Name12" For="@(() => model.Name12)" />
-
-                <MudTextField Label="Last Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                @bind-Value="model.Name13" For="@(() => model.Name13)" />
-
-                <MudTextField Label="Family Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                @bind-Value="model.Name14" For="@(() => model.Name14)" />
-                </MudStack>
-                </MudItem>
-                <MudItem xs="6">
-                <MudStack Row=true Justify="Justify.SpaceEvenly">
-                <MudTextField Label="First Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                @bind-Value="model.Name11" For="@(() => model.Name11)" />
-
-                <MudTextField Label="Mid Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                @bind-Value="model.Name12" For="@(() => model.Name12)" />
-
-                <MudTextField Label="Last Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                @bind-Value="model.Name13" For="@(() => model.Name13)" />
-
-                <MudTextField Label="Family Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                @bind-Value="model.Name14" For="@(() => model.Name14)" />
-                </MudStack>
-                </MudItem>*@
                     <MudItem xs="12">
-                        @*<MudField Label="Arabic Name" Variant="Variant.Outlined" DisableUnderLine="true" Margin="Margin.Dense">*@
                         <MudGrid>
                             <MudItem xs="6" sm="3">
                                 <MudTextField Label="First Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
@@ -75,11 +47,9 @@
                                 @bind-Value="model.Name14" For="@(() => model.Name14)" />
                             </MudItem>
                         </MudGrid>
-                        @*</MudField>*@
                     </MudItem>
 
                     <MudItem xs="12">
-                        @*<MudField Label="English Name" Variant="Variant.Outlined" DisableUnderLine="true" Margin="Margin.Dense">*@
                         <MudGrid>
                             <MudItem xs="6" sm="3">
                                 <MudTextField Label="First Name (En)" Margin="Margin.Dense" InputType="InputType.Text"
@@ -98,7 +68,6 @@
                                 @bind-Value="model.Name24" For="@(() => model.Name24)" />
                             </MudItem>
                         </MudGrid>
-                        @*</MudField>*@
                     </MudItem>
 
                     <MudItem xs="3">
@@ -213,7 +182,7 @@
     </MudDataGrid>
 </MudStack>
 }
-else if (IsParentDataLoaded)
+else if (IsDataLoaded)
 {
     <span>Parent data not found !. do you want to create new profile ? </span>
     <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">New</MudButton>
@@ -224,45 +193,89 @@ else
 }
 
 
+@*<MudDialog>
+    <DialogContent>
+        <div class="d-flex flex-column py-1">
+            <MudButton OnClick="ChangeTitle">Change Title</MudButton>
+            <MudButton OnClick="ToggleCloseButton">Toggle Close Button</MudButton>
+            <MudButton OnClick="ToggleFullWidth">Toggle Full Width</MudButton>
+            <MudButton OnClick="ToggleHeader">Toggle Header</MudButton>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
+    </DialogActions>
+</MudDialog>*@
+
 
 @code {
     [Parameter]
     [SupplyParameterFromQuery(Name = "parentId")]
     public decimal ParentId { get; set; } = 0;
 
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "studentId")]
+    public decimal StudentId { get; set; } = 0;
+
     [CascadingParameter]
     public bool ShowOverlay { get; set; }
 
-    [CascadingParameter]
-    public decimal SelectedParentId { get; set; } = 0;
+    [CascadingParameter(Name = "SelectedCustomer")]
+    public Item? SelectedCustomer { get; set; }
 
-    public bool IsParentDataLoaded { get; set; } = true;
-
+    public bool IsDataLoaded { get; set; } = true;
+    public bool IsFirstRender { get; set; } = true;
+     DataItem<AcademicLookups> lookups { get; set; } = new();
     ParentModel model = null;
+    AdmissionModel studentModel = null;
 
     protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine(ParentId);
+        LoadFormData();
+        IsFirstRender = false;
+    }
+
+    protected override void OnParametersSet()
+    {
+        LoadFormData();
+    }
+
+    private void OpenStudentForm()
+    {
+        var dialogParam = new DialogParameters<StudentAdmission>();
+        dialogParam.Add((x) => x.model, studentModel);
+        dialogParam.Add((x) => x.lookups, lookups);
+
+        DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true };
+
+        DialogService.Show<StudentAdmission>("Sttudent Data", parameters: dialogParam, options: closeOnEscapeKey);
+    }
+
+    private async Task LoadFormData()
+    {
+        if (SelectedCustomer is { Id: > 0 })
+        {
+            if (SelectedCustomer.Identity == Identity.Parent)
+                ParentId = (decimal)SelectedCustomer.Id;
+            else
+                StudentId = (decimal)SelectedCustomer.Id;
+        }
 
         if (ParentId > 0)
-            await LoadParentData();
+            await LoadParentData(ParentId);
+        else if (StudentId > 0)
+            await LoadStudentData(StudentId);
         else
-            await SetForm();
-
+            await SetFormData();
     }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        Snackbar.Add($"New Parent {SelectedParentId}", Severity.Info);
-        await Task.CompletedTask;
-    }
 
     private async Task GetCode()
     {
         var result = await _parentService.GetNewCode();
         if (result.IsSuccess)
         {
-            await SetForm();
+            await SetFormData();
             model.Code = result.Data.ToString();
         }
         else
@@ -271,15 +284,18 @@ else
         }
     }
 
-    private async Task SetForm(ParentModel? _model = null)
+    private async Task SetFormData(ParentModel? _model = null, RegStudentModel? studentModel = null)
     {
-        await LoadDropDowns();
-        IsParentDataLoaded = true;
+        if (IsFirstRender)
+            await LoadDropDowns();
+
+        IsDataLoaded = true;
         model = _model ?? new();
+        studentModel = studentModel ?? new();
         await Task.CompletedTask;
     }
 
-   
+
 
     private async Task AddNewStudent()
     {
@@ -292,18 +308,45 @@ else
 
     }
 
-
-    private async Task LoadParentData()
+    private async Task LoadParentData(decimal id)
     {
-        IsParentDataLoaded = false;
-        var parentResult = await _parentService.GetParent(ParentId);
-        await SetForm(parentResult.Data);
-
+        Snackbar.Add($"Loading Parent Data. please wait..", Severity.Info);
+        IsDataLoaded = false;
         StateHasChanged();
+        var parentResult = await _parentService.GetParent(id);
+
+        if (!parentResult.IsSuccess)
+        {
+            Snackbar.Add($"Parent data not found!", Severity.Info);
+            return;
+        }
+
+        await SetFormData(parentResult.Data);
+        StateHasChanged();
+
+    }
+
+    private async Task LoadStudentData(decimal id)
+    {
+        Snackbar.Add($"Loading Student Data. please wait..", Severity.Info);
+        IsDataLoaded = false;
+        StateHasChanged();
+        var studentResult = await _studentService.GetStudent(id);
+
+        if (!studentResult.IsSuccess)
+        {
+            Snackbar.Add($"Student data not found!", Severity.Info);
+            return;
+        }
+
+        await SetFormData(studentModel: studentResult.Data);
+        OpenStudentForm();
+        StateHasChanged();
+
     }
 
 
-    DataItem<AcademicLookups> lookups { get; set; } = new();
+   
     private async Task LoadDropDowns()
     {
         lookups.Loading();
@@ -319,7 +362,16 @@ else
 
     private async void OnValidSubmit(EditContext context)
     {
+
+        bool? isConfirm = await DialogService.ShowMessageBox(
+            "Confirm",
+            "Are you sude you want to save?",
+            yesText: "Yes", cancelText: "Cancel", options: new DialogOptions() { DisableBackdropClick = true });
+
+        if (!(isConfirm ?? false)) return;
+
         ShowOverlay = true;
+        StateHasChanged();
         var result = await _parentService.NewEditParent(model);
         if (result.IsSuccess)
         {

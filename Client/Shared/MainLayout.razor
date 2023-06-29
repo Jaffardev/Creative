@@ -9,6 +9,7 @@
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
+<MudMessageBox/>
 <MudOverlay @bind-Visible="ShowOverlay" DarkBackground="true" ZIndex="9999" />
 <MudLayout>
     <MudAppBar Color="Color.Inherit" Fixed="false" Dense="true">
@@ -17,7 +18,12 @@
             <NavMenu />
         </MudToolBar>
         <MudSpacer></MudSpacer>
-        <MudAutocomplete InputMode="InputMode.search" DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true" Margin="Margin.Dense" Color="Color.Inherit" ResetValueOnEmptyText="true" MinCharacters="4" KeyDownPreventDefault="true" KeyUpPreventDefault="true" T="Item" Label="Parent / Student Name" SearchFuncWithCancel="@Search" ValueChanged="@LoadData" ShowProgressIndicator="true" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Inherit">
+        <MudAutocomplete InputMode="InputMode.search" DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true" Margin="Margin.Dense" Color="Color.Inherit" ResetValueOnEmptyText="true" MinCharacters="1" KeyDownPreventDefault="true" KeyUpPreventDefault="true" T="Item" Label="Parent / Student Name" SearchFuncWithCancel="@Search" ValueChanged="@LoadData" ShowProgressIndicator="true" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Inherit">
+            <ItemTemplate Context="e">
+                <MudText>
+                    <MudIcon Icon="@(e.Identity==Identity.Parent? Icons.Material.Filled.Man :Icons.Material.Filled.Face)" Class="mb-n1 mr-3" />@($"{e.Name} ({e.Identity.ToString()})")
+                </MudText>
+            </ItemTemplate>
             <ProgressIndicatorTemplate>
                 <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Info" />
             </ProgressIndicatorTemplate>
@@ -26,7 +32,7 @@
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <CascadingValue Name="ShowOverlay" Value="@ShowOverlay">
-                <CascadingValue Name="SelectedParentId" Value="@SelectedParentId">
+                <CascadingValue Name="SelectedCustomer" Value="@SelectedCustomer">
                     @Body
                 </CascadingValue>
             </CascadingValue>
@@ -36,8 +42,7 @@
 
 @code {
     public bool ShowOverlay { get; set; } = false;
-    public decimal? SelectedParentId { get; set; }
-    public Item searchCode { get; set; }
+    public Item? SelectedCustomer { get; set; } = new();
 
     private async Task<IEnumerable<Item>> Search(string value, CancellationToken token)
     {
@@ -59,8 +64,8 @@
         if (item is not null)
         {
             Console.WriteLine(item.Name);
-            SelectedParentId = item.Id;
-            StateHasChanged();
+            SelectedCustomer = item;
+            //StateHasChanged();
         }
     }
 
