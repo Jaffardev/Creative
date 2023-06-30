@@ -41,13 +41,14 @@ namespace Creative.Shared.Models
     ////stu_status intial value
     public enum StudentStatus
     {
+        None = default,
         Registered = 1,
+        Transfer = 2,
         Suspended = 3,
         Withdrawn = 4,
         ReservationAndNotPaid = 6,
         RegistrationInProgress = 7,
         NotReRegister = 8,
-        Transfer = 2,
         Graduates = 9,
     }
     public enum StudentResult
@@ -73,8 +74,8 @@ namespace Creative.Shared.Models
     ////accepted intial value
     public enum AcceptedInitialValue
     {
-        UnderTest = 2,
         Rejected = 0,
+        UnderTest = 2,
         Acceptable = 1,
     }
 }

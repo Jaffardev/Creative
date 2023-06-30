@@ -13,4 +13,7 @@ public interface ILookupService
 
     [Get($"{controller}{nameof(Many)}")]
     Task<ApiResult<AcademicLookups>> Many(Lookup[] lookups, string? searchTerm = "", int page = 1, int pageSize = 5);
+
+    [Get($"{controller}{nameof(GetClass)}")]
+    Task<ApiResult<IEnumerable<Item>>> GetClass(decimal gradeId, decimal branchId, string gender);
 }

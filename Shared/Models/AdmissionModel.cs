@@ -4,7 +4,7 @@ public class AdmissionModel
 {
     public decimal Id { get; set; }
     public string? Code { get; set; }
-    public StudentStatus? StuStatus { get; set; }
+    public int? StuStatus { get; set; }
     public int? ParentId { get; set; }
     public int? Gender { get; set; }
 
@@ -22,7 +22,7 @@ public class AdmissionModel
     public string? Name25 { get; set; }
     public string? Notes { get; set; }
     public string? DeptNotes { get; set; }
-    public StudentResult? Result { get; set; }
+    public int? Result { get; set; }
     public int? NationalId { get; set; }
     public Item? SelectedNational { get; set; }
 
@@ -38,36 +38,32 @@ public class AdmissionModel
     public DateTime? RegistrationDate { get; set; }
     public DateTime? JoinDate { get; set; }
     public int? ComeBranchId { get; set; }
-    public Item? ComeBranch { get; set; }
 
-    public int? ComeGradeId { get; set; }
-    public Item? ComeGrade { get; set; }
+    public decimal? ComeGradeId { get; set; }
 
     public int? ComeYearId { get; set; }
-    public Item? ComeYear { get; set; }
 
-    public int? CurBranchIdD { get; set; }
-    public Item? CurBranch { get; set; }
+    public int? CurBranchId { get; set; }
 
-    public int? CurGradeIdD { get; set; }
-    public Item? CurGrade { get; set; }
+    public int? CurGradeId { get; set; }
 
     public int? CurYearId { get; set; }
-    public Item? CurYear { get; set; }
 
     public int? CurClassId { get; set; }
-    public Item? CurClass { get; set; }
 
     public DateTime? ExaminationDate { get; set; }
+
     public bool HealthStatus { get; set; }
+
     public string? ExaminationResult { get; set; }
     public string? HealthFileNo { get; set; }
     public string? EducationDecisionNo { get; set; }
-    public string? DisablityAsPerTheDecision { get; set; }
+    public decimal? DisablityAsPerTheDecisionId { get; set; }
     public DateTime? EduDecisionDate { get; set; }
     public DateTime? NextVisitDate { get; set; }
 
-    public string? DisablityCertificateId { get; set; }
+    public decimal? DisablityCertificateId { get; set; }
+
     public DateTime? EduProveDate { get; set; }
     public DateTime? EduProveEndDate { get; set; }
 
@@ -86,7 +82,30 @@ public class AdmissionModel
     public string? CertificateNumber { get; set; }
     public string? IdNumber { get; set; }
     public DateTime? EndDate { get; set; }
-    public int? EmployeeId { get; set; }
-    public OnlineStatus OnlineStatus { get; set; }
+    public decimal? EmpId { get; set; }
+    public int? OnlineStatus { get; set; }
     public List<ExamEditModel> Exams { get; set; } = new();
+
+
+    public bool AcpDirect { get; set; }
+
+    public bool AcpApprove { get; set; }
+
+    public bool AcpRecommend { get; set; }
+
+    public bool AcpTransferCertificate { get; set; }
+
+    public bool BrotherAcp { get; set; }
+
+    public bool AcpEquivalencyCertificate { get; set; }
+
+    public bool BrotherReg { get; set; }
+
+    public bool AcpClearance { get; set; }
+
+    public bool AcpHealthFile { get; set; }
+
+    public bool ResEmp { get; set; }
+
+
 }

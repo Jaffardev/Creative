@@ -641,10 +641,10 @@ public partial class AcpStudent
     [Column("Handicape_type")]
     [StringLength(100)]
     [Unicode(false)]
-    public string? DisablityAsPerTheDecision { get; set; }
+    public string? HandicapeType { get; set; }
 
     [Column("handicape_id", TypeName = "decimal(18, 0)")]
-    public decimal? HandicapeId { get; set; }
+    public decimal? DisablityAsPerTheDecision { get; set; }
 
     [Column("dept_notes")]
     [StringLength(500)]
@@ -726,5 +726,5 @@ public partial class AcpStudent
     [Unicode(false)]
     public string? GadaNo { get; set; }
 
-    
+
 }

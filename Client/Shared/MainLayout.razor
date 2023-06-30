@@ -2,14 +2,14 @@
 @using Creative.Shared.Models;
 @using Creative.Shared;
 @using MudBlazor
-@inherits LayoutComponentBase
 
+@inherits LayoutComponentBase
 @inject ILookupService lookupService
 
-<MudThemeProvider />
 <MudDialogProvider />
+<MudThemeProvider />
 <MudSnackbarProvider />
-<MudMessageBox/>
+<MudMessageBox />
 <MudOverlay @bind-Visible="ShowOverlay" DarkBackground="true" ZIndex="9999" />
 <MudLayout>
     <MudAppBar Color="Color.Inherit" Fixed="false" Dense="true">
@@ -18,16 +18,24 @@
             <NavMenu />
         </MudToolBar>
         <MudSpacer></MudSpacer>
-        <MudAutocomplete InputMode="InputMode.search" DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true" Margin="Margin.Dense" Color="Color.Inherit" ResetValueOnEmptyText="true" MinCharacters="1" KeyDownPreventDefault="true" KeyUpPreventDefault="true" T="Item" Label="Parent / Student Name" SearchFuncWithCancel="@Search" ValueChanged="@LoadData" ShowProgressIndicator="true" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Inherit">
+        <MudAutocomplete IconSize="Size.Medium" InputMode="InputMode.search" DebounceInterval="500" Clearable="true"
+            AutoFocus="true" Immediate="false" Dense="true" Margin="Margin.Dense" Color="Color.Inherit"
+            ResetValueOnEmptyText="true" MinCharacters="1" KeyDownPreventDefault="true" KeyUpPreventDefault="true"
+            T="Item" Placeholder="Parent / Student Name" Variant="Variant.Outlined"
+            AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Inherit" SearchFuncWithCancel="@Search"
+            ValueChanged="@LoadData" ShowProgressIndicator="true">
             <ItemTemplate Context="e">
                 <MudText>
-                    <MudIcon Icon="@(e.Identity==Identity.Parent? Icons.Material.Filled.Man :Icons.Material.Filled.Face)" Class="mb-n1 mr-3" />@($"{e.Name} ({e.Identity.ToString()})")
+                    <MudIcon
+                        Icon="@(e.Identity==Identity.Parent? Icons.Material.Filled.Man :Icons.Material.Filled.Face)"
+                        Class="mb-n1 mr-3" />@($"{e.Name} ({e.Identity.ToString()})")
                 </MudText>
             </ItemTemplate>
-            <ProgressIndicatorTemplate>
-                <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Info" />
-            </ProgressIndicatorTemplate>
+            @* <ProgressIndicatorTemplate>
+            <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Info" />
+            </ProgressIndicatorTemplate>*@
         </MudAutocomplete>
+        <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
     </MudAppBar>
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
@@ -65,7 +73,7 @@
         {
             Console.WriteLine(item.Name);
             SelectedCustomer = item;
-            //StateHasChanged();
+            StateHasChanged();
         }
     }
 

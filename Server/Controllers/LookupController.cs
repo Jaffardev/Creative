@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Refit;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.Json;
+using static MudBlazor.Defaults;
 
 namespace Creative.Server.Controllers
 {
@@ -265,7 +267,7 @@ namespace Creative.Server.Controllers
             try
             {
                 List<Item>? grades = null, branches = null, years = null, classes = null, parents = null,
-                    religions = null, nationals = null, employees = null, examTypes = null, Jobs = null, parentsAndStudent = null, handicapTypes;
+                    religions = null, nationals = null, employees = null, examTypes = null, Jobs = null, parentsAndStudent = null, handicapTypes = null;
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -313,19 +315,7 @@ namespace Creative.Server.Controllers
                     }
                 }
 
-                if (lookup is (Lookup.All or Lookup.Classes))
-                {
-                    classes = await GetCache<List<Item>>(nameof(classes));
-                    if (classes is null)
-                    {
-                        classes = await _dbContext.RegClasses.AsNoTracking().Select(x => new Item()
-                        {
-                            Id = x.Id,
-                            Name = x.Name1
-                        }).ToListAsync();
-                        await SetCache(nameof(classes), classes);
-                    }
-                }
+
 
                 if (lookup is (Lookup.All or Lookup.Grades))
                 {
@@ -468,7 +458,7 @@ namespace Creative.Server.Controllers
                     Employees = employees,
                     ExamTypes = examTypes,
                     ParentsAndStudent = parentsAndStudent,
-                    HandicapTypes=handicapTypes,
+                    HandicapTypes = handicapTypes,
                     ExecutedIn = stopwatch.ElapsedMilliseconds
                 });
             }
@@ -476,6 +466,25 @@ namespace Creative.Server.Controllers
             {
                 return result.Fail(ex.Message);
             }
+        }
+
+        [HttpGet("GetClass")]
+        public async Task<ApiResult<IEnumerable<Item>>> GetClass(decimal gradeId, decimal branchId, string gender)
+        {
+
+            IEnumerable<Item> classes = await GetCache<IEnumerable<Item>>(nameof(classes));
+
+            if (classes is null)
+            {
+                classes = await _dbContext.RegClasses.AsNoTracking().Select(x => new Item()
+                {
+                    Id = x.Id,
+                    Name = x.Name1
+                }).ToListAsync();
+                await SetCache(nameof(classes), classes);
+            }
+
+            return new ApiResult<IEnumerable<Item>>().Success(classes);
         }
     }
 

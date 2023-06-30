@@ -21,6 +21,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDistributedMemoryCache();
+builder.Services.RegisterMapsterConfiguration();
 
 var app = builder.Build();
 

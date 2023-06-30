@@ -25,7 +25,8 @@
                     </MudItem>
 
                     <MudItem xs="6">
-                        <MudTextField ReadOnly="true" Label="Code" InputType="InputType.Number" @bind-Value="model.Code" For="@(() => model.Code)" HideSpinButtons="true" />
+                        <MudTextField ReadOnly="true" Label="Code" InputType="InputType.Number" @bind-Value="model.Code"
+                            For="@(() => model.Code)" HideSpinButtons="true" />
                     </MudItem>
 
                     <MudItem xs="12">
@@ -77,7 +78,8 @@
                         }
                         @if (lookups.Status == DataStatus.Loaded)
                         {
-                            <MudSelect T="Item" Label="Nationality" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.SelectedNationality">
+                            <MudSelect T="Item" Label="Nationality" AnchorOrigin="Origin.BottomCenter"
+                            @bind-Value="model.SelectedNationality">
                                 @foreach (var item in lookups.Data.Nationals)
                                 {
                                     <MudSelectItem T="Item" Value="@item">@item.Name</MudSelectItem>
@@ -108,8 +110,8 @@
                     </MudItem>
 
                     <MudItem xs="3">
-                        <MudTextField Label="Civil ID" Margin="Margin.Dense" HideSpinButtons="true"
-                        @bind-Value="model.IdNo" For="@(() => model.IdNo)" InputType="InputType.Number" />
+                        <MudTextField Label="Civil ID" Margin="Margin.Dense" HideSpinButtons="true" @bind-Value="model.IdNo"
+                            For="@(() => model.IdNo)" InputType="InputType.Number" />
                     </MudItem>
 
                     <MudItem xs="3">
@@ -118,24 +120,27 @@
                     </MudItem>
 
                     <MudItem xs="3">
-                        <MudTextField Label="Tel1" Margin="Margin.Dense" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Smartphone"
-                        @bind-Value="model.Tel1" For="@(() => model.Tel1)" InputType="InputType.Telephone" />
+                        <MudTextField Label="Tel1" Margin="Margin.Dense" Adornment="Adornment.Start"
+                            AdornmentIcon="@Icons.Material.Filled.Smartphone" @bind-Value="model.Tel1"
+                            For="@(() => model.Tel1)" InputType="InputType.Telephone" />
                     </MudItem>
 
                     <MudItem xs="3">
-                        <MudTextField Label="Tel2" Margin="Margin.Dense" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Smartphone"
-                        @bind-Value="model.Tel2" For="@(() => model.Tel2)" InputType="InputType.Telephone" />
+                        <MudTextField Label="Tel2" Margin="Margin.Dense" Adornment="Adornment.Start"
+                            AdornmentIcon="@Icons.Material.Filled.Smartphone" @bind-Value="model.Tel2"
+                            For="@(() => model.Tel2)" InputType="InputType.Telephone" />
                     </MudItem>
 
                     <MudItem xs="3">
-                        <MudTextField Label="Address" Margin="Margin.Dense" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.House"
-                        @bind-Value="model.Address1" For="@(() => model.Address1)" InputType="InputType.Text" />
+                        <MudTextField Label="Address" Margin="Margin.Dense" Adornment="Adornment.Start"
+                            AdornmentIcon="@Icons.Material.Filled.House" @bind-Value="model.Address1"
+                            For="@(() => model.Address1)" InputType="InputType.Text" />
                     </MudItem>
 
 
                     <MudItem xs="3">
-                        <MudTextField Label="Dept Chat" Margin="Margin.Dense" Lines="3"
-                        @bind-Value="model.Notes" For="@(() => model.Notes)" InputType="InputType.Text" />
+                        <MudTextField Label="Dept Chat" Margin="Margin.Dense" Lines="3" @bind-Value="model.Notes"
+                            For="@(() => model.Notes)" InputType="InputType.Text" />
                     </MudItem>
                     <MudItem>
                         <ValidationSummary />
@@ -146,7 +151,8 @@
                 <MudStack Row="true" Justify="Justify.FlexStart">
                     @if (decimal.TryParse(model.Code, out decimal _code) && _code > 0)
                     {
-                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary"
+                            Class="ml-auto">Save</MudButton>
                         if (model.Id > 0)
                         {
                             <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-auto">Delete</MudButton>
@@ -154,16 +160,18 @@
                     }
                     else
                     {
-                        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">New</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
+                            New</MudButton>
                     }
                 </MudStack>
             </MudCardActions>
         </MudCard>
     </EditForm>
 
-    <MudStack Row="true">
+    <MudStack>
         <MudButton OnClick="@AddNewStudent" Color="@Color.Success" Class="add-item-btn">Add New Student</MudButton>
-        <MudDataGrid T="StudentModel" Items="@model.Students" Filterable="false" SortMode="@SortMode.None" Context="student" Groupable="false">
+        <MudDataGrid T="StudentModel" Items="@model.Students" Filterable="false" SortMode="@SortMode.None" Context="student"
+            Groupable="false">
             <Columns>
                 <PropertyColumn Property="x => x.Status" />
                 <PropertyColumn Property="x => x.Section" />
@@ -174,13 +182,14 @@
                 <TemplateColumn CellClass="d-flex justify-end">
                     <CellTemplate>
                         <MudStack Row>
-                        <MudButton Size="@Size.Small" Variant="@Variant.Filled" OnClick="@(()=> ViewStudent(context.Item.Id))" Color="@Color.Primary">View/Edit</MudButton>
-                    </MudStack>
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-    </MudDataGrid>
-</MudStack>
+                         <MudButton Size="@Size.Small" Variant="@Variant.Filled"
+                             OnClick="@(()=> ViewStudent(context.Item.Id))" Color="@Color.Primary">View/Edit</MudButton>
+                     </MudStack>
+                 </CellTemplate>
+             </TemplateColumn>
+         </Columns>
+     </MudDataGrid>
+ </MudStack>
 }
 else if (IsDataLoaded)
 {
@@ -194,17 +203,17 @@ else
 
 
 @*<MudDialog>
-    <DialogContent>
-        <div class="d-flex flex-column py-1">
-            <MudButton OnClick="ChangeTitle">Change Title</MudButton>
-            <MudButton OnClick="ToggleCloseButton">Toggle Close Button</MudButton>
-            <MudButton OnClick="ToggleFullWidth">Toggle Full Width</MudButton>
-            <MudButton OnClick="ToggleHeader">Toggle Header</MudButton>
-        </div>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
-    </DialogActions>
+<DialogContent>
+<div class="d-flex flex-column py-1">
+<MudButton OnClick="ChangeTitle">Change Title</MudButton>
+<MudButton OnClick="ToggleCloseButton">Toggle Close Button</MudButton>
+<MudButton OnClick="ToggleFullWidth">Toggle Full Width</MudButton>
+<MudButton OnClick="ToggleHeader">Toggle Header</MudButton>
+</div>
+</DialogContent>
+<DialogActions>
+<MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
+</DialogActions>
 </MudDialog>*@
 
 
@@ -225,30 +234,29 @@ else
 
     public bool IsDataLoaded { get; set; } = true;
     public bool IsFirstRender { get; set; } = true;
-     DataItem<AcademicLookups> lookups { get; set; } = new();
+    DataItem<AcademicLookups> lookups { get; set; } = new();
     ParentModel model = null;
     AdmissionModel studentModel = null;
 
     protected override async Task OnInitializedAsync()
     {
-        LoadFormData();
+        await LoadFormData();
         IsFirstRender = false;
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        LoadFormData();
+        await LoadFormData();
     }
 
-    private void OpenStudentForm()
+    private async Task OpenStudentForm()
     {
         var dialogParam = new DialogParameters<StudentAdmission>();
         dialogParam.Add((x) => x.model, studentModel);
         dialogParam.Add((x) => x.lookups, lookups);
+        DialogOptions fullScreen = new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, CloseButton = true };
 
-        DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true };
-
-        DialogService.Show<StudentAdmission>("Sttudent Data", parameters: dialogParam, options: closeOnEscapeKey);
+        DialogService.Show<StudentAdmission>("Student Data", parameters: dialogParam, options: fullScreen);
     }
 
     private async Task LoadFormData()
@@ -284,14 +292,14 @@ else
         }
     }
 
-    private async Task SetFormData(ParentModel? _model = null, RegStudentModel? studentModel = null)
+    private async Task SetFormData(ParentModel? _model = null, AdmissionModel? _studentModel = null)
     {
         if (IsFirstRender)
             await LoadDropDowns();
 
         IsDataLoaded = true;
         model = _model ?? new();
-        studentModel = studentModel ?? new();
+        studentModel = _studentModel ?? new();
         await Task.CompletedTask;
     }
 
@@ -339,14 +347,14 @@ else
             return;
         }
 
-        await SetFormData(studentModel: studentResult.Data);
-        OpenStudentForm();
+        await SetFormData(_studentModel: studentResult.Data);
+        await OpenStudentForm();
         StateHasChanged();
 
     }
 
 
-   
+
     private async Task LoadDropDowns()
     {
         lookups.Loading();
@@ -364,9 +372,9 @@ else
     {
 
         bool? isConfirm = await DialogService.ShowMessageBox(
-            "Confirm",
-            "Are you sude you want to save?",
-            yesText: "Yes", cancelText: "Cancel", options: new DialogOptions() { DisableBackdropClick = true });
+        "Confirm",
+        "Are you sude you want to save?",
+        yesText: "Yes", cancelText: "Cancel", options: new DialogOptions() { DisableBackdropClick = true });
 
         if (!(isConfirm ?? false)) return;
 

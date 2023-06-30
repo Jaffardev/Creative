@@ -83,50 +83,50 @@ namespace Creative.Server.Controllers
                 var student = new AcpStudent()
                 {
                     Code = model.Code,
-                    StuStatus = model.StuStatus,
+                    StuStatus = ((int)model.StuStatus).ToString(),
                     ParentId = model.ParentId,
                     Gender = model.Gender.ToString(),
                     Name1 = $"{model.Name11} {model.Name12} {model.Name13} {model.Name14}",
                     Name2 = $"{model.Name21} {model.Name22} {model.Name23} {model.Name24}",
                     Notes = model.Notes,
                     DeptNotes = model.DeptNotes,
-                    StuResult = model.Result,
+                    StuResult = ((int)model.Result).ToString(),
                     NationalId = model.NationalId,
                     RelegionId = model.RelegionId,
                     StuType = model.StudentType.ToString(),
-                    AcpDate = model.AdmissionDate?.ToDateTime(TimeOnly.MinValue),
-                    RegDate = model.RegistrationDate?.ToDateTime(TimeOnly.MinValue),
-                    JoinDate = model.JoinDate?.ToDateTime(TimeOnly.MinValue),
-                    BirthDate = model.BirthDate?.ToDateTime(TimeOnly.MinValue),
-                    ComeBranchId = model.NextBranch,
-                    ComeGreadId = model.NextGrade,
-                    ComeYearId = model.NextYear,
-                    CurBranchId = model.Branch,
-                    CurGreadId = model.Grade,
-                    CurYearId = model.Year,
-                    CurClassId = model.Class,
-                    EduProveDate = model.ExaminationDate?.ToDateTime(TimeOnly.MinValue),
-                    HealthStatus = model.HealthStatus ? "1" : "0",
-                    HealthFileNo = model.FileNumber,
-                    EduDecisionNo = model.EducationDecisionNo,
-                    HandicapeType = model.DisablityAsPerTheDecision,
-                    HealthNotes1 = model.ExaminationResult,
-                    EduDecisionDate = model.DecisionDate?.ToDateTime(TimeOnly.MinValue),
-                    NextVisitDate = model.DecisionDateEnd?.ToDateTime(TimeOnly.MinValue),
-                    HandicapeCertificateId = Convert.ToDecimal(model.DisablityCertificate),
-                    EduProveEndDate = model.CertificateDateEnd?.ToDateTime(TimeOnly.MinValue),
+                    AdmissionDate = model.AdmissionDate,
+                    RegistrationDate = model.RegistrationDate,
+                    JoinDate = model.JoinDate,
+                    BirthDate = model.BirthDate,
+                    ComeBranchId = model.ComeBranchId,
+                    ComeGradeId = model.ComeGradeId,
+                    ComeYearId = model.ComeYearId,
+                    CurBranchId = model.ComeBranchId,
+                    CurGreadId = model.ComeGradeId,
+                    CurYearId = model.ComeYearId,
+                    CurClassId = model.CurClassId,
+                    HealthStatus = model.HealthStatus,
+                    HealthFileNo = model.HealthFileNo,
+                    EducationDecisionNo = model.EducationDecisionNo,
+                    DisablityAsPerTheDecision = model.DisablityAsPerTheDecisionId,
+                    ExaminationResult = model.ExaminationResult,
+                    EduDecisionDate = model.EduDecisionDate,
+                    NextVisitDate = model.NextVisitDate,
+                    DisablityCertificateId = model.DisablityCertificateId,
+                    EduProveDate = model.EduProveDate,
+                    EduProveEndDate = model.EduProveEndDate,
                     MotherName = model.MotherName,
-                    MotherIdNo = model.MotherCivilID,
+                    MotherCivilID = model.MotherCivilID,
                     Tel1 = model.Tel1,
                     Tel2 = model.Tel2,
                     Email = model.Email,
-                    Address1 = model.Address,
-                    PassportDate = model.PassportDate?.ToDateTime(TimeOnly.MinValue),
+                    Address1 = model.Address1,
+                    PassportDate = model.PassportDate,
                     BirthPlace = model.BirthPlace,
                     BirthDocPlace = model.BirthDocPlace,
                     IdNo = model.IdNumber,
-                    EmpId = model.EmployeeId,
-                    IdEndDate = model.EndDate?.ToDateTime(TimeOnly.MinValue)
+                    EmpId = model.EmpId,
+                    IdEndDate = model.EndDate
                 };
                 var response = await _dbContext.AcpStudents.AddAsync(student);
                 await _dbContext.SaveChangesAsync();
@@ -143,7 +143,6 @@ namespace Creative.Server.Controllers
                         acpExam.Name2 = item.Name2;
                         acpExam.Notes = item.Notes;
                         acpExam.TypeId = item.TypeId;
-
                     }
                     await _dbContext.SaveChangesAsync();
 
@@ -167,9 +166,8 @@ namespace Creative.Server.Controllers
 
                     if (deleteItems.Any())
                         await _dbContext.AcpExams.Where(x => deleteItems.Any(di => di.Id == x.Id)).ExecuteDeleteAsync();
-
-
                 }
+
                 return result.Success(student.Id);
             }
             //catch (DbEntityValidationException  ex)
