@@ -21,9 +21,7 @@ public class ParentModel
     public string? Name2 { get; set; }
     public string? Name1 { get; set; }
     public decimal? NationalId { get; set; }
-    public Item? SelectedNationality { get; set; }
     public decimal? JobId { get; set; }
-    public Item? SelectedJob { get; set; }
 
     [Required]
     public string? IdNo { get; set; }

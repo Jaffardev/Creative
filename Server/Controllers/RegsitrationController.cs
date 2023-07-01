@@ -105,7 +105,7 @@ namespace Creative.Server.Controllers
                     CurGreadId = model.ComeGradeId,
                     CurYearId = model.ComeYearId,
                     CurClassId = model.CurClassId,
-                    HealthStatus = model.HealthStatus,
+                    HealthStatus = model.HealthStatus ? "1" : "0",
                     HealthFileNo = model.HealthFileNo,
                     EducationDecisionNo = model.EducationDecisionNo,
                     DisablityAsPerTheDecision = model.DisablityAsPerTheDecisionId,
@@ -189,6 +189,55 @@ namespace Creative.Server.Controllers
             }
 
         }
+
+
+        // [HttpGet("GetStuExams")]
+        // public async Task<ApiResult<IEnumerable<StudentExams>>> GetStuExams(decimal studentId)
+        // {
+        //     var stuExams = (from exam in _dbContext.AcpStuExms.Where(x => x.StuId == studentId)
+        //                     join sch in _dbContext.AcpExmSchedules on exam.ScheduleId equals sch.Id
+        //                     select new StudentExams
+        //                     {
+        //                         Code = exam.Code,
+        //                         Degree = exam.Degree,
+        //                         ExmDate = sch.ExmDate,
+        //                         ExmId = sch.ExmId,
+        //                         Id = exam.Id,
+        //                         Notes = exam.Notes,
+        //                         RoomId = sch.RoomId,
+        //                         ScheduleId = sch.Id,
+        //                         StuId = exam.StuId
+        //                     });
+
+        //     return new ApiResult<IEnumerable<StudentExams>>().Success(stuExams);
+        // }
+
+        // [HttpPost("InsertStuExams")]
+        // public async Task<ApiResult<decimal>> InsertStuExams(StudentExams request)
+        // {
+        //     var stuExa = request.Adapt<AcpStuExm>();
+
+        //     await _dbContext.AcpStuExms.AddAsync(stuExa);
+        //     await _dbContext.SaveChangesAsync();
+
+
+        //     // var stuExams = (from exam in _dbContext.AcpStuExms.Where(x => x.StuId == studentId)
+        //     //                 join sch in _dbContext.AcpExmSchedules on exam.ScheduleId equals sch.Id
+        //     //                 select new StudentExams
+        //     //                 {
+        //     //                     Code = exam.Code,
+        //     //                     Degree = exam.Degree,
+        //     //                     ExmDate = sch.ExmDate,
+        //     //                     ExmId = sch.ExmId,
+        //     //                     Id = exam.Id,
+        //     //                     Notes = exam.Notes,
+        //     //                     RoomId = sch.RoomId,
+        //     //                     ScheduleId = sch.Id,
+        //     //                     StuId = exam.StuId
+        //     //                 });
+
+        //     return new ApiResult<decimal>().Success(stuExa.Id);
+        // }
 
     }
 }

@@ -8,7 +8,6 @@
 @inject IDialogService DialogService;
 @inject ISnackbar Snackbar
 
-
 <MudDialog>
     <DialogContent>
         <EditForm Model="model" OnValidSubmit="OnValidSubmit">
@@ -39,9 +38,9 @@
                         </MudItem>
                         <MudItem xs="3">
                             <MudRadioGroup @bind-SelectedOption="model.Gender">
-    <MudRadio Option="1" Color="Color.Primary" Dense="true">Male</MudRadio>
-    <MudRadio Option="0" Color="Color.Secondary" Dense="false">Female</MudRadio>
-</MudRadioGroup>
+                    <MudRadio Option=1 Color="Color.Primary" Dense="true">Male</MudRadio>
+                    <MudRadio Option=0 Color="Color.Secondary" Dense="true">Female</MudRadio>
+                </MudRadioGroup>
                         </MudItem>
 
                         <MudItem xs="12">
@@ -453,7 +452,30 @@
                                     </MudGrid>
                                 </MudTabPanel>
                                 <MudTabPanel Text="Exams">
-                                    
+                                    @* <MudDataGrid T="Element" Items="@Elements.Take(4)" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
+    StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges"
+    Bordered="true" Dense="true" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)">
+    <Columns>
+        <PropertyColumn Property="x => x.Number" Title="Nr" IsEditable="false" />
+        <PropertyColumn Property="x => x.Sign" />
+        <PropertyColumn Property="x => x.Name" />
+        <PropertyColumn Property="x => x.Position">
+            <EditTemplate>
+                <MudSelect @bind-Value="context.Item.Position" Required RequiredError="You must select a Position!!!" Margin="@Margin.Dense">
+                    <MudSelectItem Value="0">zero</MudSelectItem>
+                    <MudSelectItem Value="1">one</MudSelectItem>
+                    <MudSelectItem Value="17">seventeen</MudSelectItem>
+                </MudSelect>
+            </EditTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Molar" Title="Molar mass" />
+        <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid> *@
 
                                 </MudTabPanel>
                             </MudTabs>
@@ -501,10 +523,14 @@ ClassItems.Success(result.Data);
      }
         protected override Task OnInitializedAsync()
         {
-          
             return base.OnInitializedAsync();
         }
-
+        protected override  async Task OnParametersSetAsync()
+        {
+            if(string.IsNullOrEmpty( model.Code))
+            await GetCode();
+        }
+    
     private async Task GetCode()
     {
         var result = await _studentService.GetNewCode();
@@ -554,8 +580,32 @@ ClassItems.Success(result.Data);
         studentModel = studentModel ?? new();
         await Task.CompletedTask;
     }
+
+
+      @* private IEnumerable<ExamEditModel> Elements = new List<ExamEditModel>();
+    private bool _readOnly;
+    private bool _isCellEditMode;
+    private List<string> _events = new();
+    private bool _editTriggerRowClick; *@
+
+    @* protected override async Task OnInitializedAsync()
+    {
+        Elements = await httpClient.GetFromJsonAsync<List<Element>>("webapi/periodictable");
+    } *@
+
+    // events
+    @* void StartedEditingItem(Element item)
+    {
+        _events.Insert(0, $"Event = StartedEditingItem, Data = {System.Text.Json.JsonSerializer.Serialize(item)}");
+    }
+
+    void CanceledEditingItem(Element item)
+    {
+        _events.Insert(0, $"Event = CanceledEditingItem, Data = {System.Text.Json.JsonSerializer.Serialize(item)}");
+    }
+
+    void CommittedItemChanges(Element item)
+    {
+        _events.Insert(0, $"Event = CommittedItemChanges, Data = {System.Text.Json.JsonSerializer.Serialize(item)}");
+    } *@
 }
-
-
-
-

@@ -1,4 +1,6 @@
-﻿namespace Creative.Shared.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Creative.Shared.Models;
 
 public class AdmissionModel
 {
@@ -6,7 +8,7 @@ public class AdmissionModel
     public string? Code { get; set; }
     public int? StuStatus { get; set; }
     public int? ParentId { get; set; }
-    public int? Gender { get; set; }
+    public int Gender { get; set; } = -1;
 
     public string? Name1 { get; set; }
     public string? Name2 { get; set; }
@@ -24,10 +26,9 @@ public class AdmissionModel
     public string? DeptNotes { get; set; }
     public int? Result { get; set; }
     public int? NationalId { get; set; }
-    public Item? SelectedNational { get; set; }
 
+    [Required]
     public int? RelegionId { get; set; }
-    public Item? SelectedRelegion { get; set; }
     public int? StudentType { get; set; }
     public int? AgeAtAdmission { get; set; }
     public int? Age { get; set; }
@@ -43,10 +44,13 @@ public class AdmissionModel
 
     public int? ComeYearId { get; set; }
 
+    [Required]
     public int? CurBranchId { get; set; }
 
+    [Required]
     public int? CurGradeId { get; set; }
 
+    [Required]
     public int? CurYearId { get; set; }
 
     public int? CurClassId { get; set; }
@@ -74,12 +78,15 @@ public class AdmissionModel
     public string? Email { get; set; }
     public string? Address1 { get; set; }
     public DateTime? PassportDate { get; set; }
+
+    [Required]
     public DateTime? BirthDate { get; set; }
 
 
     public string? BirthPlace { get; set; }
     public string? BirthDocPlace { get; set; }
     public string? CertificateNumber { get; set; }
+    [Required]
     public string? IdNumber { get; set; }
     public DateTime? EndDate { get; set; }
     public decimal? EmpId { get; set; }

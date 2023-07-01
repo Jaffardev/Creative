@@ -190,17 +190,17 @@ namespace Creative.Server.Controllers
 
                     if (lookup is (Lookup.All or Lookup.Nationals))
                     {
-                        nationals = await GetCache<List<Item>>(nameof(nationals));
+                        // nationals = await GetCache<List<Item>>(nameof(nationals));
 
-                        if (nationals is null)
+                        // if (nationals is null)
+                        // {
+                        nationals = await _dbContext.RegNationals.AsNoTracking().Select(x => new Item()
                         {
-                            nationals = await _dbContext.RegNationals.AsNoTracking().Select(x => new Item()
-                            {
-                                Id = x.Id,
-                                Name = x.Name1
-                            }).ToListAsync();
-                            await SetCache(nameof(nationals), nationals);
-                        }
+                            Id = x.Id,
+                            Name = x.Name2
+                        }).ToListAsync();
+                        //     await SetCache(nameof(nationals), nationals);
+                        // }
                     }
 
                     if (lookup is (Lookup.All or Lookup.Employees))
@@ -399,17 +399,17 @@ namespace Creative.Server.Controllers
 
                 if (lookup is (Lookup.All or Lookup.Nationals))
                 {
-                    nationals = await GetCache<List<Item>>(nameof(nationals));
+                    // nationals = await GetCache<List<Item>>(nameof(nationals));
 
-                    if (nationals is null)
+                    // if (nationals is null)
+                    // {
+                    nationals = await _dbContext.RegNationals.AsNoTracking().Select(x => new Item()
                     {
-                        nationals = await _dbContext.RegNationals.AsNoTracking().Select(x => new Item()
-                        {
-                            Id = x.Id,
-                            Name = x.Name1
-                        }).ToListAsync();
-                        await SetCache(nameof(nationals), nationals);
-                    }
+                        Id = x.Id,
+                        Name = x.Name2
+                    }).ToListAsync();
+                    await SetCache(nameof(nationals), nationals);
+                    // }
                 }
 
                 if (lookup is (Lookup.All or Lookup.Employees))

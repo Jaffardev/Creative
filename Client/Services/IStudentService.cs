@@ -20,6 +20,9 @@ public interface IStudentService
     [Get(controller + "{studentId}")]
     Task<ApiResult<AdmissionModel>> GetStudent(decimal studentId);
 
+    // [Get($"{controller}{nameof(GetStuExams)}")]
+    // Task<ApiResult<IEnumerable<StudentExams>>> GetStuExams(decimal studentId);
+
     //[Get($"{controller}{nameof(GetParentData)}")]
     //Task<ResponsibleModel> GetParentData(decimal parentId);
 }

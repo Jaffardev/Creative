@@ -89,7 +89,17 @@ namespace Creative.Server.Controllers
             {
                 newParent.Name1 = $"{newParent.Name11} {newParent.Name12} {newParent.Name13} {newParent.Name14}";
                 newParent.Name2 = $"{newParent.Name21} {newParent.Name22} {newParent.Name23} {newParent.Name24}";
-                await _dbContext.AcpResponsibiles.AddAsync(newParent);
+                //TODO : check validation against existing parent Id
+                if (model.Id > 0)
+                {
+                    // AcpResponsibile? record = await _dbContext.AcpResponsibiles.FindAsync(model.Id);
+                    // record = newParent;
+                    _dbContext.AcpResponsibiles.Update(newParent);
+                }
+                else
+                {
+                    await _dbContext.AcpResponsibiles.AddAsync(newParent);
+                }
                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception ex)
