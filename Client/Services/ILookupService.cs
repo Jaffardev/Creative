@@ -16,4 +16,7 @@ public interface ILookupService
 
     [Get($"{controller}{nameof(GetClass)}")]
     Task<ApiResult<IEnumerable<Item>>> GetClass(decimal gradeId, decimal branchId, string gender);
+
+    [Get($"{controller}{nameof(GetSchedules)}")]
+    Task<ApiResult<IEnumerable<ScheduleItem>>> GetSchedules();
 }

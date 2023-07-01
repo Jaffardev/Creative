@@ -113,6 +113,11 @@ public class AdmissionModel
     public bool AcpHealthFile { get; set; }
 
     public bool ResEmp { get; set; }
-
+    public string? Accepted { get; set; } = ((int)AcceptedInitialValue.UnderTest).ToString();
+    public string? RejectPerson { get; set; }
+    public string? RejectReason { get; set; }
+    public bool? AcceptPrepaid { get; set; }
+    public bool? AcceptFees { get; set; }
+    public bool? AcceptDebt { get; set; }
 
 }

@@ -486,6 +486,33 @@ namespace Creative.Server.Controllers
 
             return new ApiResult<IEnumerable<Item>>().Success(classes);
         }
+
+
+        [HttpGet("GetSchedules")]
+        public async Task<ApiResult<IEnumerable<ScheduleItem>>> GetSchedules()
+        {
+
+            IEnumerable<ScheduleItem> scheduleItems = await GetCache<IEnumerable<ScheduleItem>>(nameof(scheduleItems));
+
+            if (scheduleItems is null)
+            {
+                scheduleItems = await (from sch in _dbContext.AcpExmSchedules.AsNoTracking()
+                                       join exam in _dbContext.AcpExams.AsNoTracking() on sch.ExmId equals exam.Id
+                                       join room in _dbContext.AcpExmRooms.AsNoTracking() on sch.RoomId equals room.Id
+                                       select new ScheduleItem
+                                       {
+                                           Id = sch.Id,
+                                           Name = sch.Name1,
+                                           Exam = exam.Name1,
+                                           Room = room.Name1,
+                                           ExamDate = sch.ExmDate
+                                       }).ToListAsync();
+
+                await SetCache(nameof(scheduleItems), scheduleItems);
+            }
+
+            return new ApiResult<IEnumerable<ScheduleItem>>().Success(scheduleItems);
+        }
     }
 
 }

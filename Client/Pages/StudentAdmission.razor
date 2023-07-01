@@ -102,7 +102,7 @@
                             }
                             @if (lookups.Status == DataStatus.Loaded)
                             {
-                                <MudSelect T="int?" Label="Job" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.NationalId">
+                                <MudSelect T="int?" Label="Nationality" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.NationalId">
                                     @foreach (var item in lookups.Data.Nationals)
                                     {
                                         <MudSelectItem T="int?" Value="@((int)item.Id)">@item.Name</MudSelectItem>
@@ -138,13 +138,35 @@
                         </MudItem> 
 
                        <MudItem xs="3">
-                            <MudSelect  T="int?" @bind-Value="model.StudentType" Label="Student Status" AnchorOrigin="Origin.BottomCenter">
+                            <MudSelect  T="int?" @bind-Value="model.StudentType" Label="Student Type" AnchorOrigin="Origin.BottomCenter">
                                 @foreach (StudentType item in Enum.GetValues(typeof(StudentType)))
                                 {
                                              <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
                                 }
                             </MudSelect>
                         </MudItem> 
+
+                     
+                        <MudItem xs="12">
+                               <MudRadioGroup @bind-SelectedOption="model.Accepted">
+                                 @foreach (AcceptedInitialValue item in Enum.GetValues(typeof(AcceptedInitialValue)))
+                                {
+                                    <MudRadio Option=@(((int)item).ToString()) Color="Color.Primary" Dense="true">@item.ToString()</MudRadio>
+                                }
+               
+                </MudRadioGroup>
+                        </MudItem>
+
+ <MudItem xs="12">
+<MudStack Row="true" Justify="Justify.FlexStart">
+    <MudTextField Label="Rejected Person" Margin="Margin.Dense" @bind-Value="model.RejectPerson" For="@(() => model.RejectPerson)" InputType="InputType.Text" />
+        <MudTextField Label="Rejected Reason" Margin="Margin.Dense" @bind-Value="model.RejectReason" For="@(() => model.RejectReason)" InputType="InputType.Text" />
+                                            <MudCheckBox Label="Accepted Advance" @bind-Checked="model.AcceptPrepaid" Color="Color.Primary"></MudCheckBox>
+                                            <MudCheckBox Label="Accepted Fees" @bind-Checked="model.AcceptFees" Color="Color.Primary"></MudCheckBox>
+                                            <MudCheckBox Label="Accepted Old Debit" @bind-Checked="model.AcceptDebt" Color="Color.Primary"></MudCheckBox>
+
+                               </MudStack >
+                        </MudItem>
 
                         <MudItem xs="12">
                             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
@@ -452,30 +474,29 @@
                                     </MudGrid>
                                 </MudTabPanel>
                                 <MudTabPanel Text="Exams">
-                                    @* <MudDataGrid T="Element" Items="@Elements.Take(4)" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
+                                    <MudDataGrid T="ExamEditModel" Items="@model.Exams" EditMode="DataGridEditMode.Cell"
     StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges"
-    Bordered="true" Dense="true" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)">
+    Bordered="true" Dense="true" EditTrigger="DataGridEditTrigger.Manual">
     <Columns>
-        <PropertyColumn Property="x => x.Number" Title="Nr" IsEditable="false" />
-        <PropertyColumn Property="x => x.Sign" />
-        <PropertyColumn Property="x => x.Name" />
-        <PropertyColumn Property="x => x.Position">
-            <EditTemplate>
-                <MudSelect @bind-Value="context.Item.Position" Required RequiredError="You must select a Position!!!" Margin="@Margin.Dense">
-                    <MudSelectItem Value="0">zero</MudSelectItem>
-                    <MudSelectItem Value="1">one</MudSelectItem>
-                    <MudSelectItem Value="17">seventeen</MudSelectItem>
-                </MudSelect>
-            </EditTemplate>
+    <PropertyColumn Property="x => x.Code" Title="Code" />
+        <PropertyColumn Property="x => x.Notes" Title="Note" />
+        <PropertyColumn Property="x => x.Degree" />
+        <PropertyColumn Property="x => x.Exm" Title="Exam" IsEditable="false"/>
+            <PropertyColumn Property="x => x.Room" Title="Room" IsEditable="false"/>
+                <PropertyColumn Property="x => x.ExmDate"  Title="Exam Date" IsEditable="false"/>
+                <PropertyColumn Property="x => x.ScheduleName1" Title="Schedule">
+            @* <EditTemplate>
+                 <MudSelect T="decimal?" @bind-Value="context.Item.ScheduleId" AnchorOrigin="Origin.BottomCenter"  Required RequiredError="You must select a Schedule!!!" Margin="Margin.Dense">
+                    @foreach (var schedule in ScheduleItems.Data)
+                    {
+                        <MudSelectItem T="decimal?" Value="@schedule.Id">@schedule.Name</MudSelectItem>
+                    }
+                </MudSelect> 
+            </EditTemplate> *@
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Molar" Title="Molar mass" />
-        <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end">
-            <CellTemplate>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
-            </CellTemplate>
-        </TemplateColumn>
+        
     </Columns>
-</MudDataGrid> *@
+</MudDataGrid> 
 
                                 </MudTabPanel>
                             </MudTabs>
@@ -513,6 +534,7 @@
     [Parameter] public DataItem<AcademicLookups> lookups { get; set; } = new();
 
  public DataItem<IEnumerable<Item>> ClassItems { get; set; } = new();
+     public DataItem<IEnumerable<ScheduleItem>> ScheduleItems { get; set; } = new();
          private async Task GetClasses()
      {
         var result = await  _lookupService.GetClass((decimal)model.CurGradeId,(decimal)model.CurBranchId,model.Gender.ToString());
@@ -521,13 +543,29 @@ ClassItems.Success(result.Data);
         }
         
      }
-        protected override Task OnInitializedAsync()
+        protected override async Task OnInitializedAsync()
         {
-            return base.OnInitializedAsync();
+                await LoadFormData();
         }
+
+private async Task LoadFormData(){
+
+              @* var studExamResult = await _studentService.GetStuExams(model.Id);
+if(studExamResult.IsSuccess){
+examEditModel= studExamResult.Data;
+} *@
+
+              var scheduleItemsResult = await _lookupService.GetSchedules();
+if(scheduleItemsResult.IsSuccess){
+ScheduleItems.Success(scheduleItemsResult.Data);
+}
+
+}
+
+
         protected override  async Task OnParametersSetAsync()
         {
-            if(string.IsNullOrEmpty( model.Code))
+            if(string.IsNullOrEmpty(model.Code))
             await GetCode();
         }
     
@@ -582,30 +620,27 @@ ClassItems.Success(result.Data);
     }
 
 
-      @* private IEnumerable<ExamEditModel> Elements = new List<ExamEditModel>();
+      
     private bool _readOnly;
     private bool _isCellEditMode;
     private List<string> _events = new();
-    private bool _editTriggerRowClick; *@
+    private bool _editTriggerRowClick; 
 
-    @* protected override async Task OnInitializedAsync()
-    {
-        Elements = await httpClient.GetFromJsonAsync<List<Element>>("webapi/periodictable");
-    } *@
+ 
 
     // events
-    @* void StartedEditingItem(Element item)
+   void StartedEditingItem(ExamEditModel item)
     {
         _events.Insert(0, $"Event = StartedEditingItem, Data = {System.Text.Json.JsonSerializer.Serialize(item)}");
     }
 
-    void CanceledEditingItem(Element item)
+    void CanceledEditingItem(ExamEditModel item)
     {
         _events.Insert(0, $"Event = CanceledEditingItem, Data = {System.Text.Json.JsonSerializer.Serialize(item)}");
     }
 
-    void CommittedItemChanges(Element item)
+    void CommittedItemChanges(ExamEditModel item)
     {
         _events.Insert(0, $"Event = CommittedItemChanges, Data = {System.Text.Json.JsonSerializer.Serialize(item)}");
-    } *@
+    } 
 }

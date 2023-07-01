@@ -37,5 +37,25 @@
         public List<Item>? ParentsAndStudent { get; set; }
     }
 
+    public class ScheduleItem
+    {
+        public decimal Id { get; set; }
+        public string Name { get; set; }
+        public string? Exam { get; set; }
+        public string? Room { get; set; }
+        public DateTime? ExamDate { get; set; }
 
+        // Note: this is important so the MudSelect can compare pizzas
+        public override bool Equals(object o)
+        {
+            var other = o as Item;
+            return other?.Name == Name;
+        }
+
+        // Note: this is important too!
+        public override int GetHashCode() => Name?.GetHashCode() ?? 0;
+
+        // Implement this for the Pizza to display correctly in MudSelect
+        public override string ToString() => Name;
+    }
 }

@@ -45,7 +45,26 @@ namespace Creative.Server.Controllers
                 return new ApiResult<AdmissionModel>().Fail("Data not found");
             }
 
-            return new ApiResult<AdmissionModel>().Success(regStudent?.Adapt<AdmissionModel>());
+            var student = regStudent?.Adapt<AdmissionModel>();
+            student.Exams = await (from stexam in _dbContext.AcpStuExms.AsNoTracking().Where(x => x.StuId == studentId)
+                                   join sch in _dbContext.AcpExmSchedules.AsNoTracking() on stexam.ScheduleId equals sch.Id
+                                   join exam in _dbContext.AcpExams.AsNoTracking() on sch.ExmId equals exam.Id
+                                   join room in _dbContext.AcpExmRooms.AsNoTracking() on sch.RoomId equals room.Id
+                                   select new ExamEditModel
+                                   {
+                                       Code = stexam.Code,
+                                       Degree = stexam.Degree,
+                                       ExmDate = sch.ExmDate,
+                                       Exm = exam.Name1,
+                                       Id = stexam.Id,
+                                       Notes = stexam.Notes,
+                                       Room = room.Name1,
+                                       ScheduleId = sch.Id,
+                                       ScheduleName1 = sch.Name1,
+                                       StuId = stexam.StuId
+                                   }).ToListAsync();
+
+            return new ApiResult<AdmissionModel>().Success(student);
         }
 
 
@@ -133,34 +152,34 @@ namespace Creative.Server.Controllers
 
                 if (model.Exams.Count != 0)
                 {
-                    foreach (var item in model.Exams.Where(x => x.Action == CRUDAction.Edit))
-                    {
-                        var acpExam = await _dbContext.AcpExams.FirstOrDefaultAsync(x => x.Id == item.Id);
-                        acpExam.Code = item.Code;
-                        acpExam.ModifyDate = DateTime.Now;
-                        acpExam.Degree = item.Degree;
-                        acpExam.Name1 = item.Name1;
-                        acpExam.Name2 = item.Name2;
-                        acpExam.Notes = item.Notes;
-                        acpExam.TypeId = item.TypeId;
-                    }
+                    // foreach (var item in model.Exams.Where(x => x.Action == CRUDAction.Edit))
+                    // {
+                    //     var acpExam = await _dbContext.AcpExams.FirstOrDefaultAsync(x => x.Id == item.Id);
+                    //     acpExam.Code = item.Code;
+                    //     acpExam.ModifyDate = DateTime.Now;
+                    //     acpExam.Degree = item.Degree;
+                    //     acpExam.Name1 = item.Name1;
+                    //     acpExam.Name2 = item.Name2;
+                    //     acpExam.Notes = item.Notes;
+                    //     acpExam.TypeId = item.TypeId;
+                    // }
                     await _dbContext.SaveChangesAsync();
 
-                    var newItems = model.Exams.Where(x => x.Action == CRUDAction.Add).Select(x => new AcpExam()
-                    {
-                        Code = x.Code,
-                        CreationDate = DateTime.Now,
-                        Degree = x.Degree,
-                        Name1 = x.Name1,
-                        Name2 = x.Name2,
-                        Notes = x.Notes,
-                        TypeId = x.TypeId,
+                    // var newItems = model.Exams.Where(x => x.Action == CRUDAction.Add).Select(x => new AcpExam()
+                    // {
+                    //     Code = x.Code,
+                    //     CreationDate = DateTime.Now,
+                    //     Degree = x.Degree,
+                    //     Name1 = x.Name1,
+                    //     Name2 = x.Name2,
+                    //     Notes = x.Notes,
+                    //     TypeId = x.TypeId,
 
-                        ExmStartTime = x.ExmStartTime.ToDateTime(TimeOnly.MinValue)
-                    });
+                    //     ExmStartTime = x.ExmStartTime.ToDateTime(TimeOnly.MinValue)
+                    // });
 
-                    if (newItems.Any())
-                        await _dbContext.AcpExams.AddRangeAsync(newItems);
+                    // if (newItems.Any())
+                    //     await _dbContext.AcpExams.AddRangeAsync(newItems);
 
                     var deleteItems = model.Exams.Where(x => x.Action == CRUDAction.Delete);
 
@@ -191,53 +210,54 @@ namespace Creative.Server.Controllers
         }
 
 
-        // [HttpGet("GetStuExams")]
-        // public async Task<ApiResult<IEnumerable<StudentExams>>> GetStuExams(decimal studentId)
-        // {
-        //     var stuExams = (from exam in _dbContext.AcpStuExms.Where(x => x.StuId == studentId)
-        //                     join sch in _dbContext.AcpExmSchedules on exam.ScheduleId equals sch.Id
-        //                     select new StudentExams
-        //                     {
-        //                         Code = exam.Code,
-        //                         Degree = exam.Degree,
-        //                         ExmDate = sch.ExmDate,
-        //                         ExmId = sch.ExmId,
-        //                         Id = exam.Id,
-        //                         Notes = exam.Notes,
-        //                         RoomId = sch.RoomId,
-        //                         ScheduleId = sch.Id,
-        //                         StuId = exam.StuId
-        //                     });
+        [HttpGet("GetStuExams")]
+        public async Task<ApiResult<IEnumerable<ExamEditModel>>> GetStuExams(decimal studentId)
+        {
+            var stuExams = (from exam in _dbContext.AcpStuExms.Where(x => x.StuId == studentId)
+                            join sch in _dbContext.AcpExmSchedules on exam.ScheduleId equals sch.Id
+                            join room in _dbContext.AcpExmRooms.AsNoTracking() on sch.RoomId equals room.Id
+                            select new ExamEditModel
+                            {
+                                Code = exam.Code,
+                                Degree = exam.Degree,
+                                ExmDate = sch.ExmDate,
+                                Exm = exam.Name1,
+                                Id = exam.Id,
+                                Notes = exam.Notes,
+                                Room = room.Name1,
+                                ScheduleId = sch.Id,
+                                StuId = exam.StuId
+                            });
 
-        //     return new ApiResult<IEnumerable<StudentExams>>().Success(stuExams);
-        // }
+            return new ApiResult<IEnumerable<ExamEditModel>>().Success(stuExams);
+        }
 
-        // [HttpPost("InsertStuExams")]
-        // public async Task<ApiResult<decimal>> InsertStuExams(StudentExams request)
-        // {
-        //     var stuExa = request.Adapt<AcpStuExm>();
+        [HttpPost("InsertStuExams")]
+        public async Task<ApiResult<decimal>> InsertStuExams(ExamEditModel request)
+        {
+            var stuExa = request.Adapt<AcpStuExm>();
 
-        //     await _dbContext.AcpStuExms.AddAsync(stuExa);
-        //     await _dbContext.SaveChangesAsync();
+            await _dbContext.AcpStuExms.AddAsync(stuExa);
+            await _dbContext.SaveChangesAsync();
 
 
-        //     // var stuExams = (from exam in _dbContext.AcpStuExms.Where(x => x.StuId == studentId)
-        //     //                 join sch in _dbContext.AcpExmSchedules on exam.ScheduleId equals sch.Id
-        //     //                 select new StudentExams
-        //     //                 {
-        //     //                     Code = exam.Code,
-        //     //                     Degree = exam.Degree,
-        //     //                     ExmDate = sch.ExmDate,
-        //     //                     ExmId = sch.ExmId,
-        //     //                     Id = exam.Id,
-        //     //                     Notes = exam.Notes,
-        //     //                     RoomId = sch.RoomId,
-        //     //                     ScheduleId = sch.Id,
-        //     //                     StuId = exam.StuId
-        //     //                 });
+            // var stuExams = (from exam in _dbContext.AcpStuExms.Where(x => x.StuId == studentId)
+            //                 join sch in _dbContext.AcpExmSchedules on exam.ScheduleId equals sch.Id
+            //                 select new StudentExams
+            //                 {
+            //                     Code = exam.Code,
+            //                     Degree = exam.Degree,
+            //                     ExmDate = sch.ExmDate,
+            //                     ExmId = sch.ExmId,
+            //                     Id = exam.Id,
+            //                     Notes = exam.Notes,
+            //                     RoomId = sch.RoomId,
+            //                     ScheduleId = sch.Id,
+            //                     StuId = exam.StuId
+            //                 });
 
-        //     return new ApiResult<decimal>().Success(stuExa.Id);
-        // }
+            return new ApiResult<decimal>().Success(stuExa.Id);
+        }
 
     }
 }
