@@ -1,16 +1,40 @@
 ﻿@page "/admission"
+@using System.ComponentModel.DataAnnotations;
 @using Creative.Client.Services;
 @using Creative.Shared.Models;
-@using MudBlazor;
-@using System.ComponentModel.DataAnnotations;
+@using Creative.Shared;
+@using MudBlazor
 
 @inject NavigationManager navManager;
 @inject ILookupService _lookupService;
 @inject IParentService _parentService;
 @inject IStudentService _studentService;
 @inject IDialogService DialogService;
+@inject ILookupService lookupService
 @inject ISnackbar Snackbar
-
+ <MudGrid>
+                <MudItem md="2">
+                    <MudAutocomplete IconSize="Size.Medium" ProgressIndicatorColor="Color.Success" InputMode="InputMode.search"
+            DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true"
+            Margin="Margin.Dense" ResetValueOnEmptyText="true" MinCharacters="1" KeyDownPreventDefault="true"
+            KeyUpPreventDefault="true" T="Item" Placeholder="Parent / Student Name" Variant="Variant.Outlined"
+            AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Success" SearchFuncWithCancel="@Search"
+            ValueChanged="@LoadData" ShowProgressIndicator="true">
+            <ItemTemplate Context="e">
+                <MudText>
+                    <MudIcon
+                        Icon="@(e.Identity==Identity.Parent? Icons.Material.Filled.Man :Icons.Material.Filled.Face)"
+                        Class="mb-n1 mr-3" />@($"{e.Name} ({e.Identity.ToString()})")
+                </MudText>
+            </ItemTemplate>
+            <NoItemsTemplate>
+                <MudText Align="Align.Center" Class="px-4 py-1">
+                    No data found
+                </MudText>
+            </NoItemsTemplate>
+        </MudAutocomplete>
+                </MudItem>
+                <MudItem md="10">
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
     <MudCard>
@@ -20,7 +44,7 @@
                     <MudText Typo="Typo.h5">Parent Screen</MudText>
                 </MudItem>
 
-                <MudItem xs="6">
+                <MudItem xs="2">
                     <MudTextField ReadOnly="true" Label="Code" InputType="InputType.Number" @bind-Value="model.Code"
                         For="@(() => model.Code)" HideSpinButtons="true" />
                 </MudItem>
@@ -43,6 +67,7 @@
                             <MudTextField Label="Family Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
                             @bind-Value="model.Name14" For="@(() => model.Name14)" />
                         </MudItem>
+                        
                     </MudGrid>
                 </MudItem>
 
@@ -170,7 +195,7 @@
     <MudDataGrid T="StudentModel" Items="@model.Students" Filterable="false" SortMode="@SortMode.None" Context="student"
         Groupable="false">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">s</MudText>
+            <MudText Typo="Typo.h6">Students</MudText>
         </ToolBarContent>
         <Columns>
             <PropertyColumn Property="x => x.Status" />
@@ -190,7 +215,11 @@
         </Columns>
     </MudDataGrid>
 </MudStack>
+               
+                </MudItem>
+ </MudGrid>
 
+ 
 
 @if (!IsDataLoaded)
 {
@@ -245,12 +274,39 @@
         await LoadFormData();
     }
 
+ 
+
+    private async Task<IEnumerable<Item>> Search(string value, CancellationToken token)
+    {
+        await Task.Delay(1000);
+
+        if (string.IsNullOrEmpty(value))
+            return Enumerable.Empty<Item>();
+
+        ApiResult<AcademicLookups> parents = await lookupService.Get(Lookup.ParentsAndStudent, searchTerm: value);
+
+        if (parents.IsSuccess)
+            return parents.Data?.ParentsAndStudent ?? new();
+
+        return Enumerable.Empty<Item>();
+    }
+
+   private async Task LoadData(Item item)
+    {
+        if (item is not null)
+        {
+            Console.WriteLine(item.Name);
+            SelectedCustomer = item;
+            LoadFormData();
+        }
+    }
+
     private async Task OpenStudentForm()
     {
         var dialogParam = new DialogParameters<StudentAdmission>();
         dialogParam.Add((x) => x.model, studentModel);
         dialogParam.Add((x) => x.lookups, lookups);
-        DialogOptions fullScreen = new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, CloseButton = true };
+        DialogOptions fullScreen = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true };
 
         DialogService.Show<StudentAdmission>("Student Data", parameters: dialogParam, options: fullScreen);
     }

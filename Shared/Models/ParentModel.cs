@@ -13,11 +13,11 @@ public class ParentModel
     public string? Name12 { get; set; }
     public string? Name13 { get; set; }
     public string? Name14 { get; set; }
-
     public string? Name21 { get; set; }
     public string? Name22 { get; set; }
     public string? Name23 { get; set; }
     public string? Name24 { get; set; }
+
     public string? Name2 { get; set; }
     public string? Name1 { get; set; }
     public decimal? NationalId { get; set; }

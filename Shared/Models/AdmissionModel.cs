@@ -42,6 +42,7 @@ public class AdmissionModel
 
     public decimal? ComeGradeId { get; set; }
 
+    public string? ComeFrom { get; set; }
     public int? ComeYearId { get; set; }
 
     [Required]

@@ -1,0 +1,27 @@
+@using MudBlazor
+@using Creative.Shared.Models
+@if (DataStatus == DataStatus.Loading)
+{
+    <MudSkeleton />
+}
+@if (DataStatus == DataStatus.Loaded)
+{
+    @foreach (var item in Lookups)
+    {
+        if(DT==ItemType.Int){
+        <MudSelectItem T="int?" Value="@((int)item.Id)">@item.Name</MudSelectItem>
+        }
+                if(DT==ItemType.Decimal){
+        <MudSelectItem T="decimal?" Value="@(item.Id)">@item.Name</MudSelectItem>
+        }
+
+    }
+}
+
+@code {
+    [Parameter] public ItemType DT { get; set; } = ItemType.Int;
+    [Parameter] public IEnumerable<Item> Lookups { get; set; }
+    [Parameter] public DataStatus DataStatus { get; set; } = new();
+
+ 
+}
