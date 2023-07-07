@@ -1,5 +1,6 @@
 ﻿@page "/admission"
 @using System.ComponentModel.DataAnnotations;
+@using Creative.Client.Pages.Components
 @using Creative.Client.Services;
 @using Creative.Shared.Models;
 @using Creative.Shared;
@@ -12,14 +13,24 @@
 @inject IDialogService DialogService;
 @inject ILookupService lookupService
 @inject ISnackbar Snackbar
+      @* AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Success" *@
  <MudGrid>
                 <MudItem md="2">
+                     <MudSelect T="decimal?" Label="Branch" AnchorOrigin="Origin.BottomCenter" @bind-Value="searchBranchId">
+                            <MudSelectItem T="decimal?" Value="0">All</MudSelectItem>
+                            <MudItems DT="ItemType.Decimal" Lookups="lookups.Data.Branches" DataStatus="lookups.Status" ></MudItems>
+                        </MudSelect>
+                        <MudCheckBox Label="No Students" @bind-Checked="searchWithoutStudent" Color="Color.Primary"></MudCheckBox>
                     <MudAutocomplete IconSize="Size.Medium" ProgressIndicatorColor="Color.Success" InputMode="InputMode.search"
             DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true"
             Margin="Margin.Dense" ResetValueOnEmptyText="true" MinCharacters="1" KeyDownPreventDefault="true"
             KeyUpPreventDefault="true" T="Item" Placeholder="Parent / Student Name" Variant="Variant.Outlined"
-            AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Success" SearchFuncWithCancel="@Search"
+      
+             SearchFuncWithCancel="@Search"
             ValueChanged="@LoadData" ShowProgressIndicator="true">
+            <ProgressIndicatorTemplate>
+                <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Default" />
+            </ProgressIndicatorTemplate>
             <ItemTemplate Context="e">
                 <MudText>
                     <MudIcon
@@ -45,7 +56,7 @@
                 </MudItem>
 
                 <MudItem xs="2">
-                    <MudTextField ReadOnly="true" Label="Code" InputType="InputType.Number" @bind-Value="model.Code"
+                    <MudTextField ReadOnly="true"  Label="Code" InputType="InputType.Number" @bind-Value="model.Code"
                         For="@(() => model.Code)" HideSpinButtons="true" />
                 </MudItem>
 
@@ -93,42 +104,15 @@
                 </MudItem>
 
                 <MudItem xs="3">
-                    
-                        <MudSelect T="decimal?" Label="Nationality" AnchorOrigin="Origin.BottomCenter"
-                        @bind-Value="model.NationalId">
-
-@if (lookups.Status == DataStatus.Loading)
-                    {
-                        <MudSkeleton />
-                    }
-                    @if (lookups.Status == DataStatus.Loaded)
-                    {
-                            @foreach (var item in lookups.Data.Nationals)
-                            {
-                                <MudSelectItem T="decimal?" Value="@(item.Id)">@item.Name</MudSelectItem>
-                            }
- }
-
+                        <MudSelect T="decimal?" Label="Nationality" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.NationalId">
+                            <MudItems DT="ItemType.Decimal" Lookups="lookups.Data.Nationals" DataStatus="lookups.Status" ></MudItems>
                         </MudSelect>
-                   
                 </MudItem>
 
                 <MudItem xs="3">
-                 
                         <MudSelect T="decimal?" Label="Job" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.JobId">
-                               @if (lookups.Status == DataStatus.Loading)
-                    {
-                        <MudSkeleton />
-                    }
-                    @if (lookups.Status == DataStatus.Loaded)
-                    {
-                            @foreach (var item in lookups.Data.Jobs)
-                            {
-                                <MudSelectItem T="decimal?" Value="@(item.Id)">@item.Name</MudSelectItem>
-                            }
-                              }
+                            <MudItems DT="ItemType.Decimal" Lookups="lookups.Data.Jobs" DataStatus="lookups.Status" ></MudItems>
                         </MudSelect>
-                  
                 </MudItem>
 
                 <MudItem xs="3">
@@ -142,27 +126,20 @@
                 </MudItem>
 
                 <MudItem xs="3">
-                    <MudTextField Label="Tel1" Margin="Margin.Dense" Adornment="Adornment.Start"
-                        AdornmentIcon="@Icons.Material.Filled.Smartphone" @bind-Value="model.Tel1"
-                        For="@(() => model.Tel1)" InputType="InputType.Telephone" />
+                    <MudTextField Label="Tel1" Margin="Margin.Dense" @bind-Value="model.Tel1" For="@(() => model.Tel1)" InputType="InputType.Telephone" />
                 </MudItem>
 
                 <MudItem xs="3">
-                    <MudTextField Label="Tel2" Margin="Margin.Dense" Adornment="Adornment.Start"
-                        AdornmentIcon="@Icons.Material.Filled.Smartphone" @bind-Value="model.Tel2"
-                        For="@(() => model.Tel2)" InputType="InputType.Telephone" />
+                    <MudTextField Label="Tel2" Margin="Margin.Dense" @bind-Value="model.Tel2" For="@(() => model.Tel2)" InputType="InputType.Telephone" />
                 </MudItem>
 
                 <MudItem xs="3">
-                    <MudTextField Label="Address" Margin="Margin.Dense" Adornment="Adornment.Start"
-                        AdornmentIcon="@Icons.Material.Filled.House" @bind-Value="model.Address1"
-                        For="@(() => model.Address1)" InputType="InputType.Text" />
+                    <MudTextField Label="Address" Margin="Margin.Dense" @bind-Value="model.Address1" For="@(() => model.Address1)" InputType="InputType.Text" />
                 </MudItem>
 
 
                 <MudItem xs="3">
-                    <MudTextField Label="Dept Chat" Margin="Margin.Dense" @bind-Value="model.Notes"
-                        For="@(() => model.Notes)" InputType="InputType.Text" />
+                    <MudTextField Label="Dept Chat" Margin="Margin.Dense" @bind-Value="model.Notes" For="@(() => model.Notes)" InputType="InputType.Text" />
                 </MudItem>
                 @* <MudItem>
                 <ValidationSummary />
@@ -178,10 +155,12 @@
                     {
                         <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-auto">Delete</MudButton>
                         <MudButton Variant="Variant.Filled" Color="Color.Success" Class="add-item-btn ml-auto" OnClick="@AddNewStudent">Add New Student</MudButton>
+                        <MudSpacer></MudSpacer>
+                           <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
+                        New</MudButton>
                     }
-                }
-                else
-                {
+                }else{
+                
                     <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
                         New</MudButton>
                 }
@@ -191,7 +170,6 @@
 </EditForm>
 
 <MudStack>
-     
     <MudDataGrid T="StudentModel" Items="@model.Students" Filterable="false" SortMode="@SortMode.None" Context="student"
         Groupable="false">
         <ToolBarContent>
@@ -243,6 +221,7 @@
 
 
 @code {
+
     [Parameter]
     [SupplyParameterFromQuery(Name = "parentId")]
     public decimal ParentId { get; set; } = 0;
@@ -263,6 +242,8 @@
     ParentModel model = new();
     AdmissionModel studentModel = null;
 
+    public decimal? searchBranchId {get;set;}
+public bool searchWithoutStudent{get;set;}=false;
     protected override async Task OnInitializedAsync()
     {
         await LoadFormData();
@@ -273,9 +254,6 @@
     {
         await LoadFormData();
     }
-
- 
-
     private async Task<IEnumerable<Item>> Search(string value, CancellationToken token)
     {
         await Task.Delay(1000);
@@ -283,10 +261,10 @@
         if (string.IsNullOrEmpty(value))
             return Enumerable.Empty<Item>();
 
-        ApiResult<AcademicLookups> parents = await lookupService.Get(Lookup.ParentsAndStudent, searchTerm: value);
+        ApiResult<IEnumerable<Item>> parents = await lookupService.Search((decimal)searchBranchId, searchTerm: value,noStudent:searchWithoutStudent);
 
         if (parents.IsSuccess)
-            return parents.Data?.ParentsAndStudent ?? new();
+            return parents.Data;
 
         return Enumerable.Empty<Item>();
     }
@@ -425,6 +403,7 @@
     private async Task LoadDropDowns()
     {
         lookups.Loading();
+        Lookup[] LookupArray=new[]{ Lookup.Branches };
         var academicLookups = await _lookupService.Get(Lookup.All);
 
         if (academicLookups.IsSuccess)

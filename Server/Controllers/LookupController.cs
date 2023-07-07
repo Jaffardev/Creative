@@ -250,7 +250,6 @@ namespace Creative.Server.Controllers
                     Nationals = nationals,
                     Employees = employees,
                     ExamTypes = examTypes,
-                    ParentsAndStudent = parentsAndStudent,
                     ExecutedIn = stopwatch.ElapsedMilliseconds
                 });
             }
@@ -348,6 +347,7 @@ namespace Creative.Server.Controllers
                 if (lookup is (Lookup.All or Lookup.Branches))
                 {
                     branches = await GetCache<List<Item>>(nameof(branches));
+
                     if (branches is null)
                     {
                         branches = await _dbContext.RegBranches.AsNoTracking().Select(x => new Item()
@@ -373,29 +373,7 @@ namespace Creative.Server.Controllers
                                }).ToListAsync();
                 }
 
-                if (lookup is (Lookup.All or Lookup.ParentsAndStudent))
-                {
-                    var parentsQuery = _dbContext.AcpStudents.AsNoTracking().Select(x => new { x.Id, x.Name1, x.Name2, x.Code, x.IdNo, Identity = Identity.Student });
 
-                    if (lookup != Lookup.All)
-                    {
-                        parentsQuery = parentsQuery.Union(_dbContext.AcpResponsibiles.AsNoTracking().Select(x => new { x.Id, x.Name1, x.Name2, x.Code, x.IdNo, Identity = Identity.Parent }));
-                    }
-
-                    parentsAndStudent = await parentsQuery.Where(x => searchTerm == "" ||
-                    (searchTerm != null && (x.Name1.Contains(searchTerm) ||
-                    x.IdNo.Trim().Equals(searchTerm) ||
-                    x.Name2.Trim().StartsWith(searchTerm) ||
-                    x.Code.Trim().Equals(searchTerm))))
-                                .Skip((page - 1) * pageSize)
-                                .Take(pageSize)
-                                .Select(x => new Item()
-                                {
-                                    Id = x.Id,
-                                    Name = x.Name1.Trim(),
-                                    Identity = x.Identity
-                                }).ToListAsync();
-                }
 
                 if (lookup is (Lookup.All or Lookup.Nationals))
                 {
@@ -457,7 +435,6 @@ namespace Creative.Server.Controllers
                     Nationals = nationals,
                     Employees = employees,
                     ExamTypes = examTypes,
-                    ParentsAndStudent = parentsAndStudent,
                     HandicapTypes = handicapTypes,
                     ExecutedIn = stopwatch.ElapsedMilliseconds
                 });
@@ -472,21 +449,15 @@ namespace Creative.Server.Controllers
         public async Task<ApiResult<IEnumerable<Item>>> GetClass(decimal gradeId, decimal branchId, string gender)
         {
 
-            IEnumerable<Item> classes = await GetCache<IEnumerable<Item>>(nameof(classes));
-
-            if (classes is null)
-            {
-                classes = await _dbContext.RegClasses.AsNoTracking().Select(x => new Item()
+            
+               var classes = await _dbContext.RegClasses.AsNoTracking().Where(x => x.GreadId == gradeId && x.BranchId == branchId && x.StuSex == gender).Select(x => new Item()
                 {
                     Id = x.Id,
                     Name = x.Name1
                 }).ToListAsync();
-                await SetCache(nameof(classes), classes);
-            }
 
             return new ApiResult<IEnumerable<Item>>().Success(classes);
         }
-
 
         [HttpGet("GetSchedules")]
         public async Task<ApiResult<IEnumerable<ScheduleItem>>> GetSchedules()
@@ -513,6 +484,70 @@ namespace Creative.Server.Controllers
 
             return new ApiResult<IEnumerable<ScheduleItem>>().Success(scheduleItems);
         }
+
+
+
+        [HttpGet("Search")]
+        public async Task<ApiResult<IEnumerable<Item>>> Search(decimal branchId, string searchTerm, bool noStudent = false, int page = 1, int pageSize = 5)
+        {
+            ApiResult<IEnumerable<Item>> result = new();
+
+            var studentQuery = _dbContext.AcpStudents.AsNoTracking();
+
+            if (branchId > 0)
+            {
+                studentQuery = studentQuery.Where(x => x.CurBranchId == branchId);
+            }
+
+
+            var parentQuery = _dbContext.AcpResponsibiles.AsNoTracking();
+            //   join student in studentQuery on parent.Id equals student.ParentId
+            //   select parent;
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                parentQuery = parentQuery.Where(ps => ps.Name1.Contains(searchTerm) ||
+                ps.IdNo.Trim().Equals(searchTerm) ||
+                ps.Name2.Trim().Contains(searchTerm) ||
+                ps.Code.Trim().Equals(searchTerm) ||
+                ps.Tel1.Trim().StartsWith(searchTerm) ||
+                ps.Tel2.Trim().StartsWith(searchTerm)
+               );
+
+                studentQuery = studentQuery.Where(ps => ps.Name1.Contains(searchTerm) ||
+                ps.IdNo.Trim().Equals(searchTerm) ||
+                ps.Name2.Trim().Contains(searchTerm) ||
+                ps.Code.Trim().Equals(searchTerm) ||
+                ps.Tel1.Trim().StartsWith(searchTerm) ||
+                ps.Tel2.Trim().StartsWith(searchTerm)
+               );
+            }
+
+            if (!noStudent)
+            {
+                parentQuery = from parent in parentQuery
+                              join student in studentQuery on parent.Id equals student.ParentId
+                              select parent;
+            }
+
+
+            var allQuery = parentQuery.Select(x => new { x.Id, x.Name1, x.Name2, Identity = Identity.Parent })
+                        .Union(studentQuery.Select(x => new { x.Id, x.Name1, x.Name2, Identity = Identity.Student }));
+
+            var parentStundentsList = await allQuery.Skip((page - 1) * pageSize)
+                         .Take(pageSize)
+                         .Select(x => new Item()
+                         {
+                             Id = x.Id,
+                             Name = x.Name1.Trim(),
+                             Identity = x.Identity
+                         }).ToListAsync();
+
+            return result.Success(parentStundentsList);
+
+        }
+
+
     }
 
 }

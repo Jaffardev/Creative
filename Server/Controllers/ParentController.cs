@@ -53,7 +53,8 @@ namespace Creative.Server.Controllers
                                    join grade in _dbContext.RegGreads.AsNoTracking() on student.CurGreadId equals grade.Id
                                    join year in _dbContext.RegYears.AsNoTracking() on student.CurYearId equals year.Id
                                    join branch in _dbContext.RegBranches.AsNoTracking() on student.CurBranchId equals branch.Id
-                                   join section in _dbContext.RegClasses.AsNoTracking() on student.CurClassId equals section.Id
+                                   join section in _dbContext.RegClasses.AsNoTracking() on student.CurClassId equals section.Id into secGroup
+                                   from sg in secGroup.DefaultIfEmpty()
                                    select new StudentModel()
                                    {
                                        Branch = branch.Name1,
@@ -61,7 +62,7 @@ namespace Creative.Server.Controllers
                                        Grade = grade.Name1,
                                        Id = student.Id,
                                        Name2 = grade.Name2,
-                                       Section = section.Name1,
+                                       Section = sg.Name1,
                                        Status = student.StuStatus,
                                        Year = year.Name1
                                    });

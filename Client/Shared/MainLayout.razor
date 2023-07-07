@@ -19,7 +19,7 @@
         @* </MudToolBar> *@
         <MudSpacer></MudSpacer>
 
-        <MudAutocomplete Class="text-white" IconSize="Size.Medium" ProgressIndicatorColor="Color.Inherit" InputMode="InputMode.search"
+        @* <MudAutocomplete Class="text-white" IconSize="Size.Medium" ProgressIndicatorColor="Color.Inherit" InputMode="InputMode.search"
             DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true"
             Margin="Margin.Dense" ResetValueOnEmptyText="true" MinCharacters="1" KeyDownPreventDefault="true"
             KeyUpPreventDefault="true" T="Item" Placeholder="Parent / Student Name" Variant="Variant.Outlined"
@@ -37,7 +37,7 @@
                     No data found
                 </MudText>
             </NoItemsTemplate>
-        </MudAutocomplete>
+        </MudAutocomplete> *@
         <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
     </MudAppBar>
     <MudMainContent>
@@ -62,10 +62,10 @@
         if (string.IsNullOrEmpty(value))
             return Enumerable.Empty<Item>();
 
-        ApiResult<AcademicLookups> parents = await lookupService.Get(Lookup.ParentsAndStudent, searchTerm: value);
+        @* ApiResult<AcademicLookups> parents = await lookupService.Get(Lookup.ParentsAndStudent, searchTerm: value);
 
         if (parents.IsSuccess)
-            return parents.Data?.ParentsAndStudent ?? new();
+            return parents.Data?.ParentsAndStudent ?? new(); *@
 
         return Enumerable.Empty<Item>();
     }

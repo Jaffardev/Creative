@@ -34,7 +34,7 @@
         public IEnumerable<Item>? Jobs { get; set; }
         public IEnumerable<Item>? HandicapTypes { get; set; }
 
-        public List<Item>? ParentsAndStudent { get; set; }
+
     }
 
     public class ScheduleItem

@@ -19,4 +19,8 @@ public interface ILookupService
 
     [Get($"{controller}{nameof(GetSchedules)}")]
     Task<ApiResult<IEnumerable<ScheduleItem>>> GetSchedules();
+
+
+    [Get($"{controller}{nameof(Search)}")]
+    Task<ApiResult<IEnumerable<Item>>> Search(decimal branchId, string searchTerm, bool noStudent = false, int page = 1, int pageSize = 5);
 }
