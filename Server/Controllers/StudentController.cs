@@ -5,18 +5,19 @@ using Creative.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mapster;
+using static MudBlazor.CategoryTypes;
 
 namespace Creative.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RegistrationController : ControllerBase
+    public class StudentController : ControllerBase
     {
 
-        private readonly ILogger<RegistrationController> _logger;
+        private readonly ILogger<StudentController> _logger;
         private readonly ApplicationDbContext _dbContext;
 
-        public RegistrationController(ILogger<RegistrationController> logger, ApplicationDbContext dbContext)
+        public StudentController(ILogger<StudentController> logger, ApplicationDbContext dbContext)
         {
             _logger = logger;
             this._dbContext = dbContext;
@@ -35,7 +36,7 @@ namespace Creative.Server.Controllers
 
 
         [HttpGet("{studentId:decimal}")]
-        public async Task<ApiResult<AdmissionModel>> GetStudent(decimal studentId)
+        public async Task<ApiResult<AdmissionModel>> GetStudentData(decimal studentId)
         {
             var regStudent = await _dbContext.AcpStudents.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == studentId);
@@ -52,15 +53,18 @@ namespace Creative.Server.Controllers
                                    join room in _dbContext.AcpExmRooms.AsNoTracking() on sch.RoomId equals room.Id
                                    select new ExamEditModel
                                    {
+                                       Id = stexam.Id,
                                        Code = stexam.Code,
                                        Degree = stexam.Degree,
-                                       ExmDate = sch.ExmDate,
-                                       Exm = exam.Name1,
-                                       Id = stexam.Id,
+                                       Schedule = new()
+                                       {
+                                           ExamDate = sch.ExmDate,
+                                           Exam = exam.Name1,
+                                           Room = room.Name1,
+                                           Id = sch.Id,
+                                           Name = sch.Name1,
+                                       },
                                        Notes = stexam.Notes,
-                                       Room = room.Name1,
-                                       ScheduleId = sch.Id,
-                                       ScheduleName1 = sch.Name1,
                                        StuId = stexam.StuId
                                    }).ToListAsync();
 
@@ -69,25 +73,25 @@ namespace Creative.Server.Controllers
 
 
 
-        [HttpGet("GetAll")]
-        public async Task<IEnumerable<RegStudentModel>> GetStudent()
-        {
-            return await _dbContext.AcpStudents.AsNoTracking()
-                .OrderByDescending(x => x.Id).Select(x => new RegStudentModel()
-                {
-                    Id = x.Id,
-                    Name1 = x.Name1,
-                    Name2 = x.Name2,
-                    Tel1 = x.Tel1,
-                    Tel2 = x.Tel2,
-                    ResedenceNo = x.ResedenceNo,
-                    FinanceName = x.FinanceName,
-                    BranchId = x.CurBranchId,
-                    GradeId = x.CurGreadId,
-                    ClassId = x.CurClassId,
-                    YearId = x.CurYearId
-                }).Take(5).ToListAsync();
-        }
+        //[HttpGet("GetAll")]
+        //public async Task<IEnumerable<RegStudentModel>> GetStudents()
+        //{
+        //    return await _dbContext.AcpStudents.AsNoTracking()
+        //        .OrderByDescending(x => x.Id).Select(x => new RegStudentModel()
+        //        {
+        //            Id = x.Id,
+        //            Name1 = x.Name1,
+        //            Name2 = x.Name2,
+        //            Tel1 = x.Tel1,
+        //            Tel2 = x.Tel2,
+        //            ResedenceNo = x.ResedenceNo,
+        //            FinanceName = x.FinanceName,
+        //            BranchId = x.CurBranchId,
+        //            GradeId = x.CurGreadId,
+        //            ClassId = x.CurClassId,
+        //            YearId = x.CurYearId
+        //        }).Take(5).ToListAsync();
+        //}
 
 
         [HttpPost]
@@ -105,8 +109,18 @@ namespace Creative.Server.Controllers
                     StuStatus = model.StuStatus?.ToString(),
                     ParentId = model.ParentId,
                     Gender = model.Gender.ToString(),
-                    Name1 = $"{model.Name11} {model.Name12} {model.Name13} {model.Name14}",
-                    Name2 = $"{model.Name21} {model.Name22} {model.Name23} {model.Name24}",
+                    Name11 = model.Name11,
+                    Name12 = model.Name12,
+                    Name13 = model.Name13,
+                    Name14  = model.Name14,
+                    Name15 = model.Name15,
+                    Name1 = $"{model.Name11} {model.Name12} {model.Name13} {model.Name14} {model.Name15}",
+                    Name21  = model.Name21,
+                    Name22 = model.Name22,  
+                    Name23 = model.Name23,  
+                    Name24 = model.Name24,
+                    Name25 = model.Name25,
+                    Name2 = $"{model.Name21} {model.Name22} {model.Name23} {model.Name24} {model.Name25}",
                     Notes = model.Notes,
                     DeptNotes = model.DeptNotes,
                     StuResult = model.Result?.ToString(),
@@ -147,44 +161,48 @@ namespace Creative.Server.Controllers
                     EmpId = model.EmpId,
                     IdEndDate = model.EndDate
                 };
-                var response = await _dbContext.AcpStudents.AddAsync(student);
-                await _dbContext.SaveChangesAsync();
 
+                if (model.Id > 0)
+                {
+                    student.Id = model.Id;
+                    _dbContext.Entry(student).State = EntityState.Modified;
+                }
+                else
+                {
+                    await _dbContext.AcpStudents.AddAsync(student);
+                }
+
+                await _dbContext.SaveChangesAsync();
                 if (model.Exams.Count != 0)
                 {
-                    // foreach (var item in model.Exams.Where(x => x.Action == CRUDAction.Edit))
-                    // {
-                    //     var acpExam = await _dbContext.AcpExams.FirstOrDefaultAsync(x => x.Id == item.Id);
-                    //     acpExam.Code = item.Code;
-                    //     acpExam.ModifyDate = DateTime.Now;
-                    //     acpExam.Degree = item.Degree;
-                    //     acpExam.Name1 = item.Name1;
-                    //     acpExam.Name2 = item.Name2;
-                    //     acpExam.Notes = item.Notes;
-                    //     acpExam.TypeId = item.TypeId;
-                    // }
-                    await _dbContext.SaveChangesAsync();
+                    foreach (var item in model.Exams.Where(x => x.State == State.Edit && x.Id > 0))
+                    {
+                        var acpExam = await _dbContext.AcpStuExms.FirstOrDefaultAsync(x => x.Id == item.Id);
+                        acpExam.ModifyDate = DateTime.Now;
+                        acpExam.Code = item.Code;
+                        acpExam.Degree = item.Degree;
+                        acpExam.Notes = item.Notes;
+                        acpExam.StuId = student.Id;
+                        acpExam.ScheduleId = item.Schedule.Id;
+                    }
 
-                    // var newItems = model.Exams.Where(x => x.Action == CRUDAction.Add).Select(x => new AcpExam()
-                    // {
-                    //     Code = x.Code,
-                    //     CreationDate = DateTime.Now,
-                    //     Degree = x.Degree,
-                    //     Name1 = x.Name1,
-                    //     Name2 = x.Name2,
-                    //     Notes = x.Notes,
-                    //     TypeId = x.TypeId,
+                    var newItems = model.Exams.Where(x => x.State == State.Add || x.Id == 0).Select(x => new AcpStuExm()
+                    {
+                        CreationDate = DateTime.Now,
+                        Code = x.Code,
+                        Degree = x.Degree,
+                        Notes = x.Notes,
+                        StuId = student.Id,
+                        ScheduleId = x.Schedule.Id
+                    });
+                    if (newItems.Any())
+                        await _dbContext.AcpStuExms.AddRangeAsync(newItems);
 
-                    //     ExmStartTime = x.ExmStartTime.ToDateTime(TimeOnly.MinValue)
-                    // });
-
-                    // if (newItems.Any())
-                    //     await _dbContext.AcpExams.AddRangeAsync(newItems);
-
-                    var deleteItems = model.Exams.Where(x => x.Action == CRUDAction.Delete);
-
+                    var deleteItems = model.Exams.Where(x => x.State == State.Delete);
                     if (deleteItems.Any())
-                        await _dbContext.AcpExams.Where(x => deleteItems.Any(di => di.Id == x.Id)).ExecuteDeleteAsync();
+                        await _dbContext.AcpStuExms.Where(x => deleteItems.Any(di => di.Id == x.Id)).ExecuteDeleteAsync();
+
+                    await _dbContext.SaveChangesAsync();
                 }
 
                 return result.Success(student.Id);
@@ -218,15 +236,18 @@ namespace Creative.Server.Controllers
                             join room in _dbContext.AcpExmRooms.AsNoTracking() on sch.RoomId equals room.Id
                             select new ExamEditModel
                             {
+                                Id = exam.Id,
                                 Code = exam.Code,
                                 Degree = exam.Degree,
-                                ExmDate = sch.ExmDate,
-                                Exm = exam.Name1,
-                                Id = exam.Id,
                                 Notes = exam.Notes,
-                                Room = room.Name1,
-                                ScheduleId = sch.Id,
-                                StuId = exam.StuId
+                                StuId = exam.StuId,
+                                Schedule = new()
+                                {
+                                    ExamDate = sch.ExmDate,
+                                    Exam = exam.Name1,
+                                    Room = room.Name1,
+                                    Id = sch.Id
+                                }
                             });
 
             return new ApiResult<IEnumerable<ExamEditModel>>().Success(stuExams);

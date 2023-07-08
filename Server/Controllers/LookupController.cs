@@ -449,12 +449,12 @@ namespace Creative.Server.Controllers
         public async Task<ApiResult<IEnumerable<Item>>> GetClass(decimal gradeId, decimal branchId, string gender)
         {
 
-            
-               var classes = await _dbContext.RegClasses.AsNoTracking().Where(x => x.GreadId == gradeId && x.BranchId == branchId && x.StuSex == gender).Select(x => new Item()
-                {
-                    Id = x.Id,
-                    Name = x.Name1
-                }).ToListAsync();
+
+            var classes = await _dbContext.RegClasses.AsNoTracking().Where(x => x.GreadId == gradeId && x.BranchId == branchId && x.StuSex == gender).Select(x => new Item()
+            {
+                Id = x.Id,
+                Name = x.Name1
+            }).ToListAsync();
 
             return new ApiResult<IEnumerable<Item>>().Success(classes);
         }

@@ -1,208 +1,256 @@
 ﻿@page "/"
-
-@* 
-@using System.Net.Http.Json
+@using Creative.Client.Pages.Components
+@using Creative.Client.Services;
+@using Creative.Shared.Models;
+@using System.Collections.ObjectModel
 @using MudBlazor
-@using MudBlazor.Examples.Data.Models
-@inject HttpClient httpClient
+
+@inject NavigationManager navManager;
+@inject ILookupService _lookupService;
+@inject IParentService _parentService;
+@inject IStudentService _studentService;
+@inject IDialogService DialogService;
 @inject ISnackbar Snackbar
 
-<MudTable Items="@Elements" Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit"
-    Filter="new Func<Element,bool>(FilterFunc)" @bind-SelectedItem="selectedItem1" SortLabel="Sort By"
-    CommitEditTooltip="Commit Edit" OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))"
-    RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" RowEditCommit="ItemHasBeenCommitted"
-    IsEditRowSwitchingBlocked="@blockSwitch" ApplyButtonPosition="@applyButtonPosition"
-    EditButtonPosition="@editButtonPosition" EditTrigger="@editTrigger">
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Periodic Elements</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start"
-            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-    </ToolBarContent>
-    <ColGroup>
-        @if (applyButtonPosition.DisplayApplyButtonAtStart() || (editButtonPosition.DisplayEditButtonAtStart() &&
-        editTrigger == TableEditTrigger.EditButton))
+<MudPaper>
+    <MudStack>
+        @if (StudentDataItem.Status == DataStatus.Loading)
         {
-            <col style="width:50px;" />
+            <span>Loading...</span>
         }
-        <col style="width:50px;" />
-        <col style="width:80px;" />
-        <col style="width:50%;" />
-        <col />
-        <col />
-        @if (applyButtonPosition.DisplayApplyButtonAtEnd() || (editButtonPosition.DisplayEditButtonAtEnd() &&
-        editTrigger == TableEditTrigger.EditButton))
+        else
         {
-            <col style="width:50px;" />
-        }
-    </ColGroup>
-    <HeaderContent>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<Element, object>(x=>x.Number)">Nr</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<Element, object>(x=>x.Sign)">Sign</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<Element, object>(x=>x.Name)">
-                Name</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<Element, object>(x=>x.Position)">Position</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<Element, object>(x=>x.Molar)">Mass</MudTableSortLabel>
-        </MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Nr">@context.Number</MudTd>
-        <MudTd DataLabel="Sign">@context.Sign</MudTd>
-        <MudTd DataLabel="Name">@context.Name</MudTd>
-        <MudTd DataLabel="Position">@context.Position</MudTd>
-        <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
-    </RowTemplate>
-    <RowEditingTemplate>
-        <MudTd DataLabel="Nr">@context.Number</MudTd>
-        <MudTd DataLabel="Sign">
-            <MudTextField @bind-Value="@context.Sign" Required />
-         </MudTd>
-         <MudTd DataLabel="Name">
-             <MudTextField @bind-Value="@context.Name" Required />
-         </MudTd>
-         <MudTd DataLabel="Position">
-             <MudNumericField @bind-Value="@context.Position" Required Min="1" />
-         </MudTd>
-         <MudTd DataLabel="Molar mass">
-             <MudTextField @bind-Value="@context.Molar" Required />
-         </MudTd>
-     </RowEditingTemplate>
-     <PagerContent>
-         <MudTablePager />
-     </PagerContent>
-     <EditButtonContent Context="button">
-         <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0"
-             OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
-     </EditButtonContent>
- </MudTable>
+            @model.Name1
+            @model.Name2
+            @model.CurGradeId
+            @model.CurYearId
+            @model.IdNumber
+            <MudDataGrid T="ExamEditModel" ReadOnly=false Items="@model.Exams.Where(x=> x.State!=State.Delete)" Filterable="false" SortMode="@SortMode.None" Groupable="false"
+                         EditMode="DataGridEditMode.Cell" Dense=true StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges">
+                <Columns>
+                    <PropertyColumn Property="x => x.State" Title="State" />
+                    <PropertyColumn Property="x => x.Code" Title="Code" />
+                    <PropertyColumn Property="x => x.Schedule.Name" Title="Schedule">
+                        <EditTemplate>
+                            <MudAutocomplete T="ScheduleItem" Label="Schedule" @bind-Value="context.Item.Schedule" Dense="true"
+                                             ToStringFunc="@(e=> e==null?null : $"{e.Name}")" SearchFunc="@Search" ShowProgressIndicator="true" >
+                                <ProgressIndicatorTemplate>
+                                    <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Default" />
+                                </ProgressIndicatorTemplate>
+                                <ItemTemplate Context="item">
+                                    <MudStack>
+                                        <MudText>Name     : @item.Exam</MudText>
+                                        <MudText>Room     : @item.Room</MudText>
+                                        <MudText>ExamDate : @item.ExamDate</MudText>
+                                    </MudStack>
+                                </ItemTemplate>
+                            </MudAutocomplete>
+                        </EditTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Schedule.Exam" Title="Exam" IsEditable="false" />
+                    <PropertyColumn Property="x => x.Schedule.Room" Title="Room" IsEditable="false" />
+                    <PropertyColumn Property="x => x.Schedule.ExamDate" Title="Exam Date" IsEditable="false">
+                        <CellTemplate>
+                            @context?.Item?.Schedule.ExamDate?.ToString("d")
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Degree" />
+                    <PropertyColumn Property="x => x.Notes" Title="Note" />
+                    <TemplateColumn CellClass="d-flex justify-end">
+                        <CellTemplate>
+                            @*<MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />*@
+                            @*<MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(()=> AddNewExam(context.Item))" />*@
+                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=> DeleteExam(context.Item))" />
+                        </CellTemplate>
+                        <FooterTemplate>
+                            @if (!ShowExamEditForm)
+                            {
+                                <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(()=> AddNewExam(null))" />
+                            }
+                        </FooterTemplate>
+                    </TemplateColumn>
+                </Columns>
 
- <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
- <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
- <MudSwitch @bind-Checked="@ronly" Color="Color.Tertiary">Read Only</MudSwitch>
- <MudSwitch @bind-Checked="@canCancelEdit" Color="Color.Info">Can Cancel Edit</MudSwitch>
- <MudSwitch @bind-Checked="@blockSwitch" Color="Color.Success">Block Edit Row Switching</MudSwitch>
- <MudGrid>
-     <MudItem xs="12" md="4">
-         <MudSelect Label="Edit Trigger" T="TableEditTrigger" @bind-Value="editTrigger">
-             <MudSelectItem Value="TableEditTrigger.RowClick">Row Click</MudSelectItem>
-             <MudSelectItem Value="TableEditTrigger.EditButton">Edit Button</MudSelectItem>
-         </MudSelect>
-     </MudItem>
-     @if (editTrigger == TableEditTrigger.EditButton)
-    {
-        <MudItem xs="12" md="4">
-            <MudSelect Label="Edit Button Postion" T="TableEditButtonPosition" @bind-Value="editButtonPosition">
-                <MudSelectItem Value="TableEditButtonPosition.Start">Start</MudSelectItem>
-                <MudSelectItem Value="TableEditButtonPosition.End">End</MudSelectItem>
-                <MudSelectItem Value="TableEditButtonPosition.StartAndEnd">Start and End</MudSelectItem>
-            </MudSelect>
-        </MudItem>
-    }
-    <MudItem xs="12" md="4">
-        <MudSelect Label="Apply Button Postion" T="TableApplyButtonPosition" @bind-Value="applyButtonPosition">
-            <MudSelectItem Value="TableApplyButtonPosition.Start">Start</MudSelectItem>
-            <MudSelectItem Value="TableApplyButtonPosition.End">End</MudSelectItem>
-            <MudSelectItem Value="TableApplyButtonPosition.StartAndEnd">Start and End</MudSelectItem>
-        </MudSelect>
-    </MudItem>
-</MudGrid>
+            </MudDataGrid>
 
-<MudText Inline="true">Selected1: @selectedItem1?.Name</MudText>
 
-<MudExpansionPanels Style="flex: 1;">
-    <MudExpansionPanel Text="Show inline-edit event log">
-        @foreach (var message in editEvents)
-        {
-            <MudText>@message</MudText>
+
+            @if (ShowExamEditForm)
+            {
+                <MudPaper>
+                    <MudStack Row="true">
+                        <MudTextField T="string" Label="Code" @bind-Value="editExamModel.Code" Required="true" />
+                        @if (ScheduleItems.Status == DataStatus.Loading)
+                        {
+                            <MudSkeleton />
+                        }
+                        @if (ScheduleItems.Status == DataStatus.Loaded)
+                        {
+                            <MudAutocomplete T="ScheduleItem" Label="Schedule" @bind-Value="editExamModel.Schedule" Dense="true"
+                                             ToStringFunc="@(e=> e==null?null : $"{e.Name}")" ResetValueOnEmptyText="false" SearchFunc="@Search" ShowProgressIndicator="true" CoerceText=false CoerceValue=false>
+                                <ProgressIndicatorTemplate>
+                                    <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Default" />
+                                </ProgressIndicatorTemplate>
+                                <ItemTemplate Context="item">
+
+                                    <MudStack>
+                                        <MudText>Name     : @item.Exam</MudText>
+                                        <MudText>Room     : @item.Room</MudText>
+                                        <MudText>ExamDate : @item.ExamDate</MudText>
+                                    </MudStack>
+
+                                </ItemTemplate>
+                            </MudAutocomplete>
+                        }
+                        @*              <MudSelect T="ScheduleItem" @bind-Value="editExamModel.Schedule" Required RequiredError="You must select!!!" Margin="@Margin.Dense" Label="Schedule" AnchorOrigin="Origin.BottomCenter">
+                @if (ScheduleItems.Status == DataStatus.Loading)
+                {
+                <MudSkeleton />
+                }
+                @if (ScheduleItems.Status == DataStatus.Loaded)
+                {
+                @foreach (var item in ScheduleItems.Data)
+                {
+                <MudSelectItem Value="@item">
+                <MudStack>
+                <MudText>Name     : @item.Exam</MudText>
+                <MudText>Room     : @item.Room</MudText>
+                <MudText>ExamDate : @item.ExamDate</MudText>
+                </MudStack>
+                </MudSelectItem>
+                }
+                }
+                </MudSelect>*@
+
+                        <MudTextField T="decimal?" Label="Degree" @bind-Value="editExamModel.Degree" Required="true" />
+                        <MudTextField T="string" Label="Notes" @bind-Value="editExamModel.Notes" Required="true" />
+                        <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(()=> UpdateExam())" />
+                    </MudStack>
+                </MudPaper>
+            }
+
+
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> UpdateStudentData())" Class="ml-auto">Save Student Data</MudButton>
         }
-        @if (editEvents.Count > 0)
-        {
-            <div class="d-flex">
-                <MudSpacer />
-                <MudButton Class="mt-3" ButtonType="ButtonType.Button" Variant="Variant.Filled" OnClick="ClearEventLog">
-                    Clear event log</MudButton>
-            </div>
-        }
-    </MudExpansionPanel>
-</MudExpansionPanels>
+    </MudStack>
+
+</MudPaper>
+
+
+
+
 
 @code {
-    private List<string> editEvents = new();
-    private bool dense = false;
-    private bool hover = true;
-    private bool ronly = false;
-    private bool canCancelEdit = false;
-    private bool blockSwitch = false;
-    private string searchString = "";
-    private Element selectedItem1 = null;
-    private Element elementBeforeEdit;
-    private HashSet<Element> selectedItems1 = new HashSet<Element>();
-    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
-    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
-    private TableEditTrigger editTrigger = TableEditTrigger.RowClick;
-    private IEnumerable<Element> Elements = new List<Element>();
+    //[Parameter] public AdmissionModel model { get { return StudentDataItem?.Data; } set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "studentId")]
+    public decimal StudentId { get; set; }
+    private async Task<IEnumerable<ScheduleItem>> Search(string? value)
+    {
+        await Task.CompletedTask;
+
+        if (!string.IsNullOrEmpty(value))
+            return ScheduleItems.Data.Where(x => x.Name.Contains(value));
+
+        return ScheduleItems.Data;
+    }
+    private AdmissionModel _model;
+
+    [Parameter]
+    public AdmissionModel model
+    {
+        get { return StudentDataItem.Data; }
+        set { _model = value; }
+    }
+
+
+    public DataItem<AdmissionModel> StudentDataItem { get; set; } = new();
+    public DataItem<IEnumerable<ScheduleItem>> ScheduleItems { get; set; } = new();
+
+    private MudDataGrid<ExamEditModel> ExamGrid;
+
+    public ExamEditModel editExamModel { get; set; } = new();
+    public bool ShowExamEditForm { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
-        Elements = await httpClient.GetFromJsonAsync<List<Element>>("webapi/periodictable");
+        if (StudentId > 0)
+            await LoadFormData();
     }
 
-    private void ClearEventLog()
+
+
+
+    // events
+    void StartedEditingItem(ExamEditModel item)
     {
-        editEvents.Clear();
     }
 
-    private void AddEditionEvent(string message)
+    void CanceledEditingItem(ExamEditModel item)
     {
-        editEvents.Add(message);
-        StateHasChanged();
     }
 
-    private void BackupItem(object element)
+    void CommittedItemChanges(ExamEditModel item)
     {
-        elementBeforeEdit = new()
+    }
+
+    private async Task UpdateStudentData()
+    {
+        model.CurGradeId = 11;
+        model.IdNumber = "287052108532";
+        await _studentService.Post(model);
+    }
+
+
+    private async Task AddNewExam(ExamEditModel? existingExamData)
+    {
+        if (existingExamData is null)
+        {
+            editExamModel = new() { State = State.Add };
+        }
+
+        if (existingExamData?.Id > 0)
+        {
+            editExamModel = existingExamData;
+            editExamModel.State = State.Edit;
+        }
+
+        ShowExamEditForm = true;
+        await Task.CompletedTask;
+    }
+    private async Task UpdateExam()
+    {
+        model.Exams.Add(editExamModel);
+        ShowExamEditForm = false;
+        //await ExamGrid.ReloadServerData();
+        await Task.CompletedTask;
+    }
+    private async Task DeleteExam(ExamEditModel? existingExamData)
+    {
+        existingExamData.State = State.Delete;
+        //await ExamGrid.ReloadServerData();
+        await Task.CompletedTask;
+    }
+
+    private async Task LoadFormData()
+    {
+        _ = Task.Run(async () =>
+        {
+            var scheduleItemsResult = await _lookupService.GetSchedules();
+            if (scheduleItemsResult.IsSuccess)
             {
-                Sign = ((Element)element).Sign,
-                Name = ((Element)element).Name,
-                Molar = ((Element)element).Molar,
-                Position = ((Element)element).Position
-            };
-        AddEditionEvent($"RowEditPreview event: made a backup of Element {((Element)element).Name}");
-    }
+                ScheduleItems.Success(scheduleItemsResult.Data);
+            }
+        });
 
-    private void ItemHasBeenCommitted(object element)
-    {
-        AddEditionEvent($"RowEditCommit event: Changes to Element {((Element)element).Name} committed");
-    }
 
-    private void ResetItemToOriginalValues(object element)
-    {
-        ((Element)element).Sign = elementBeforeEdit.Sign;
-        ((Element)element).Name = elementBeforeEdit.Name;
-        ((Element)element).Molar = elementBeforeEdit.Molar;
-        ((Element)element).Position = elementBeforeEdit.Position;
-        AddEditionEvent($"RowEditCancel event: Editing of Element {((Element)element).Name} canceled");
+        await loadStudeData();
     }
-
-    private bool FilterFunc(Element element)
+    private async Task loadStudeData()
     {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
-            return true;
-        return false;
+        StudentDataItem.Loading();
+        var studentData = (await _studentService.GetStudent(StudentId))?.Data;
+        StudentDataItem.Success(studentData);
     }
-} *@
+}

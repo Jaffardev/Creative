@@ -6,7 +6,7 @@ namespace Creative.Client.Services;
 
 public interface IStudentService
 {
-    const string controller = "/api/Registration/";
+    const string controller = "/api/Student/";
 
     [Get($"{controller}{nameof(GetNewCode)}")]
     Task<ApiResult<decimal>> GetNewCode();
@@ -22,5 +22,8 @@ public interface IStudentService
 
     [Get($"{controller}{nameof(GetStuExams)}")]
     Task<ApiResult<IEnumerable<ExamEditModel>>> GetStuExams(decimal studentId);
+
+    [Post($"{controller}{nameof(InsertStuExams)}")]
+    Task<ApiResult<decimal>> InsertStuExams(ExamEditModel request);
 
 }
