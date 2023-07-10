@@ -41,7 +41,7 @@ public class ParentModel
 
 public class StudentModel
 {
-    public string? Status { get; set; }
+    public int? Status { get; set; }
     public string? Section { get; set; }
     public string? Grade { get; set; }
     public string? Branch { get; set; }

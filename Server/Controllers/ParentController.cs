@@ -63,7 +63,7 @@ namespace Creative.Server.Controllers
                                        Id = student.Id,
                                        Name2 = grade.Name2,
                                        Section = sg.Name1,
-                                       Status = student.StuStatus,
+                                       Status = Convert.ToInt16(student.TransferStatus ?? "0"),
                                        Year = year.Name1
                                    });
 

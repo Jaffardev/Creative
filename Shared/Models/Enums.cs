@@ -78,4 +78,13 @@ namespace Creative.Shared.Models
         UnderTest = 2,
         Acceptable = 1,
     }
+
+    public enum TransferStatus
+    {
+        Pending =0,
+        New = 1,
+        Started = 2,
+        Inprogress = 3,
+        Posted = 6,
+    }
 }

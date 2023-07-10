@@ -5,6 +5,7 @@
         public decimal Id { get; set; }
         public string Name { get; set; }
         public Identity Identity { get; set; }
+
         // Note: this is important so the MudSelect can compare pizzas
         public override bool Equals(object o)
         {
@@ -37,6 +38,11 @@
 
     }
 
+    public class EligibleData
+    {
+        public string AgeAtAdmission { get; set; }
+        public string? EliogibleGrade { get; set; }
+    }
     public class ScheduleItem
     {
         public decimal Id { get; set; }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Creative.Shared.Extensions;
+using System.ComponentModel.DataAnnotations;
 
 namespace Creative.Shared.Models;
 
@@ -30,8 +31,15 @@ public class AdmissionModel
     [Required]
     public int? RelegionId { get; set; }
     public int? StudentType { get; set; }
-    public int? AgeAtAdmission { get; set; }
-    public int? Age { get; set; }
+
+    [Required]
+    public string? AgeAtAdmission { get; set; }
+
+    [Required]
+    public string? EligibleGrade { get; set; }
+
+    [Required]
+    public string? Age { get => BirthDate?.ToAgeString(); }
     public string? LastYearClass { get; set; }
     public string? LastModifiedBy { get; set; }
     public DateTime? LastModifiedDate { get; set; }
@@ -46,7 +54,7 @@ public class AdmissionModel
     public int? ComeYearId { get; set; }
 
     [Required]
-    public int? CurBranchId { get; set; }
+    public decimal? CurBranchId { get; set; }
 
     [Required]
     public int? CurGradeId { get; set; }
@@ -120,5 +128,5 @@ public class AdmissionModel
     public bool? AcceptPrepaid { get; set; }
     public bool? AcceptFees { get; set; }
     public bool? AcceptDebt { get; set; }
-
+    public string? XxxstudentTypeKind { get; set; }
 }

@@ -16,17 +16,23 @@
 @* AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Success" *@
 <MudGrid>
     <MudItem md="2">
-        <MudSelect T="decimal?" Label="Branch" AnchorOrigin="Origin.BottomCenter" @bind-Value="searchBranchId">
+        @{
+            string branchLabel = lookups.Status == DataStatus.Loading ? "Loading Branch.." : "Branch";
+        }
+
+
+        <MudSelect T="decimal?" Label="@branchLabel" AnchorOrigin="Origin.BottomCenter" @bind-Value="searchBranchId">
             <MudSelectItem T="decimal?" Value="0">All</MudSelectItem>
-            <MudItems DT="ItemType.Decimal" Lookups="lookups.Data.Branches" DataStatus="lookups.Status"></MudItems>
+            <MudItems DT="ItemType.Decimal" Lookups="lookups?.Data?.Branches" DataStatus="lookups.Status"></MudItems>
         </MudSelect>
-        <MudCheckBox Label="No Students" @bind-Checked="searchWithoutStudent" Color="Color.Primary"></MudCheckBox>
+
+        <MudCheckBox Label="InCompleted Entry" @bind-Checked="searchWithoutStudent" Color="Color.Primary"></MudCheckBox>
         <MudAutocomplete IconSize="Size.Medium" ProgressIndicatorColor="Color.Success" InputMode="InputMode.search"
                          DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true"
                          Margin="Margin.Dense" ResetValueOnEmptyText="true" MinCharacters="1" KeyDownPreventDefault="true"
-                         KeyUpPreventDefault="true" T="Item" Placeholder="Parent / Student Name" Variant="Variant.Outlined"
+                         KeyUpPreventDefault="true" T="Item" Placeholder="Type to search" Variant="Variant.Outlined"
                          SearchFuncWithCancel="@Search"
-                         ValueChanged="@LoadData" ShowProgressIndicator="true">
+                         ValueChanged="@LoadData" ShowProgressIndicator="true" HelperText="Search by Parent/Student Name,CivilId,Code,Tel1,Tel2">
             <ProgressIndicatorTemplate>
                 <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Default" />
             </ProgressIndicatorTemplate>
@@ -103,13 +109,13 @@
 
                         <MudItem xs="3">
                             <MudSelect T="decimal?" Label="Nationality" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.NationalId">
-                                <MudItems DT="ItemType.Decimal" Lookups="lookups.Data.Nationals" DataStatus="lookups.Status"></MudItems>
+                                <MudItems DT="ItemType.Decimal" Lookups="lookups.Data?.Nationals" DataStatus="lookups.Status"></MudItems>
                             </MudSelect>
                         </MudItem>
 
                         <MudItem xs="3">
                             <MudSelect T="decimal?" Label="Job" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.JobId">
-                                <MudItems DT="ItemType.Decimal" Lookups="lookups.Data.Jobs" DataStatus="lookups.Status"></MudItems>
+                                <MudItems DT="ItemType.Decimal" Lookups="lookups.Data?.Jobs" DataStatus="lookups.Status"></MudItems>
                             </MudSelect>
                         </MudItem>
 
@@ -119,7 +125,7 @@
                         </MudItem>
 
                         <MudItem xs="3">
-                            <MudDatePicker Label="Civil ID Expire Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                            <MudDatePicker IconSize="Size.Small" Label="Civil ID Expire Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
                             @bind-Date="model.IdEndDate" For="@(() => model.IdEndDate)" />
                         </MudItem>
 
@@ -155,7 +161,7 @@
                                 <MudButton Variant="Variant.Filled" Color="Color.Success" Class="add-item-btn ml-auto" OnClick="@AddNewStudent">Add New Student</MudButton>
                                 <MudSpacer></MudSpacer>
                                 <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
-                                    New
+                                    Start New Parent Entry
                                 </MudButton>
                             }
                         }
@@ -163,7 +169,7 @@
                         {
 
                             <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
-                                New
+                                Start New Parent Entry
                             </MudButton>
                         }
                     </MudStack>
@@ -178,7 +184,12 @@
                     <MudText Typo="Typo.h6">Students</MudText>
                 </ToolBarContent>
                 <Columns>
-                    <PropertyColumn Property="x => x.Status" />
+                    <PropertyColumn Property="x => x.Status">
+                        <CellTemplate>
+                            @((TransferStatus)context.Item.Status)
+                        </CellTemplate>
+                    </PropertyColumn>
+
                     <PropertyColumn Property="x => x.Section" />
                     <PropertyColumn Property="x => x.Grade" />
                     <PropertyColumn Property="x => x.Year" />
@@ -315,7 +326,7 @@
         else
             await SetFormData();
 
-            StateHasChanged();
+        StateHasChanged();
     }
     private async Task LoadParentData(decimal id)
     {
@@ -386,7 +397,13 @@
                 Name12 = model.Name11,
                 Name13 = model.Name12,
                 Name14 = model.Name13,
-                Name15 = model.Name14
+                Name15 = model.Name14,
+                Name22 = model.Name21,
+                Name23 = model.Name22,
+                Name24 = model.Name23,
+                Name25 = model.Name24,
+                OnlineStatus = (int)OnlineStatus.RegisterInSchool,
+                StuStatus = (int)StudentStatus.ReservationAndNotPaid
             };
         await OpenStudentForm();
     }

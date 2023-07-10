@@ -1,6 +1,7 @@
 using Mapster;
 using Creative.Shared.Models;
 using Creative.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 public static class CustomMapperConfig
 {
@@ -22,6 +23,10 @@ public static class CustomMapperConfig
             .Map(dest => dest.AcceptPrepaid, src => src.AcceptPrepaid == "1")
             .Map(dest => dest.AcceptFees, src => src.AcceptFees == "1")
             .Map(dest => dest.AcceptDebt, src => src.AcceptDebt == "1")
+            .Map(dest => dest.Result, src => Convert.ToInt32(src.StuResult ?? "0"))
+            .Map(dest => dest.StudentType, src => Convert.ToInt32(src.StuType ?? "0"))
+            .Map(dest => dest.CurGradeId, src => Convert.ToInt32(src.CurGreadId ??0))
+            .Map(dest => dest.IdNumber, src => src.IdNo)
             .Map(dest => dest.ResEmp, src => src.ResEmp == "1").TwoWays();
     }
 }

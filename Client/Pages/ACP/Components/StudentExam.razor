@@ -1,0 +1,226 @@
+﻿@using Creative.Client.Pages.Components
+@using Creative.Client.Services;
+@using Creative.Shared.Models;
+@using System.Collections.ObjectModel
+@using MudBlazor
+
+@inject NavigationManager navManager;
+@inject ILookupService _lookupService;
+@inject IParentService _parentService;
+@inject IStudentService _studentService;
+@inject IDialogService DialogService;
+@inject ISnackbar Snackbar
+
+<MudPaper>
+    <MudStack>
+        @if (model is null)
+        {
+            <span>Loading...</span>
+        }
+        else
+        {
+           
+            <MudDataGrid T="ExamEditModel" ReadOnly=false Items="@model.Exams.Where(x=> x.State!=State.Delete)" Filterable="false" SortMode="@SortMode.None" Groupable="false"
+                         EditMode="DataGridEditMode.Cell" Dense=true StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges">
+                <Columns>
+                    <PropertyColumn Property="x => x.State" Title="State" >
+                        <CellTemplate>
+                            @context?.Item?.State.ToString()
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Code" Title="Code" />
+                    <PropertyColumn Property="x => x.Schedule.Name" Title="Schedule">
+                        <EditTemplate>
+                            <MudAutocomplete T="ScheduleItem" @bind-Value="context!.Item!.Schedule"
+                                             SearchFunc="@Search" ToStringFunc="@(e=> e==null?null : $"{e.Name}")">
+                                <ItemTemplate Context="item">
+                                    <MudStack>
+                                        <MudText>Name     : @item.Exam</MudText>
+                                        <MudText>Room     : @item.Room</MudText>
+                                        <MudText>ExamDate : @item.ExamDate?.ToString("dd/MM/yyyy")</MudText>
+                                    </MudStack>
+                                </ItemTemplate>
+                            </MudAutocomplete>
+                        </EditTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Schedule.Exam" Title="Exam" IsEditable="false" />
+                    <PropertyColumn Property="x => x.Schedule.Room" Title="Room" IsEditable="false" />
+                    <PropertyColumn Property="x => x.Schedule.ExamDate" Title="Exam Date" IsEditable="false">
+                        <CellTemplate>
+                            @context?.Item?.Schedule.ExamDate?.ToString("d")
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Degree" />
+                    <PropertyColumn Property="x => x.Notes" Title="Note" />
+                    <TemplateColumn CellClass="d-flex justify-end" Title="Action">
+                        <CellTemplate>
+                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=> DeleteExam(context.Item))" />
+                        </CellTemplate>
+                        <FooterTemplate>
+                            @if (!ShowExamEditForm)
+                            {
+                                <MudFab Color="Color.Secondary" IconSize="Size.Small" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(()=> AddNewExam(null))" />
+                            }
+                        </FooterTemplate>
+                    </TemplateColumn>
+                </Columns>
+
+            </MudDataGrid>
+
+
+
+            @if (ShowExamEditForm)
+            {
+                <MudPaper>
+                    <MudStack Row="true">
+                        <MudTextField T="string" Label="Code" @bind-Value="editExamModel.Code" Required="true" />
+                        @if (ScheduleItems.Status == DataStatus.Loading)
+                        {
+                            <MudSkeleton />
+                        }
+                        @if (ScheduleItems.Status == DataStatus.Loaded)
+                        {
+                            <MudAutocomplete T="ScheduleItem" Label="Schedule" @bind-Value="editExamModel.Schedule" Dense="true"
+                                             ToStringFunc="@(e=> e==null?null : $"{e.Name}")" ResetValueOnEmptyText="false" SearchFunc="@Search" ShowProgressIndicator="true" CoerceText=false CoerceValue=false>
+                                <ProgressIndicatorTemplate>
+                                    <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Default" />
+                                </ProgressIndicatorTemplate>
+                                <ItemTemplate Context="item">
+
+                                    <MudStack>
+                                        <MudText>Name     : @item.Exam</MudText>
+                                        <MudText>Room     : @item.Room</MudText>
+                                        <MudText>ExamDate : @item.ExamDate</MudText>
+                                    </MudStack>
+
+                                </ItemTemplate>
+                            </MudAutocomplete>
+                        }
+                       
+
+                        <MudTextField T="decimal?" Label="Degree" @bind-Value="editExamModel.Degree" Required="true" />
+                        <MudTextField T="string" Label="Notes" @bind-Value="editExamModel.Notes" Required="true" />
+                        <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(()=> UpdateExam())" />
+                    </MudStack>
+                </MudPaper>
+            }
+
+
+            @*<MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> UpdateStudentData())" Class="ml-auto">Save Student Data</MudButton>*@
+        }
+    </MudStack>
+</MudPaper>
+
+
+
+
+
+@code {
+    //[Parameter] public AdmissionModel model { get { return StudentDataItem?.Data; } set; }
+    //[Parameter]
+    //[SupplyParameterFromQuery(Name = "studentId")]
+    //public decimal StudentId { get; set; }
+
+    //private AdmissionModel _model;
+
+    [Parameter]
+    public AdmissionModel model { get; set; }
+    //{
+    //    get { return StudentDataItem.Data; }
+    //    set { _model = value; }
+    //}
+
+    //public DataItem<AdmissionModel> StudentDataItem { get; set; } = new();
+    public DataItem<IEnumerable<ScheduleItem>> ScheduleItems { get; set; } = new();
+
+    private MudDataGrid<ExamEditModel> ExamGrid;
+
+    public ExamEditModel editExamModel { get; set; } = new();
+    public bool ShowExamEditForm { get; set; } = false;
+
+    private async Task<IEnumerable<ScheduleItem>> Search(string? value)
+    {
+        await Task.CompletedTask;
+
+        if (!string.IsNullOrEmpty(value))
+            return ScheduleItems.Data.Where(x => x.Name.Contains(value));
+
+        return ScheduleItems.Data;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        //if (model.Id > 0)
+        await LoadFormData();
+    }
+
+    void StartedEditingItem(ExamEditModel item)
+    {
+    }
+
+    void CanceledEditingItem(ExamEditModel item)
+    {
+    }
+
+    void CommittedItemChanges(ExamEditModel item)
+    {
+    }
+
+    private async Task UpdateStudentData()
+    {
+        //model.CurGradeId = 11;
+        //model.IdNumber = "287052108532";
+        await _studentService.Post(model);
+    }
+
+
+    private async Task AddNewExam(ExamEditModel? existingExamData)
+    {
+        if (existingExamData is null)
+        {
+            editExamModel = new() { State = State.Add };
+        }
+
+        if (existingExamData?.Id > 0)
+        {
+            editExamModel = existingExamData;
+            editExamModel.State = State.Edit;
+        }
+
+        ShowExamEditForm = true;
+        await Task.CompletedTask;
+    }
+    private async Task UpdateExam()
+    {
+        model.Exams.Add(editExamModel);
+        ShowExamEditForm = false;
+        //await ExamGrid.ReloadServerData();
+        await Task.CompletedTask;
+    }
+    private async Task DeleteExam(ExamEditModel? existingExamData)
+    {
+        existingExamData.State = State.Delete;
+        //await ExamGrid.ReloadServerData();
+        await Task.CompletedTask;
+    }
+
+    private async Task LoadFormData()
+    {
+        _ = Task.Run(async () =>
+        {
+            var scheduleItemsResult = await _lookupService.GetSchedules();
+            if (scheduleItemsResult.IsSuccess)
+            {
+                ScheduleItems.Success(scheduleItemsResult.Data);
+            }
+        });
+
+
+        //await loadStudeData();
+    }
+    private async Task loadStudeData()
+    {
+        //StudentDataItem.Loading();
+        //var studentData = (await _studentService.GetStudent(model.Id))?.Data;
+        //StudentDataItem.Success(studentData);
+    }
+}

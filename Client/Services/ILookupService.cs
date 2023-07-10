@@ -23,4 +23,7 @@ public interface ILookupService
 
     [Get($"{controller}{nameof(Search)}")]
     Task<ApiResult<IEnumerable<Item>>> Search(decimal branchId, string searchTerm, bool noStudent = false, int page = 1, int pageSize = 5);
+
+    [Get($"{controller}{nameof(GetEligibleData)}")]
+    Task<ApiResult<EligibleData>> GetEligibleData(DateTime dateOfBith, decimal branchId);
 }
