@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Text.Json.Serialization;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -20,12 +21,12 @@ builder.Services.AddDbContext<ApplicationDbContext>((option) =>
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+ 
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.RegisterMapsterConfiguration();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -52,7 +53,6 @@ app.UseCors("openpolicy");
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.UseRouting();
-
 
 app.MapRazorPages();
 app.MapControllers();

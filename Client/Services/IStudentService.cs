@@ -26,4 +26,7 @@ public interface IStudentService
     [Post($"{controller}{nameof(InsertStuExams)}")]
     Task<ApiResult<decimal>> InsertStuExams(ExamEditModel request);
 
+    [Delete(controller + "{studentId}")]
+    Task<ApiResult<bool>> Delete(decimal studentId);
+
 }

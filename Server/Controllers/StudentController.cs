@@ -71,29 +71,6 @@ namespace Creative.Server.Controllers
             return new ApiResult<AdmissionModel>().Success(student);
         }
 
-
-
-        //[HttpGet("GetAll")]
-        //public async Task<IEnumerable<RegStudentModel>> GetStudents()
-        //{
-        //    return await _dbContext.AcpStudents.AsNoTracking()
-        //        .OrderByDescending(x => x.Id).Select(x => new RegStudentModel()
-        //        {
-        //            Id = x.Id,
-        //            Name1 = x.Name1,
-        //            Name2 = x.Name2,
-        //            Tel1 = x.Tel1,
-        //            Tel2 = x.Tel2,
-        //            ResedenceNo = x.ResedenceNo,
-        //            FinanceName = x.FinanceName,
-        //            BranchId = x.CurBranchId,
-        //            GradeId = x.CurGreadId,
-        //            ClassId = x.CurClassId,
-        //            YearId = x.CurYearId
-        //        }).Take(5).ToListAsync();
-        //}
-
-
         [HttpPost]
         public async Task<ApiResult<decimal>> Post([FromBody] AdmissionModel model)
         {
@@ -112,12 +89,12 @@ namespace Creative.Server.Controllers
                     Name11 = model.Name11,
                     Name12 = model.Name12,
                     Name13 = model.Name13,
-                    Name14  = model.Name14,
+                    Name14 = model.Name14,
                     Name15 = model.Name15,
                     Name1 = $"{model.Name11} {model.Name12} {model.Name13} {model.Name14} {model.Name15}",
-                    Name21  = model.Name21,
-                    Name22 = model.Name22,  
-                    Name23 = model.Name23,  
+                    Name21 = model.Name21,
+                    Name22 = model.Name22,
+                    Name23 = model.Name23,
                     Name24 = model.Name24,
                     Name25 = model.Name25,
                     Name2 = $"{model.Name21} {model.Name22} {model.Name23} {model.Name24} {model.Name25}",
@@ -178,12 +155,16 @@ namespace Creative.Server.Controllers
                     foreach (var item in model.Exams.Where(x => x.State == State.Edit && x.Id > 0))
                     {
                         var acpExam = await _dbContext.AcpStuExms.FirstOrDefaultAsync(x => x.Id == item.Id);
-                        acpExam.ModifyDate = DateTime.Now;
-                        acpExam.Code = item.Code;
-                        acpExam.Degree = item.Degree;
-                        acpExam.Notes = item.Notes;
-                        acpExam.StuId = student.Id;
-                        acpExam.ScheduleId = item.Schedule.Id;
+
+                        if (acpExam != null)
+                        {
+                            acpExam.ModifyDate = DateTime.Now;
+                            acpExam.Code = item.Code;
+                            acpExam.Degree = item.Degree;
+                            acpExam.Notes = item.Notes;
+                            acpExam.StuId = student.Id;
+                            acpExam.ScheduleId = item.Schedule.Id;
+                        }
                     }
 
                     var newItems = model.Exams.Where(x => x.State == State.Add || x.Id == 0).Select(x => new AcpStuExm()
@@ -198,11 +179,13 @@ namespace Creative.Server.Controllers
                     if (newItems.Any())
                         await _dbContext.AcpStuExms.AddRangeAsync(newItems);
 
-                    var deleteItems = model.Exams.Where(x => x.State == State.Delete);
-                    if (deleteItems.Any())
-                        await _dbContext.AcpStuExms.Where(x => deleteItems.Any(di => di.Id == x.Id)).ExecuteDeleteAsync();
+                    var deletedItems = model.Exams.Where(x => x.State == State.Delete).Select(x => x.Adapt<AcpStuExm>());
+                    if (deletedItems.Any())
+                        _dbContext.AcpStuExms.RemoveRange(deletedItems);
 
                     await _dbContext.SaveChangesAsync();
+
+                    model.Exams.ForEach(x => x.State = State.Read);
                 }
 
                 return result.Success(student.Id);
@@ -225,6 +208,34 @@ namespace Creative.Server.Controllers
                 return result.Fail(ex.Message);
             }
 
+        }
+
+        [HttpDelete("{studentId:decimal}")]
+        public async Task<ApiResult<bool>> Delete(decimal studentId)
+        {
+            using (var trans = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var deletedExams = _dbContext.AcpStuExms.Where(x => x.StuId == studentId);
+                    if (deletedExams.Any())
+                        _dbContext.AcpStuExms.RemoveRange(deletedExams);
+
+                    var deletedStudent = _dbContext.AcpStudents.FirstOrDefault(x => x.Id == studentId);
+                    if (deletedStudent != null)
+                        _dbContext.AcpStudents.Remove(deletedStudent);
+
+                    await _dbContext.SaveChangesAsync();
+                    await trans.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    return new ApiResult<bool>().Fail(ex.Message);
+                }
+            }
+
+            return new ApiResult<bool>().Success(true);
         }
 
 

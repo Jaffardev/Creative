@@ -1,9 +1,11 @@
-﻿@using Creative.Client.Pages.ACP.Components
+﻿@using Creative.Client.Models;
+@using Creative.Client.Pages.ACP.Components
 @using Creative.Client.Pages.Components
 @using Creative.Client.Services;
 @using Creative.Shared.Models;
 @using Creative.Shared.Extensions;
 @using System.Collections.ObjectModel
+@using Creative.Shared;
 @using MudBlazor
 
 @inject NavigationManager navManager;
@@ -133,23 +135,25 @@
                             </MudSelect>
 
                         </MudItem>
+                        @if (model.StudentType==(int)StudentType.Merge ||  model.StudentType==(int)StudentType.SpecialNeeds)
+                        {
+                            <MudItem xs="12">
+                                <MudRadioGroup T="int" @bind-SelectedOption="model.XxxstudentTypeKind">
+                                    <MudRadio Option=1 Size="Size.Small" Color="Color.Primary" Dense="true">Parent</MudRadio>
+                                    <MudRadio Option=2 Size="Size.Small" Color="Color.Secondary" Dense="true">Public Authority for Disablity Affairs</MudRadio>
+                                    <MudRadio Option=3 Size="Size.Small" Color="Color.Secondary" Dense="true">Other</MudRadio>
+                                </MudRadioGroup>
+                            </MudItem>
+                        }
+                        <MudItem xs="6">
+                            <MudTextField ReadOnly="true" Label="Current Age" Margin="Margin.Dense" Value="model.Age" For="@(() => model.Age)" />
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudTextField ReadOnly="true" Label="Age At Admission" Margin="Margin.Dense" Value="model.AgeAtAdmission" For="@(() => model.AgeAtAdmission)" />
+                        </MudItem>
 
-                        <MudItem xs="12">
-                            <MudRadioGroup @bind-SelectedOption="model.XxxstudentTypeKind">
-                                <MudRadio Option="1" Size="Size.Small" Color="Color.Primary" Dense="true">Parent</MudRadio>
-                                <MudRadio Option="2" Size="Size.Small" Color="Color.Secondary" Dense="true">Public Authority for Disablity Affairs</MudRadio>
-                                <MudRadio Option="3" Size="Size.Small" Color="Color.Secondary" Dense="true">Other</MudRadio>
-                            </MudRadioGroup>
-                        </MudItem>
                         <MudItem xs="6">
-                            <MudTextField ReadOnly=true Label="Current Age" Margin="Margin.Dense" Value="model.Age" For="@(() => model.Age)" InputType="InputType.Text" />
-                        </MudItem>
-                        <MudItem xs="6">
-                            <MudTextField ReadOnly=true Label="Age At Admission" Margin="Margin.Dense" Value="model.AgeAtAdmission" For="@(() => model.AgeAtAdmission)" InputType="InputType.Text" />
-                        </MudItem>
-
-                        <MudItem xs="6">
-                            <MudTextField ReadOnly=true Label="Eligible Grade" Margin="Margin.Dense" Value="model.EligibleGrade" For="@(() => model.EligibleGrade)" InputType="InputType.Text" />
+                            <MudTextField ReadOnly="true" Label="Eligible Grade" Margin="Margin.Dense" Value="model.EligibleGrade" For="@(() => model.EligibleGrade)" />
                         </MudItem>
 
                         <MudItem xs="12">
@@ -192,8 +196,6 @@
                                             <MudDatePicker IconSize="Size.Small" Editable=true Label="Join Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
                                             @bind-Date="model.JoinDate" For="@(() => model.JoinDate)" />
                                         </MudItem>
-
-
 
                                         <MudItem xs="6">
 
@@ -332,11 +334,11 @@
                                 <MudTabPanel Text="Personal Data">
                                     <MudGrid>
                                         <MudItem xs="3">
-                                            <MudTextField Label="Tel1" Margin="Margin.Dense"
+                                            <MudNumericField HideSpinButtons="true" Label="Tel1" Margin="Margin.Dense"
                                             @bind-Value="model.Tel1" For="@(() => model.Tel1)" InputType="InputType.Number" />
                                         </MudItem>
                                         <MudItem xs="3">
-                                            <MudTextField Label="Tel2" Margin="Margin.Dense"
+                                            <MudNumericField HideSpinButtons="true" Label="Tel2" Margin="Margin.Dense"
                                             @bind-Value="model.Tel2" For="@(() => model.Tel2)" InputType="InputType.Number" />
                                         </MudItem>
                                         <MudItem xs="3">
@@ -434,7 +436,7 @@
                             <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
                             if (model.Id > 0)
                             {
-                                <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-auto">Delete</MudButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(()=> Delete())" Class="ml-auto">Delete</MudButton>
                             }
                         }
                         else
@@ -449,6 +451,9 @@
 </MudDialog>
 
 @code {
+
+
+
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; }
 
@@ -465,6 +470,26 @@
     public DataItem<IEnumerable<Item>> ClassItems { get; set; } = new();
 
 
+    private async Task Delete()
+    {
+        bool? isConfirm = await DialogService.ShowMessageBox(
+        "Confirm",
+        "Are you sure, you want to delete?",
+        yesText: "Yes", cancelText: "Cancel", options: new DialogOptions() { DisableBackdropClick = true });
+
+        if (!(isConfirm ?? false)) return;
+
+        var response = await _studentService.Delete(model.Id);
+        if (response.IsSuccess)
+        {
+            Snackbar.Add("Successfully deleted", Severity.Success);
+            MudDialog.Close<CustomDialogResult>(new() { NeedReload = true });
+        }
+        else
+        {
+            Snackbar.Add(message: response.Message);
+        }
+    }
 
     private async Task CaculateAgeAtAdmission()
     {
@@ -493,10 +518,7 @@
             ClassItems.Success(result.Data);
         }
 
-
-
         CaculateAgeAtAdmission();
-
     }
 
     protected override async Task OnParametersSetAsync()
@@ -524,7 +546,7 @@
 
         bool? isConfirm = await DialogService.ShowMessageBox(
             "Confirm",
-            "Are you sude you want to save?",
+            "Are you sure you want to save?",
             yesText: "Yes", cancelText: "Cancel", options: new DialogOptions() { DisableBackdropClick = true });
 
         if (!(isConfirm ?? false)) return;
@@ -533,9 +555,9 @@
         var result = await _studentService.Post(model);
         if (result.IsSuccess)
         {
-            Snackbar.Add("Student data updated Successfully", Severity.Success);
+            Snackbar.Add("Successfully updated", Severity.Success);
             model.Id = result.Data;
-            MudDialog.Close(DialogResult.Ok(true));
+            MudDialog.Close<CustomDialogResult>(new() { NeedReload = true });
         }
         else
         {

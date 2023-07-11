@@ -1,12 +1,13 @@
-using Mapster;
-using Creative.Shared.Models;
 using Creative.Data.Models;
-using Microsoft.EntityFrameworkCore;
+using Creative.Shared.Models;
+using Mapster;
 
 public static class CustomMapperConfig
 {
     public static void RegisterMapsterConfiguration(this IServiceCollection services)
     {
+
+
         TypeAdapterConfig<AcpStudent, AdmissionModel>
             .NewConfig()
             .Map(dest => dest.AcpDirect, src => src.AcpDirect == "1")
@@ -25,8 +26,9 @@ public static class CustomMapperConfig
             .Map(dest => dest.AcceptDebt, src => src.AcceptDebt == "1")
             .Map(dest => dest.Result, src => Convert.ToInt32(src.StuResult ?? "0"))
             .Map(dest => dest.StudentType, src => Convert.ToInt32(src.StuType ?? "0"))
-            .Map(dest => dest.CurGradeId, src => Convert.ToInt32(src.CurGreadId ??0))
+            .Map(dest => dest.CurGradeId, src => Convert.ToInt32(src.CurGreadId ?? 0))
             .Map(dest => dest.IdNumber, src => src.IdNo)
+            .Map(dest => dest.XxxstudentTypeKind, src => Convert.ToInt32(src.XxxstudentTypeKind ?? "0"))
             .Map(dest => dest.ResEmp, src => src.ResEmp == "1").TwoWays();
     }
 }

@@ -1,5 +1,6 @@
 ﻿@page "/admission"
 @using System.ComponentModel.DataAnnotations;
+@using Creative.Client.Models;
 @using Creative.Client.Pages.Components
 @using Creative.Client.Services;
 @using Creative.Shared.Models;
@@ -13,15 +14,13 @@
 @inject IDialogService DialogService;
 @inject ILookupService lookupService
 @inject ISnackbar Snackbar
-@* AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Success" *@
+
+
 <MudGrid>
     <MudItem md="2">
-        @{
-            string branchLabel = lookups.Status == DataStatus.Loading ? "Loading Branch.." : "Branch";
-        }
 
 
-        <MudSelect T="decimal?" Label="@branchLabel" AnchorOrigin="Origin.BottomCenter" @bind-Value="searchBranchId">
+        <MudSelect T="decimal?" Label="Branch" AnchorOrigin="Origin.BottomCenter" @bind-Value="searchBranchId">
             <MudSelectItem T="decimal?" Value="0">All</MudSelectItem>
             <MudItems DT="ItemType.Decimal" Lookups="lookups?.Data?.Branches" DataStatus="lookups.Status"></MudItems>
         </MudSelect>
@@ -120,21 +119,20 @@
                         </MudItem>
 
                         <MudItem xs="3">
-                            <MudTextField Label="Civil ID" Margin="Margin.Dense" HideSpinButtons="true" @bind-Value="model.IdNo"
-                                          For="@(() => model.IdNo)" InputType="InputType.Number" />
+                            <MudNumericField Label="Civil ID" Margin="Margin.Dense" HideSpinButtons="true" @bind-Value="model.IdNo" For="@(() => model.IdNo)" InputType="InputType.Number" />
                         </MudItem>
 
                         <MudItem xs="3">
-                            <MudDatePicker IconSize="Size.Small" Label="Civil ID Expire Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                            <MudDatePicker Editable="true" IconSize="Size.Small" Label="Civil ID Expire Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
                             @bind-Date="model.IdEndDate" For="@(() => model.IdEndDate)" />
                         </MudItem>
 
                         <MudItem xs="3">
-                            <MudTextField Label="Tel1" Margin="Margin.Dense" @bind-Value="model.Tel1" For="@(() => model.Tel1)" InputType="InputType.Telephone" />
+                            <MudNumericField HideSpinButtons="true" Label="Tel1" Margin="Margin.Dense" @bind-Value="model.Tel1" For="@(() => model.Tel1)" InputType="InputType.Telephone" />
                         </MudItem>
 
                         <MudItem xs="3">
-                            <MudTextField Label="Tel2" Margin="Margin.Dense" @bind-Value="model.Tel2" For="@(() => model.Tel2)" InputType="InputType.Telephone" />
+                            <MudNumericField HideSpinButtons="true" Label="Tel2" Margin="Margin.Dense" @bind-Value="model.Tel2" For="@(() => model.Tel2)" InputType="InputType.Telephone" />
                         </MudItem>
 
                         <MudItem xs="3">
@@ -157,19 +155,22 @@
                             <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">@(model.Id > 0 ? "Update" : "Save")</MudButton>
                             if (model.Id > 0)
                             {
-                                <MudButton Variant="Variant.Filled" Color="Color.Error" Class="ml-auto">Delete</MudButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(()=>Delete())" Class="ml-auto">Delete</MudButton>
                                 <MudButton Variant="Variant.Filled" Color="Color.Success" Class="add-item-btn ml-auto" OnClick="@AddNewStudent">Add New Student</MudButton>
                                 <MudSpacer></MudSpacer>
                                 <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
-                                    Start New Parent Entry
+                                    Add New Parent
                                 </MudButton>
+                            }
+                            else
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Dark" OnClick="@(()=>Cancel())" Class="ml-auto">Cancel</MudButton>
                             }
                         }
                         else
                         {
-
                             <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
-                                Start New Parent Entry
+                                Add New Parent
                             </MudButton>
                         }
                     </MudStack>
@@ -177,11 +178,12 @@
             </MudCard>
         </EditForm>
 
-        <MudStack>
+        <MudStack Class="mt-3">
             <MudDataGrid T="StudentModel" Items="@model.Students" Filterable="false" SortMode="@SortMode.None" Context="student"
                          Groupable="false">
                 <ToolBarContent>
-                    <MudText Typo="Typo.h6">Students</MudText>
+                    <MudText Typo="Typo.h6">Students </MudText>
+
                 </ToolBarContent>
                 <Columns>
                     <PropertyColumn Property="x => x.Status">
@@ -210,29 +212,6 @@
     </MudItem>
 </MudGrid>
 
-
-
-@if (!IsDataLoaded)
-{
-    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="500px" />
-}
-
-
-@*<MudDialog>
-<DialogContent>
-<div class="d-flex flex-column py-1">
-<MudButton OnClick="ChangeTitle">Change Title</MudButton>
-<MudButton OnClick="ToggleCloseButton">Toggle Close Button</MudButton>
-<MudButton OnClick="ToggleFullWidth">Toggle Full Width</MudButton>
-<MudButton OnClick="ToggleHeader">Toggle Header</MudButton>
-</div>
-</DialogContent>
-<DialogActions>
-<MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
-</DialogActions>
-</MudDialog>*@
-
-
 @code {
 
     [Parameter]
@@ -249,7 +228,6 @@
     [CascadingParameter(Name = "SelectedCustomer")]
     public Item? SelectedCustomer { get; set; }
 
-    public bool IsDataLoaded { get; set; } = true;
     public bool IsFirstRender { get; set; } = true;
     DataItem<AcademicLookups> lookups { get; set; } = new();
     ParentModel model = new();
@@ -267,7 +245,6 @@
     {
         await LoadFormData();
     }
-
     private async Task LoadDropDowns()
     {
         lookups.Loading();
@@ -300,15 +277,39 @@
     {
         if (item is not null)
         {
-            Console.WriteLine(item.Name);
+            ParentId = StudentId = 0;
             SelectedCustomer = item;
             LoadFormData();
         }
     }
     #endregion
+    private async Task Cancel()
+    {
+        model = new();
+        studentModel = new();
+        StateHasChanged();
+    }
+    private async Task Delete()
+    {
+        bool? isConfirm = await DialogService.ShowMessageBox(
+        "Confirm",
+        "Are you sure, you want to delete?",
+        yesText: "Yes", cancelText: "Cancel", options: new DialogOptions() { DisableBackdropClick = true });
 
+        if (!(isConfirm ?? false)) return;
 
-
+        var response = await _parentService.Delete(model.Id);
+        if (response.IsSuccess)
+        {
+            Snackbar.Add("Successfully deleted", Severity.Success);
+            ParentId = StudentId = 0;
+            model = new();
+        }
+        else
+        {
+            Snackbar.Add(message: response.Message);
+        }
+    }
     private async Task LoadFormData()
     {
         if (SelectedCustomer is { Id: > 0 })
@@ -326,12 +327,13 @@
         else
             await SetFormData();
 
+
         StateHasChanged();
     }
     private async Task LoadParentData(decimal id)
     {
-        Snackbar.Add($"Loading Parent Data. please wait..", Severity.Info);
-        IsDataLoaded = false;
+        Snackbar.Add($"Loading parent data...", Severity.Info);
+
         var parentResult = await _parentService.GetParent(id);
 
         if (!parentResult.IsSuccess)
@@ -344,8 +346,8 @@
     }
     private async Task LoadStudentData(decimal id)
     {
-        Snackbar.Add($"Loading Student Data. please wait..", Severity.Info);
-        IsDataLoaded = false;
+        Snackbar.Add($"Loading student data...", Severity.Info);
+
         var studentResult = await _studentService.GetStudent(id);
 
         if (!studentResult.IsSuccess)
@@ -361,7 +363,6 @@
         if (IsFirstRender)
             await LoadDropDowns();
 
-        IsDataLoaded = true;
         if (model.Code != _model?.Code)
         {
             model = _model ?? new();
@@ -372,9 +373,10 @@
             studentModel = _studentModel ?? new();
         }
 
+        StateHasChanged();
+
         await Task.CompletedTask;
     }
-
     private async Task GetCode()
     {
         var result = await _parentService.GetNewCode();
@@ -388,7 +390,6 @@
             Snackbar.Add("Unable to fetch new code !", Severity.Info);
         }
     }
-
     private async Task AddNewStudent()
     {
         studentModel = new()
@@ -405,9 +406,9 @@
                 OnlineStatus = (int)OnlineStatus.RegisterInSchool,
                 StuStatus = (int)StudentStatus.ReservationAndNotPaid
             };
+
         await OpenStudentForm();
     }
-
     private async Task OpenStudentForm()
     {
         var dialogParam = new DialogParameters<StudentAdmission>();
@@ -415,23 +416,26 @@
         dialogParam.Add((x) => x.lookups, lookups);
         DialogOptions fullScreen = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true };
 
-        DialogService.Show<StudentAdmission>("Student Data", parameters: dialogParam, options: fullScreen);
-    }
+        var result = DialogService.Show<StudentAdmission>("Student Data", parameters: dialogParam, options: fullScreen);
 
+        if (result is not null)
+            if ((result as CustomDialogResult).NeedReload)
+            {
+                await LoadParentData(model.Id);
+            }
+    }
     private async Task ViewStudent(decimal Id)
     {
         StudentId = Id;
         await LoadStudentData(Id);
         await OpenStudentForm();
     }
-
-
     private async void OnValidSubmit(EditContext context)
     {
 
         bool? isConfirm = await DialogService.ShowMessageBox(
         "Confirm",
-        "Are you sude you want to save?",
+        $"Are you sude you want to {(model.Id > 0 ? "Update" : "Save")}?",
         yesText: "Yes", cancelText: "Cancel", options: new DialogOptions() { DisableBackdropClick = true });
 
         if (!(isConfirm ?? false)) return;
@@ -440,7 +444,7 @@
         var result = await _parentService.NewEditParent(model);
         if (result.IsSuccess)
         {
-            Snackbar.Add("New Parent Added Successfully", Severity.Success);
+            Snackbar.Add($"Successfully {(model.Id > 0 ? "Updated" : "Saved")} ", Severity.Success);
             model.Id = result.Data;
         }
         else
@@ -448,5 +452,7 @@
             Snackbar.Add(result.Message, Severity.Error);
         }
         ShowOverlay = false;
+
+        StateHasChanged();
     }
 }

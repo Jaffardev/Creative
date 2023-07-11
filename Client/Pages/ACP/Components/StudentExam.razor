@@ -3,6 +3,7 @@
 @using Creative.Shared.Models;
 @using System.Collections.ObjectModel
 @using MudBlazor
+@using System;
 
 @inject NavigationManager navManager;
 @inject ILookupService _lookupService;
@@ -19,15 +20,11 @@
         }
         else
         {
-           
+
             <MudDataGrid T="ExamEditModel" ReadOnly=false Items="@model.Exams.Where(x=> x.State!=State.Delete)" Filterable="false" SortMode="@SortMode.None" Groupable="false"
                          EditMode="DataGridEditMode.Cell" Dense=true StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges">
                 <Columns>
-                    <PropertyColumn Property="x => x.State" Title="State" >
-                        <CellTemplate>
-                            @context?.Item?.State.ToString()
-                        </CellTemplate>
-                    </PropertyColumn>
+
                     <PropertyColumn Property="x => x.Code" Title="Code" />
                     <PropertyColumn Property="x => x.Schedule.Name" Title="Schedule">
                         <EditTemplate>
@@ -48,14 +45,15 @@
                     <PropertyColumn Property="x => x.Schedule.ExamDate" Title="Exam Date" IsEditable="false">
                         <CellTemplate>
                             @context?.Item?.Schedule.ExamDate?.ToString("d")
+                            @context?.Item?.State.ToString()
                         </CellTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Degree" />
                     <PropertyColumn Property="x => x.Notes" Title="Note" />
-                    <TemplateColumn CellClass="d-flex justify-end" Title="Action">
-                        <CellTemplate>
+                    <TemplateColumn CellClass="d-flex justify-end">
+                        <EditTemplate>
                             <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=> DeleteExam(context.Item))" />
-                        </CellTemplate>
+                        </EditTemplate>
                         <FooterTemplate>
                             @if (!ShowExamEditForm)
                             {
@@ -88,15 +86,17 @@
                                 <ItemTemplate Context="item">
 
                                     <MudStack>
-                                        <MudText>Name     : @item.Exam</MudText>
-                                        <MudText>Room     : @item.Room</MudText>
-                                        <MudText>ExamDate : @item.ExamDate</MudText>
+                                        <ul>
+                                            <li>Name     : @item.Exam</li>
+                                            <li>Room     : @item.Room</li>
+                                            <li>ExamDate : @item.ExamDate?.ToShortDateString()</li>
+                                        </ul>
                                     </MudStack>
 
                                 </ItemTemplate>
                             </MudAutocomplete>
                         }
-                       
+
 
                         <MudTextField T="decimal?" Label="Degree" @bind-Value="editExamModel.Degree" Required="true" />
                         <MudTextField T="string" Label="Notes" @bind-Value="editExamModel.Notes" Required="true" />

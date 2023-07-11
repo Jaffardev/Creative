@@ -112,6 +112,41 @@ namespace Creative.Server.Controllers
             return result.Success(newParent.Id);
         }
 
+
+
+
+        [HttpDelete("{parentId:decimal}")]
+        public async Task<ApiResult<bool>> Delete(decimal parentId)
+        {
+            using (var trans = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var deletedExams = _dbContext.AcpStuExms.Where(x => x.StuId == parentId);
+                    if (deletedExams.Any())
+                        _dbContext.AcpStuExms.RemoveRange(deletedExams);
+
+                    var deletedStudents = _dbContext.AcpStudents.FirstOrDefault(x => x.ParentId == parentId);
+                    if (deletedStudents != null)
+                        _dbContext.AcpStudents.RemoveRange(deletedStudents);
+
+                    var deletedParent = _dbContext.AcpResponsibiles.FirstOrDefault(x => x.Id == parentId);
+                    if (deletedParent != null)
+                        _dbContext.AcpResponsibiles.Remove(deletedParent);
+
+                    await _dbContext.SaveChangesAsync();
+                    await trans.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    return new ApiResult<bool>().Fail(ex.Message);
+                }
+            }
+
+            return new ApiResult<bool>().Success(true);
+        }
+
         [HttpGet]
         public async Task<ApiResult<IEnumerable<ParentModel>>> GetAll(string? searchTerm = "", string? sortColumn = "", string? sortOrder = "", int page = 1, int pageSize = 5)
         {
