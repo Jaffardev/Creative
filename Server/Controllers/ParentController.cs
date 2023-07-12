@@ -31,6 +31,15 @@ namespace Creative.Server.Controllers
             return new ApiResult<decimal>().Success(1);
         }
 
+        [HttpGet("GetRecentParents")]
+        public async Task<ApiResult<List<ParentModel>>> GetRecentParents()
+        {
+            List<ParentModel> parents = await _dbContext.AcpResponsibiles.AsNoTracking().OrderByDescending(x => x.Id).Take(5).ProjectToType<ParentModel>().ToListAsync();
+
+
+            return new ApiResult<List<ParentModel>>().Success(parents);
+        }
+
         [HttpGet("{parentId:decimal}")]
         public async Task<ApiResult<ParentModel>> GetParent(decimal parentId)
         {
@@ -61,7 +70,7 @@ namespace Creative.Server.Controllers
                                        Code = student.Code,
                                        Grade = grade.Name1,
                                        Id = student.Id,
-                                       Name2 = grade.Name2,
+                                       Name2 = student.Name2,
                                        Section = sg.Name1,
                                        Status = Convert.ToInt16(student.TransferStatus ?? "0"),
                                        Year = year.Name1

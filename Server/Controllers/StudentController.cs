@@ -80,8 +80,10 @@ namespace Creative.Server.Controllers
 
             try
             {
+                DateTime currentTime = DateTime.Now;
                 var student = new AcpStudent()
                 {
+                    StuPayBy = model.StuPayBy.ToString(),
                     Code = model.Code,
                     StuStatus = model.StuStatus?.ToString(),
                     ParentId = model.ParentId,
@@ -136,7 +138,8 @@ namespace Creative.Server.Controllers
                     BirthDocPlace = model.BirthDocPlace,
                     IdNo = model.IdNumber,
                     EmpId = model.EmpId,
-                    IdEndDate = model.EndDate
+                    IdEndDate = model.EndDate,
+                    ModifyDate = currentTime
                 };
 
                 if (model.Id > 0)
@@ -146,6 +149,7 @@ namespace Creative.Server.Controllers
                 }
                 else
                 {
+                    student.CreationDate = currentTime;
                     await _dbContext.AcpStudents.AddAsync(student);
                 }
 
@@ -158,7 +162,7 @@ namespace Creative.Server.Controllers
 
                         if (acpExam != null)
                         {
-                            acpExam.ModifyDate = DateTime.Now;
+                            acpExam.ModifyDate = currentTime;
                             acpExam.Code = item.Code;
                             acpExam.Degree = item.Degree;
                             acpExam.Notes = item.Notes;
@@ -169,7 +173,8 @@ namespace Creative.Server.Controllers
 
                     var newItems = model.Exams.Where(x => x.State == State.Add || x.Id == 0).Select(x => new AcpStuExm()
                     {
-                        CreationDate = DateTime.Now,
+                        CreationDate = currentTime,
+                        ModifyDate = currentTime,
                         Code = x.Code,
                         Degree = x.Degree,
                         Notes = x.Notes,

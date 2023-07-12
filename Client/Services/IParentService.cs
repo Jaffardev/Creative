@@ -24,5 +24,9 @@ namespace Creative.Client.Services
 
         [Delete(controller + "{parentId}")]
         Task<ApiResult<bool>> Delete(decimal parentId);
+
+        [Get($"{controller}{nameof(GetRecentParents)}")]
+        Task<ApiResult<List<ParentModel>>> GetRecentParents();
+
     }
 }

@@ -28,7 +28,7 @@ public static class CustomMapperConfig
             .Map(dest => dest.StudentType, src => Convert.ToInt32(src.StuType ?? "0"))
             .Map(dest => dest.CurGradeId, src => Convert.ToInt32(src.CurGreadId ?? 0))
             .Map(dest => dest.IdNumber, src => src.IdNo)
-            .Map(dest => dest.XxxstudentTypeKind, src => Convert.ToInt32(src.XxxstudentTypeKind ?? "0"))
+            .Map(dest => dest.StuPayBy, src =>src.StuPayBy)
             .Map(dest => dest.ResEmp, src => src.ResEmp == "1").TwoWays();
     }
 }

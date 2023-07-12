@@ -416,13 +416,14 @@
         dialogParam.Add((x) => x.lookups, lookups);
         DialogOptions fullScreen = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true };
 
-        var result = DialogService.Show<StudentAdmission>("Student Data", parameters: dialogParam, options: fullScreen);
-
-        if (result is not null)
-            if ((result as CustomDialogResult).NeedReload)
+        var dialog = await DialogService.ShowAsync<StudentAdmission>("Student Data", parameters: dialogParam, options: fullScreen);
+        var result = await dialog.Result;
+        if (!result.Cancelled){
+            if ((result.Data as CustomDialogResult).NeedReload)
             {
                 await LoadParentData(model.Id);
             }
+        }
     }
     private async Task ViewStudent(decimal Id)
     {

@@ -14,7 +14,7 @@
 @inject IStudentService _studentService;
 @inject IDialogService DialogService;
 @inject ISnackbar Snackbar
-
+   <MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
 <MudDialog>
     <DialogContent>
         <EditForm Model="model" OnValidSubmit="OnValidSubmit">
@@ -26,12 +26,14 @@
                             <MudTextField ReadOnly="true" Label="Code" InputType="InputType.Number" @bind-Value="model.Code" For="@(() => model.Code)" HideSpinButtons="true" />
                         </MudItem>
                         <MudItem md="3">
-                            <MudSelect T="int?" @bind-Value="model.OnlineStatus" Label="Online Status" AnchorOrigin="Origin.BottomCenter">
-                                @foreach (OnlineStatus item in Enum.GetValues(typeof(OnlineStatus)))
-                                {
-                                    <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
-                                }
-                            </MudSelect>
+                         
+                                <MudSelect T="int?" @bind-Value="model.OnlineStatus" Label="Online Status" AnchorOrigin="Origin.BottomCenter">
+                                    @foreach (OnlineStatus item in Enum.GetValues(typeof(OnlineStatus)))
+                                    {
+                                        <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
+                                    }
+                                </MudSelect>
+                         
                         </MudItem>
                         <MudItem md="3">
                             <MudSelect T="int?" @bind-Value="model.StuStatus" Label="Student Status" AnchorOrigin="Origin.BottomCenter">
@@ -135,13 +137,13 @@
                             </MudSelect>
 
                         </MudItem>
-                        @if (model.StudentType==(int)StudentType.Merge ||  model.StudentType==(int)StudentType.SpecialNeeds)
+                        @if (model.StudentType == (int)StudentType.Merge || model.StudentType == (int)StudentType.SpecialNeeds)
                         {
                             <MudItem xs="12">
-                                <MudRadioGroup T="int" @bind-SelectedOption="model.XxxstudentTypeKind">
+                                <MudRadioGroup T="int" @bind-SelectedOption="model.StuPayBy">
                                     <MudRadio Option=1 Size="Size.Small" Color="Color.Primary" Dense="true">Parent</MudRadio>
                                     <MudRadio Option=2 Size="Size.Small" Color="Color.Secondary" Dense="true">Public Authority for Disablity Affairs</MudRadio>
-                                    <MudRadio Option=3 Size="Size.Small" Color="Color.Secondary" Dense="true">Other</MudRadio>
+                                    <MudRadio Option=9 Size="Size.Small" Color="Color.Secondary" Dense="true">Other</MudRadio>
                                 </MudRadioGroup>
                             </MudItem>
                         }
@@ -370,7 +372,7 @@
                                         </MudItem>
 
                                         <MudItem xs="3">
-                                            <MudTextField Label="Id Number" Margin="Margin.Dense"
+                                            <MudNumericField HideSpinButtons="true" Label="Id Number" Margin="Margin.Dense"
                                             @bind-Value="model.IdNumber" For="@(() => model.IdNumber)" InputType="InputType.Number" />
                                         </MudItem>
 
@@ -449,7 +451,7 @@
         </EditForm>
     </DialogContent>
 </MudDialog>
-
+</MudFocusTrap>
 @code {
 
 

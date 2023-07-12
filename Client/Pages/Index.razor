@@ -1,16 +1,19 @@
 ﻿@page "/"
+@using Creative.Client.Services;
+@using Creative.Shared.Models;
 @using MudBlazor
-
+@inject IParentService parentService;
+@inject NavigationManager navmanager;
 
 <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
-            <MudCard Outlined="true"> 
+            <MudCard Outlined="true">
                 <MudCardHeader>
                     <MudText Typo="Typo.h6">Total Admission</MudText>
                 </MudCardHeader>
                 <MudCardContent>
-                    
+
                     <MudText Typo="Typo.body2">126</MudText>
                 </MudCardContent>
                 <MudCardActions>
@@ -18,6 +21,33 @@
                 </MudCardActions>
             </MudCard>
         </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudCard Outlined="true">
+                <MudCardHeader>
+                    <MudText Typo="Typo.h6"  >Recent Parents</MudText>
+                </MudCardHeader>
+               <MudCardContent>
+                <MudPaper Width="100%">
+                    @if (parentItems.Status == DataStatus.Loading)
+                    {
+                        for (int i = 0; i < 5; i++)
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton>
+                        }
+                    }else{
+                    <MudList Clickable="true" Dense="true" SelectedItemChanged="OnChangeParentSelection">
+                        @foreach (var parent in parentItems.Data)
+                        {
+                                <MudListItem Value="@parent.Id" Text="@parent.Name11" Avatar="@Icons.Material.Filled.Image" />
+                            }
+                    </MudList>
+                    }
+                </MudPaper>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
         @* <MudItem xs="12" sm="6" md="4">
         <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
         </MudItem>
@@ -48,5 +78,33 @@
         </MudItem>*@
     </MudGrid>
 </MudContainer>
+@code {
+
+    DataItem<IEnumerable<ParentModel>> parentItems { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadParents();
+    }
+
+    private async Task OnChangeParentSelection(MudListItem item)
+    {
+        navmanager.NavigateTo($"admission?parentId={item.Value}");
+    }
+    private async Task LoadParents()
+    {
+        parentItems.Loading();
+
+        var result = await parentService.GetRecentParents();
+
+        if (result.IsSuccess)
+            parentItems.Success(result.Data);
+        else
+            parentItems.Fail(result.Message);
+
+        StateHasChanged();
+
+    }
+
+}
 
 

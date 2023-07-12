@@ -52,7 +52,7 @@
                     <PropertyColumn Property="x => x.Notes" Title="Note" />
                     <TemplateColumn CellClass="d-flex justify-end">
                         <EditTemplate>
-                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=> DeleteExam(context.Item))" />
+                            <MudIconButton Color="Color.Error"  Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=> DeleteExam(context.Item))" />
                         </EditTemplate>
                         <FooterTemplate>
                             @if (!ShowExamEditForm)
