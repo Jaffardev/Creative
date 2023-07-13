@@ -20,11 +20,8 @@
         }
         else
         {
-
-            <MudDataGrid T="ExamEditModel" ReadOnly=false Items="@model.Exams.Where(x=> x.State!=State.Delete)" Filterable="false" SortMode="@SortMode.None" Groupable="false"
-                         EditMode="DataGridEditMode.Cell" Dense=true StartedEditingItem="@StartedEditingItem" CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges">
+            <MudDataGrid T="ExamEditModel" ReadOnly=false Items="@model.Exams.Where(x=> x.State!=State.Delete)" Filterable="false" SortMode="@SortMode.None" Groupable="false" EditMode="DataGridEditMode.Cell" Dense=true CommittedItemChanges="@CommittedItemChanges">
                 <Columns>
-
                     <PropertyColumn Property="x => x.Code" Title="Code" />
                     <PropertyColumn Property="x => x.Schedule.Name" Title="Schedule">
                         <EditTemplate>
@@ -52,12 +49,12 @@
                     <PropertyColumn Property="x => x.Notes" Title="Note" />
                     <TemplateColumn CellClass="d-flex justify-end">
                         <EditTemplate>
-                            <MudIconButton Color="Color.Error"  Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=> DeleteExam(context.Item))" />
+                            <MudIconButton Color="Color.Error" Size="@Size.Medium" Icon="@Icons.Material.Outlined.Delete" OnClick="@(()=> DeleteExam(context.Item))" />
                         </EditTemplate>
                         <FooterTemplate>
-                            @if (!ShowExamEditForm)
+                            @if (!ShowNewExamForm)
                             {
-                                <MudFab Color="Color.Secondary" IconSize="Size.Small" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(()=> AddNewExam(null))" />
+                                <MudFab Color="Color.Secondary" IconSize="Size.Small" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(()=> AddNewExam())" />
                             }
                         </FooterTemplate>
                     </TemplateColumn>
@@ -67,7 +64,7 @@
 
 
 
-            @if (ShowExamEditForm)
+            @if (ShowNewExamForm)
             {
                 <MudPaper>
                     <MudStack Row="true">
@@ -106,7 +103,6 @@
             }
 
 
-            @*<MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> UpdateStudentData())" Class="ml-auto">Save Student Data</MudButton>*@
         }
     </MudStack>
 </MudPaper>
@@ -116,27 +112,13 @@
 
 
 @code {
-    //[Parameter] public AdmissionModel model { get { return StudentDataItem?.Data; } set; }
-    //[Parameter]
-    //[SupplyParameterFromQuery(Name = "studentId")]
-    //public decimal StudentId { get; set; }
-
-    //private AdmissionModel _model;
 
     [Parameter]
     public AdmissionModel model { get; set; }
-    //{
-    //    get { return StudentDataItem.Data; }
-    //    set { _model = value; }
-    //}
 
-    //public DataItem<AdmissionModel> StudentDataItem { get; set; } = new();
     public DataItem<IEnumerable<ScheduleItem>> ScheduleItems { get; set; } = new();
-
-    private MudDataGrid<ExamEditModel> ExamGrid;
-
     public ExamEditModel editExamModel { get; set; } = new();
-    public bool ShowExamEditForm { get; set; } = false;
+    public bool ShowNewExamForm { get; set; } = false;
 
     private async Task<IEnumerable<ScheduleItem>> Search(string? value)
     {
@@ -147,59 +129,34 @@
 
         return ScheduleItems.Data;
     }
+
     protected override async Task OnInitializedAsync()
     {
-        //if (model.Id > 0)
         await LoadFormData();
-    }
-
-    void StartedEditingItem(ExamEditModel item)
-    {
-    }
-
-    void CanceledEditingItem(ExamEditModel item)
-    {
     }
 
     void CommittedItemChanges(ExamEditModel item)
     {
-    }
-
-    private async Task UpdateStudentData()
-    {
-        //model.CurGradeId = 11;
-        //model.IdNumber = "287052108532";
-        await _studentService.Post(model);
+        item.State = item.Id > 0 ? State.Edit : State.Add;
     }
 
 
-    private async Task AddNewExam(ExamEditModel? existingExamData)
+    private async Task AddNewExam()
     {
-        if (existingExamData is null)
-        {
-            editExamModel = new() { State = State.Add };
-        }
-
-        if (existingExamData?.Id > 0)
-        {
-            editExamModel = existingExamData;
-            editExamModel.State = State.Edit;
-        }
-
-        ShowExamEditForm = true;
+        editExamModel = new() { State = State.Add };
+        ShowNewExamForm = true;
         await Task.CompletedTask;
     }
+
     private async Task UpdateExam()
     {
         model.Exams.Add(editExamModel);
-        ShowExamEditForm = false;
-        //await ExamGrid.ReloadServerData();
+        ShowNewExamForm = false;
         await Task.CompletedTask;
     }
     private async Task DeleteExam(ExamEditModel? existingExamData)
     {
         existingExamData.State = State.Delete;
-        //await ExamGrid.ReloadServerData();
         await Task.CompletedTask;
     }
 
@@ -214,13 +171,6 @@
             }
         });
 
+    }
 
-        //await loadStudeData();
-    }
-    private async Task loadStudeData()
-    {
-        //StudentDataItem.Loading();
-        //var studentData = (await _studentService.GetStudent(model.Id))?.Data;
-        //StudentDataItem.Success(studentData);
-    }
 }

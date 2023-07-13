@@ -80,7 +80,7 @@
 </MudContainer>
 @code {
 
-    DataItem<IEnumerable<ParentModel>> parentItems { get; set; } = new();
+    
     protected override async Task OnInitializedAsync()
     {
         await LoadParents();
@@ -90,6 +90,8 @@
     {
         navmanager.NavigateTo($"admission?parentId={item.Value}");
     }
+
+    DataItem<IEnumerable<ParentModel>> parentItems { get; set; } = new();
     private async Task LoadParents()
     {
         parentItems.Loading();

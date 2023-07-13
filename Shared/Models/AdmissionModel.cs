@@ -128,5 +128,5 @@ public class AdmissionModel
     public bool? AcceptPrepaid { get; set; }
     public bool? AcceptFees { get; set; }
     public bool? AcceptDebt { get; set; }
-    public int StuPayBy { get; set; } = -1;
+    public int? StuPayBy { get; set; }
 }

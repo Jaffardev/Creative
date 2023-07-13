@@ -110,8 +110,6 @@ namespace Creative.Server.Controllers
                     }
                 }
 
-
-
                 if (lookup is (Lookup.All or Lookup.Grades))
                 {
                     grades = await GetCache<List<Item>>(nameof(grades));
@@ -168,8 +166,6 @@ namespace Creative.Server.Controllers
                                    Name = x.Name1
                                }).ToListAsync();
                 }
-
-
 
                 if (lookup is (Lookup.All or Lookup.Nationals))
                 {
@@ -295,7 +291,7 @@ namespace Creative.Server.Controllers
             };
 
 
-           return new ApiResult<EligibleData>().Success(result);
+            return new ApiResult<EligibleData>().Success(result);
         }
 
 

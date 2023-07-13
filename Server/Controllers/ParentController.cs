@@ -87,8 +87,8 @@ namespace Creative.Server.Controllers
 
         }
 
-        [HttpPost("NewEditParent")]
-        public async Task<ApiResult<decimal>> NewEditParent([FromBody] ParentModel model)
+        [HttpPost]
+        public async Task<ApiResult<decimal>> Post([FromBody] ParentModel model)
         {
             ApiResult<decimal> result = new();
             if (!ModelState.IsValid)
@@ -120,8 +120,6 @@ namespace Creative.Server.Controllers
 
             return result.Success(newParent.Id);
         }
-
-
 
 
         [HttpDelete("{parentId:decimal}")]

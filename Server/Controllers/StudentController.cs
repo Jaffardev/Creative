@@ -81,67 +81,69 @@ namespace Creative.Server.Controllers
             try
             {
                 DateTime currentTime = DateTime.Now;
-                var student = new AcpStudent()
-                {
-                    StuPayBy = model.StuPayBy.ToString(),
-                    Code = model.Code,
-                    StuStatus = model.StuStatus?.ToString(),
-                    ParentId = model.ParentId,
-                    Gender = model.Gender.ToString(),
-                    Name11 = model.Name11,
-                    Name12 = model.Name12,
-                    Name13 = model.Name13,
-                    Name14 = model.Name14,
-                    Name15 = model.Name15,
-                    Name1 = $"{model.Name11} {model.Name12} {model.Name13} {model.Name14} {model.Name15}",
-                    Name21 = model.Name21,
-                    Name22 = model.Name22,
-                    Name23 = model.Name23,
-                    Name24 = model.Name24,
-                    Name25 = model.Name25,
-                    Name2 = $"{model.Name21} {model.Name22} {model.Name23} {model.Name24} {model.Name25}",
-                    Notes = model.Notes,
-                    DeptNotes = model.DeptNotes,
-                    StuResult = model.Result?.ToString(),
-                    NationalId = model.NationalId,
-                    RelegionId = model.RelegionId,
-                    StuType = model.StudentType?.ToString(),
-                    AdmissionDate = model.AdmissionDate,
-                    RegistrationDate = model.RegistrationDate,
-                    JoinDate = model.JoinDate,
-                    BirthDate = model.BirthDate,
-                    ComeBranchId = model.ComeBranchId,
-                    ComeGradeId = model.ComeGradeId,
-                    ComeYearId = model.ComeYearId,
-                    CurBranchId = model.CurBranchId,
-                    CurGreadId = model.CurGradeId,
-                    CurYearId = model.CurYearId,
-                    CurClassId = model.CurClassId,
-                    HealthStatus = model.HealthStatus ? "1" : "0",
-                    HealthFileNo = model.HealthFileNo,
-                    EducationDecisionNo = model.EducationDecisionNo,
-                    DisablityAsPerTheDecision = model.DisablityAsPerTheDecisionId,
-                    ExaminationResult = model.ExaminationResult,
-                    EduDecisionDate = model.EduDecisionDate,
-                    NextVisitDate = model.NextVisitDate,
-                    DisablityCertificateId = model.DisablityCertificateId,
-                    EduProveDate = model.EduProveDate,
-                    EduProveEndDate = model.EduProveEndDate,
-                    MotherName = model.MotherName,
-                    MotherCivilID = model.MotherCivilID,
-                    Tel1 = model.Tel1,
-                    Tel2 = model.Tel2,
-                    Email = model.Email,
-                    Address1 = model.Address1,
-                    PassportDate = model.PassportDate,
-                    BirthPlace = model.BirthPlace,
-                    BirthDocPlace = model.BirthDocPlace,
-                    IdNo = model.IdNumber,
-                    EmpId = model.EmpId,
-                    IdEndDate = model.EndDate,
-                    ModifyDate = currentTime
-                };
 
+                var student = model.Adapt<AcpStudent>();
+                //{
+                //    StuPayBy = model.StuPayBy.ToString(),
+                //    Code = model.Code,
+                //    StuStatus = model.StuStatus?.ToString(),
+                //    ParentId = model.ParentId,
+                //    Gender = model.Gender.ToString(),
+                //    Name11 = model.Name11,
+                //    Name12 = model.Name12,
+                //    Name13 = model.Name13,
+                //    Name14 = model.Name14,
+                //    Name15 = model.Name15,
+                //    Name1 = $"{model.Name11} {model.Name12} {model.Name13} {model.Name14} {model.Name15}",
+                //    Name21 = model.Name21,
+                //    Name22 = model.Name22,
+                //    Name23 = model.Name23,
+                //    Name24 = model.Name24,
+                //    Name25 = model.Name25,
+                //    Name2 = $"{model.Name21} {model.Name22} {model.Name23} {model.Name24} {model.Name25}",
+                //    Notes = model.Notes,
+                //    DeptNotes = model.DeptNotes,
+                //    StuResult = model.Result?.ToString(),
+                //    NationalId = model.NationalId,
+                //    RelegionId = model.RelegionId,
+                //    StuType = model.StudentType?.ToString(),
+                //    AdmissionDate = model.AdmissionDate,
+                //    RegistrationDate = model.RegistrationDate,
+                //    JoinDate = model.JoinDate,
+                //    BirthDate = model.BirthDate,
+                //    ComeBranchId = model.ComeBranchId,
+                //    ComeGradeId = model.ComeGradeId,
+                //    ComeYearId = model.ComeYearId,
+                //    CurBranchId = model.CurBranchId,
+                //    CurGreadId = model.CurGradeId,
+                //    CurYearId = model.CurYearId,
+                //    CurClassId = model.CurClassId,
+                //    HealthStatus = model.HealthStatus ? "1" : "0",
+                //    HealthFileNo = model.HealthFileNo,
+                //    EducationDecisionNo = model.EducationDecisionNo,
+                //    DisablityAsPerTheDecision = model.DisablityAsPerTheDecisionId,
+                //    ExaminationResult = model.ExaminationResult,
+                //    EduDecisionDate = model.EduDecisionDate,
+                //    NextVisitDate = model.NextVisitDate,
+                //    DisablityCertificateId = model.DisablityCertificateId,
+                //    EduProveDate = model.EduProveDate,
+                //    EduProveEndDate = model.EduProveEndDate,
+                //    MotherName = model.MotherName,
+                //    MotherCivilID = model.MotherCivilID,
+                //    Tel1 = model.Tel1,
+                //    Tel2 = model.Tel2,
+                //    Email = model.Email,
+                //    Address1 = model.Address1,
+                //    PassportDate = model.PassportDate,
+                //    BirthPlace = model.BirthPlace,
+                //    BirthDocPlace = model.BirthDocPlace,
+                //    IdNo = model.IdNumber,
+                //    EmpId = model.EmpId,
+                //    IdEndDate = model.EndDate,
+                //    ModifyDate = currentTime
+                //};
+
+             
                 if (model.Id > 0)
                 {
                     student.Id = model.Id;
@@ -171,7 +173,7 @@ namespace Creative.Server.Controllers
                         }
                     }
 
-                    var newItems = model.Exams.Where(x => x.State == State.Add || x.Id == 0).Select(x => new AcpStuExm()
+                    var newItems = model.Exams.Where(x => x.State == State.Add && x.Id == 0).Select(x => new AcpStuExm()
                     {
                         CreationDate = currentTime,
                         ModifyDate = currentTime,
@@ -184,18 +186,18 @@ namespace Creative.Server.Controllers
                     if (newItems.Any())
                         await _dbContext.AcpStuExms.AddRangeAsync(newItems);
 
-                    var deletedItems = model.Exams.Where(x => x.State == State.Delete).Select(x => x.Adapt<AcpStuExm>());
+                    var deletedItems = model.Exams.Where(x => x.State == State.Delete && x.Id > 0).Select(x => x.Adapt<AcpStuExm>());
                     if (deletedItems.Any())
                         _dbContext.AcpStuExms.RemoveRange(deletedItems);
 
                     await _dbContext.SaveChangesAsync();
 
-                    model.Exams.ForEach(x => x.State = State.Read);
+                  
                 }
 
                 return result.Success(student.Id);
             }
-            //catch (DbEntityValidationException  ex)
+            //catch (DbEntityValidationException ex)
             //{
             //    return result.Fail(ex.Message);
             //}
@@ -226,9 +228,9 @@ namespace Creative.Server.Controllers
                     if (deletedExams.Any())
                         _dbContext.AcpStuExms.RemoveRange(deletedExams);
 
-                    var deletedStudent = _dbContext.AcpStudents.FirstOrDefault(x => x.Id == studentId);
-                    if (deletedStudent != null)
-                        _dbContext.AcpStudents.Remove(deletedStudent);
+                    //var deletedStudent = _dbContext.AcpStudents.FirstOrDefault(x => x.Id == studentId);
+                    //if (deletedStudent != null)
+                    _dbContext.AcpStudents.Remove(new AcpStudent { Id=studentId });
 
                     await _dbContext.SaveChangesAsync();
                     await trans.CommitAsync();

@@ -47,6 +47,28 @@
                 </MudText>
             </NoItemsTemplate>
         </MudAutocomplete>
+
+         
+                <MudPaper Width="100%">
+                    <MudText Typo="Typo.h6">Recent Parents</MudText>
+                    @if (parentItems.Status == DataStatus.Loading)
+                    {
+                        for (int i = 0; i < 5; i++)
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Text"></MudSkeleton>
+                        }
+                    }
+                    else
+                    {
+                        <MudList Clickable="true" Dense="true" SelectedItemChanged="OnChangeParentSelection">
+                            @foreach (var parent in parentItems.Data)
+                            {
+                                <MudListItem Value="@parent.Id" Text="@parent.Name11" Avatar="@Icons.Material.Filled.Image" />
+                            }
+                        </MudList>
+                    }
+                </MudPaper>
+             
     </MudItem>
     <MudItem md="10">
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
@@ -152,24 +174,24 @@
                     <MudStack Row="true" Justify="Justify.FlexStart">
                         @if (decimal.TryParse(model.Code, out decimal _code) && _code > 0)
                         {
-                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">@(model.Id > 0 ? "Update" : "Save")</MudButton>
+                            <MudButton Size="@Size.Small" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">@(model.Id > 0 ? "Update" : "Save")</MudButton>
                             if (model.Id > 0)
                             {
-                                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(()=>Delete())" Class="ml-auto">Delete</MudButton>
-                                <MudButton Variant="Variant.Filled" Color="Color.Success" Class="add-item-btn ml-auto" OnClick="@AddNewStudent">Add New Student</MudButton>
+                                <MudButton Size="@Size.Small" Variant="Variant.Filled" Color="Color.Error" OnClick="@(()=>Delete())" Class="ml-auto">Delete</MudButton>
+                                <MudButton Size="@Size.Small" Variant="Variant.Filled" Color="Color.Success" Class="add-item-btn ml-auto" OnClick="@AddNewStudent">Add New Student</MudButton>
                                 <MudSpacer></MudSpacer>
-                                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
+                                <MudButton Size="@Size.Small" Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
                                     Add New Parent
                                 </MudButton>
                             }
                             else
                             {
-                                <MudButton Variant="Variant.Filled" Color="Color.Dark" OnClick="@(()=>Cancel())" Class="ml-auto">Cancel</MudButton>
+                                <MudButton Size="@Size.Small" Variant="Variant.Filled" Color="Color.Dark" OnClick="@(()=>Cancel())" Class="ml-auto">Cancel</MudButton>
                             }
                         }
                         else
                         {
-                            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
+                            <MudButton Size="@Size.Small" Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
                                 Add New Parent
                             </MudButton>
                         }
@@ -228,7 +250,6 @@
     [CascadingParameter(Name = "SelectedCustomer")]
     public Item? SelectedCustomer { get; set; }
 
-    public bool IsFirstRender { get; set; } = true;
     DataItem<AcademicLookups> lookups { get; set; } = new();
     ParentModel model = new();
     AdmissionModel studentModel = null;
@@ -238,8 +259,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadFormData();
-        IsFirstRender = false;
+        LoadRecentParents();
+       await LoadDropDowns();
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -327,10 +348,8 @@
         else
             await SetFormData();
 
-
-        StateHasChanged();
     }
-    private async Task LoadParentData(decimal id)
+    private async Task LoadParentData(decimal id, bool reload = false)
     {
         Snackbar.Add($"Loading parent data...", Severity.Info);
 
@@ -341,7 +360,7 @@
             Snackbar.Add($"Parent data not found!", Severity.Info);
             return;
         }
-
+        parentResult.Data.Modified = true;
         await SetFormData(parentResult.Data, studentModel);
     }
     private async Task LoadStudentData(decimal id)
@@ -360,10 +379,9 @@
     }
     private async Task SetFormData(ParentModel? _model = null, AdmissionModel? _studentModel = null)
     {
-        if (IsFirstRender)
-            await LoadDropDowns();
+      
 
-        if (model.Code != _model?.Code)
+        if (model.IsChanged(_model?.Code))
         {
             model = _model ?? new();
         }
@@ -418,7 +436,8 @@
 
         var dialog = await DialogService.ShowAsync<StudentAdmission>("Student Data", parameters: dialogParam, options: fullScreen);
         var result = await dialog.Result;
-        if (!result.Cancelled){
+        if (!result.Cancelled)
+        {
             if ((result.Data as CustomDialogResult).NeedReload)
             {
                 await LoadParentData(model.Id);
@@ -442,7 +461,7 @@
         if (!(isConfirm ?? false)) return;
 
         ShowOverlay = true;
-        var result = await _parentService.NewEditParent(model);
+        var result = await _parentService.Post(model);
         if (result.IsSuccess)
         {
             Snackbar.Add($"Successfully {(model.Id > 0 ? "Updated" : "Saved")} ", Severity.Success);
@@ -455,5 +474,26 @@
         ShowOverlay = false;
 
         StateHasChanged();
+    }
+
+
+    DataItem<IEnumerable<ParentModel>> parentItems { get; set; } = new();
+    private async Task LoadRecentParents()
+    {
+        parentItems.Loading();
+
+        var result = await _parentService.GetRecentParents();
+
+        if (result.IsSuccess)
+            parentItems.Success(result.Data);
+        else
+            parentItems.Fail(result.Message);
+
+        StateHasChanged();
+
+    }
+    private async Task OnChangeParentSelection(MudListItem item)
+    {
+        await LoadData(new() { Id = Convert.ToDecimal(item.Value) });
     }
 }
