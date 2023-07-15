@@ -7,7 +7,7 @@
 
 <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
     <MudGrid>
-        <MudItem xs="12" sm="6" md="4">
+   @*     <MudItem xs="12" sm="6" md="4">
             <MudCard Outlined="true">
                 <MudCardHeader>
                     <MudText Typo="Typo.h6">Total Admission</MudText>
@@ -21,14 +21,19 @@
                 </MudCardActions>
             </MudCard>
         </MudItem>
-
+ 
         <MudItem xs="12" sm="6" md="4">
             <MudCard Outlined="true">
                 <MudCardHeader>
+                    <MudCardContent>
                     <MudText Typo="Typo.h6"  >Recent Parents</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Href="admission" Color="Color.Default" />
+                    </MudCardActions>
                 </MudCardHeader>
+              
                <MudCardContent>
-                <MudPaper Width="100%">
                     @if (parentItems.Status == DataStatus.Loading)
                     {
                         for (int i = 0; i < 5; i++)
@@ -43,10 +48,9 @@
                             }
                     </MudList>
                     }
-                </MudPaper>
                 </MudCardContent>
             </MudCard>
-        </MudItem>
+        </MudItem>*@
 
         @* <MudItem xs="12" sm="6" md="4">
         <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
@@ -83,7 +87,7 @@
     
     protected override async Task OnInitializedAsync()
     {
-        await LoadParents();
+        //await LoadParents();
     }
 
     private async Task OnChangeParentSelection(MudListItem item)

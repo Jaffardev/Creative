@@ -54,7 +54,7 @@
                         <FooterTemplate>
                             @if (!ShowNewExamForm)
                             {
-                                <MudFab Color="Color.Secondary" IconSize="Size.Small" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(()=> AddNewExam())" />
+                                <MudFab Color="Color.Secondary" IconSize="Size.Small" StartIcon="@Icons.Material.Filled.NewLabel" Size="Size.Small" OnClick="@(()=> AddNewExam())" />
                             }
                         </FooterTemplate>
                     </TemplateColumn>
@@ -93,8 +93,6 @@
                                 </ItemTemplate>
                             </MudAutocomplete>
                         }
-
-
                         <MudTextField T="decimal?" Label="Degree" @bind-Value="editExamModel.Degree" Required="true" />
                         <MudTextField T="string" Label="Notes" @bind-Value="editExamModel.Notes" Required="true" />
                         <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(()=> UpdateExam())" />
@@ -150,8 +148,16 @@
 
     private async Task UpdateExam()
     {
-        model.Exams.Add(editExamModel);
-        ShowNewExamForm = false;
+        if (string.IsNullOrEmpty(editExamModel.Code) || editExamModel.Degree is null || editExamModel.Schedule is null)
+        {
+            Snackbar.Add(message: "Please fill the Code , Degree & Schedule fields", Severity.Error);
+        }
+        else
+        {
+            model.Exams.Add(editExamModel);
+            ShowNewExamForm = false;
+        }
+
         await Task.CompletedTask;
     }
     private async Task DeleteExam(ExamEditModel? existingExamData)

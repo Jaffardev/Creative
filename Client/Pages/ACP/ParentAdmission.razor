@@ -17,9 +17,8 @@
 
 
 <MudGrid>
+      <MudItem md="12"><MudText Typo="Typo.h5">Parent Screen</MudText></MudItem>
     <MudItem md="2">
-
-
         <MudSelect T="decimal?" Label="Branch" AnchorOrigin="Origin.BottomCenter" @bind-Value="searchBranchId">
             <MudSelectItem T="decimal?" Value="0">All</MudSelectItem>
             <MudItems DT="ItemType.Decimal" Lookups="lookups?.Data?.Branches" DataStatus="lookups.Status"></MudItems>
@@ -50,7 +49,7 @@
 
          
                 <MudPaper Width="100%">
-                    <MudText Typo="Typo.h6">Recent Parents</MudText>
+            <MudText Typo="Typo.h6" Class="m-2">Recent Parents</MudText>
                     @if (parentItems.Status == DataStatus.Loading)
                     {
                         for (int i = 0; i < 5; i++)
@@ -71,14 +70,14 @@
              
     </MudItem>
     <MudItem md="10">
+
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
             <DataAnnotationsValidator />
             <MudCard>
                 <MudCardContent>
                     <MudGrid>
-                        <MudItem xs="12">
-                            <MudText Typo="Typo.h5">Parent Screen</MudText>
-                        </MudItem>
+                    
+                       
 
                         <MudItem xs="2">
                             <MudTextField ReadOnly="true" Label="Code" InputType="InputType.Number" @bind-Value="model.Code"
@@ -178,7 +177,6 @@
                             if (model.Id > 0)
                             {
                                 <MudButton Size="@Size.Small" Variant="Variant.Filled" Color="Color.Error" OnClick="@(()=>Delete())" Class="ml-auto">Delete</MudButton>
-                                <MudButton Size="@Size.Small" Variant="Variant.Filled" Color="Color.Success" Class="add-item-btn ml-auto" OnClick="@AddNewStudent">Add New Student</MudButton>
                                 <MudSpacer></MudSpacer>
                                 <MudButton Size="@Size.Small" Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">
                                     Add New Parent
@@ -199,14 +197,22 @@
                 </MudCardActions>
             </MudCard>
         </EditForm>
+           @if (model.Id > 0)
+                            {
+        <MudCard Class="mt-3">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Students</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
 
-        <MudStack Class="mt-3">
+                    <MudButton Size="@Size.Small" Variant="Variant.Filled" Color="Color.Success" Class="add-item-btn ml-auto" OnClick="@AddNewStudent">Add New Student</MudButton>
+                </CardHeaderActions>
+</MudCardHeader>
+<MudCardContent>
             <MudDataGrid T="StudentModel" Items="@model.Students" Filterable="false" SortMode="@SortMode.None" Context="student"
                          Groupable="false">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">Students </MudText>
-
-                </ToolBarContent>
+              
                 <Columns>
                     <PropertyColumn Property="x => x.Status">
                         <CellTemplate>
@@ -229,8 +235,9 @@
                     </TemplateColumn>
                 </Columns>
             </MudDataGrid>
-        </MudStack>
-
+            </MudCardContent>
+        </MudCard>
+        }
     </MudItem>
 </MudGrid>
 

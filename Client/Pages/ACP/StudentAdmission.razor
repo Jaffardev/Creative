@@ -50,7 +50,7 @@
                                 </MudRadioGroup>*
                             </MudItem>
                             <MudItem md="2">
-                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Birth Date*" Margin="Margin.Dense" DateFormat="dd/MM/yyyy" TextChanged="CaculateAgeAtAdmission" @bind-Date="model.BirthDate" For="@(() => model.BirthDate)" />
+                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Birth Date*" Margin="Margin.Dense" DateFormat="dd/MM/yyyy" TextChanged="CaculateAgeAtAdmission" @bind-Date="model.BirthDate" For="@(() => model.BirthDate)" IsDateDisabledFunc="@((DateTime dt)=>(dt.Year > DateTime.Now.Year ))" />
                             </MudItem>
 
                             <MudItem xs="12">
@@ -372,13 +372,15 @@
                                             </MudItem>
 
                                             <MudItem xs="3">
-                                                <MudNumericField HideSpinButtons="true" Label="Id Number*" Margin="Margin.Dense"
+                                                <MudNumericField HideSpinButtons="true" Label="Civil Id*" Margin="Margin.Dense"
                                                 @bind-Value="model.IdNumber" For="@(() => model.IdNumber)" InputType="InputType.Number" />
                                             </MudItem>
 
                                             <MudItem xs="3">
-                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Id End Date" Margin="Margin.Dense"
-                                                @bind-Value="model.EndDate" For="@(() => model.EndDate)" DateFormat="dd/MM/yyyy" />
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Civil Id End Date" Margin="Margin.Dense"
+                                                @bind-Value="model.EndDate" For="@(() => model.EndDate)" DateFormat="dd/MM/yyyy" IsDateDisabledFunc="@((DateTime dt)=>(dt.Year < DateTime.Now.Year ))" />
+
+                                     
                                             </MudItem>
                                         </MudGrid>
                                     </MudTabPanel>

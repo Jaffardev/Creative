@@ -28,17 +28,18 @@ public class AdmissionModel
     public int? Result { get; set; }
     public int? NationalId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage ="Relegion is required")]
     public int? RelegionId { get; set; }
     public int? StudentType { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Age at admission is required")]
     public string? AgeAtAdmission { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Eligible grade is required")]
     public string? EligibleGrade { get; set; }
 
-    [Required]
+
+    [Required(ErrorMessage = "Age is required")]
     public string? Age { get => BirthDate?.ToAgeString(); }
     public string? LastYearClass { get; set; }
     public string? LastModifiedBy { get; set; }
@@ -53,13 +54,13 @@ public class AdmissionModel
     public string? ComeFrom { get; set; }
     public int? ComeYearId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Current Branch is required")]
     public decimal? CurBranchId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Current Grade is required")]
     public int? CurGradeId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Current Year is required")]
     public int? CurYearId { get; set; }
 
     public int? CurClassId { get; set; }
@@ -88,14 +89,15 @@ public class AdmissionModel
     public string? Address1 { get; set; }
     public DateTime? PassportDate { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Date of Birth Year is required")]
     public DateTime? BirthDate { get; set; }
 
 
     public string? BirthPlace { get; set; }
     public string? BirthDocPlace { get; set; }
     public string? CertificateNumber { get; set; }
-    [Required]
+
+    [Required(ErrorMessage = "Civil Id is required")]
     public string? IdNumber { get; set; }
     public DateTime? EndDate { get; set; }
     public decimal? EmpId { get; set; }

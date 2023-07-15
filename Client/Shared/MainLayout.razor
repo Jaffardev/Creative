@@ -7,7 +7,8 @@
 @inject ILookupService lookupService
 
 <MudDialogProvider />
-<MudThemeProvider />
+
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 <MudSnackbarProvider />
 <MudMessageBox />
 <MudOverlay @bind-Visible="ShowOverlay" DarkBackground="true" ZIndex="9999" />
@@ -38,9 +39,10 @@
                 </MudText>
             </NoItemsTemplate>
         </MudAutocomplete> *@
-        <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />
+        <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="@(_isDarkMode?"Light":"Dark")" />
+        @*<MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" />*@
     </MudAppBar>
-    <MudMainContent>
+    <MudMainContent Class="pt-5">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             <CascadingValue Name="ShowOverlay" Value="@ShowOverlay">
                 <CascadingValue Name="SelectedCustomer" Value="@SelectedCustomer">
@@ -54,7 +56,9 @@
 @code {
     public bool ShowOverlay { get; set; } = false;
     public Item? SelectedCustomer { get; set; } = new();
-
+    private MudTheme _theme = new();
+    private bool _isDarkMode;
+    private MudThemeProvider _mudThemeProvider;
     private async Task<IEnumerable<Item>> Search(string value, CancellationToken token)
     {
         await Task.Delay(1000);
@@ -80,4 +84,19 @@
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnSystemPreferenceChanged(bool newValue)
+    {
+        _isDarkMode = newValue;
+        StateHasChanged();
+    }
 }

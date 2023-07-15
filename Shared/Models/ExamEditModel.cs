@@ -1,15 +1,20 @@
-﻿namespace Creative.Shared.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Creative.Shared.Models;
 
 public class ExamEditModel
 {
     public decimal Id { get; set; }
-    public string? Code { get; set; }
+
+    [Required]
+    public string Code { get; set; } = null!;
     public decimal? StuId { get; set; }
+    [Required]
     public decimal? Degree { get; set; }
     public string? Notes { get; set; }
 
     public State State { get; set; } = State.Read;
-    public ScheduleItem Schedule { get; set; }
+    public ScheduleItem Schedule { get; set; } = null!;
     /// <summary>
     /// Overriding Equals is essential for use with Select and Table because they use HashSets internally
     /// </summary>
