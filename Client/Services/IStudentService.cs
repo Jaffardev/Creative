@@ -11,6 +11,9 @@ public interface IStudentService
     [Get($"{controller}{nameof(GetNewCode)}")]
     Task<ApiResult<decimal>> GetNewCode();
 
+    [Get($"{controller}{nameof(GetNewExamCode)}")]
+    Task<ApiResult<decimal>> GetNewExamCode();
+
     [Get($"{controller}{nameof(GetAll)}")]
     Task<IEnumerable<RegStudentModel>> GetAll();
 

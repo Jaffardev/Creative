@@ -31,15 +31,8 @@ public class AdmissionModel
     [Required(ErrorMessage ="Relegion is required")]
     public int? RelegionId { get; set; }
     public int? StudentType { get; set; }
-
-    [Required(ErrorMessage = "Age at admission is required")]
     public string? AgeAtAdmission { get; set; }
-
-    [Required(ErrorMessage = "Eligible grade is required")]
     public string? EligibleGrade { get; set; }
-
-
-    [Required(ErrorMessage = "Age is required")]
     public string? Age { get => BirthDate?.ToAgeString(); }
     public string? LastYearClass { get; set; }
     public string? LastModifiedBy { get; set; }

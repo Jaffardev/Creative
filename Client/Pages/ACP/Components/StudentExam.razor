@@ -68,7 +68,7 @@
             {
                 <MudPaper>
                     <MudStack Row="true">
-                        <MudTextField T="string" Label="Code" @bind-Value="editExamModel.Code" Required="true" />
+                        <MudTextField T="string" ReadOnly="true" Label="Code" @bind-Value="editExamModel.Code" Required="true" />
                         @if (ScheduleItems.Status == DataStatus.Loading)
                         {
                             <MudSkeleton />
@@ -141,7 +141,8 @@
 
     private async Task AddNewExam()
     {
-        editExamModel = new() { State = State.Add };
+
+        editExamModel = new() { Code = (await _studentService.GetNewExamCode())?.Data.ToString(), State = State.Add };
         ShowNewExamForm = true;
         await Task.CompletedTask;
     }

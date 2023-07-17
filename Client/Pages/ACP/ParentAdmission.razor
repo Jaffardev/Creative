@@ -14,7 +14,7 @@
 @inject IDialogService DialogService;
 @inject ILookupService lookupService
 @inject ISnackbar Snackbar
-
+<PageTitle>Parent Screen</PageTitle>
 
 <MudGrid>
     <MudItem md="12"><MudText Typo="Typo.h5">Parent Screen</MudText></MudItem>
@@ -25,7 +25,7 @@
         </MudSelect>
 
         <MudCheckBox Label="InCompleted Entry" @bind-Checked="searchWithoutStudent" Color="Color.Primary"></MudCheckBox>
-        <MudAutocomplete IconSize="Size.Medium" ProgressIndicatorColor="Color.Success" InputMode="InputMode.search"
+        <MudAutocomplete IconSize="Size.Small" MaxItems="100"	 ProgressIndicatorColor="Color.Success" InputMode="InputMode.search"
                          DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true"
                          Margin="Margin.Dense" ResetValueOnEmptyText="true" MinCharacters="1" KeyDownPreventDefault="true"
                          KeyUpPreventDefault="true" T="Item" Placeholder="Type to search" Variant="Variant.Outlined"
@@ -35,9 +35,8 @@
                 <MudProgressLinear Size="Size.Small" Indeterminate="true" Color="Color.Default" />
             </ProgressIndicatorTemplate>
             <ItemTemplate Context="e">
-                <MudText>
-                    <MudIcon Icon="@(e.Identity==Identity.Parent? Icons.Material.Filled.Man :Icons.Material.Filled.Face)"
-                             Class="mb-n1 mr-3" />@($"{e.Name} ({e.Identity.ToString()})")
+                <MudText Typo="Typo.subtitle2">
+                  @($"{e.Name} - {e.Identity.ToString()}")
                 </MudText>
             </ItemTemplate>
             <NoItemsTemplate>
@@ -267,7 +266,7 @@
     protected override async Task OnInitializedAsync()
     {
         LoadRecentParents();
-        await LoadDropDowns();
+        LoadDropDowns();
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -294,7 +293,7 @@
         if (string.IsNullOrEmpty(value))
             return Enumerable.Empty<Item>();
 
-        ApiResult<IEnumerable<Item>> parents = await lookupService.Search((decimal)searchBranchId, searchTerm: value, noStudent: searchWithoutStudent);
+        ApiResult<IEnumerable<Item>> parents = await lookupService.Search((decimal)searchBranchId, searchTerm: value, noStudent: searchWithoutStudent,pageSize:50);
 
         if (parents.IsSuccess)
             return parents.Data;
@@ -430,7 +429,8 @@
                 Name24 = model.Name23,
                 Name25 = model.Name24,
                 OnlineStatus = (int)OnlineStatus.RegisterInSchool,
-                StuStatus = (int)StudentStatus.ReservationAndNotPaid
+                StuStatus = (int)StudentStatus.ReservationAndNotPaid,
+                NationalId = (int?)model.NationalId
             };
 
         await OpenStudentForm();
@@ -440,7 +440,7 @@
         var dialogParam = new DialogParameters<StudentAdmission>();
         dialogParam.Add((x) => x.model, studentModel);
         dialogParam.Add((x) => x.lookups, lookups);
-        DialogOptions fullScreen = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true };
+        DialogOptions fullScreen = new DialogOptions() { DisableBackdropClick = true, CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true };
 
         var dialog = await DialogService.ShowAsync<StudentAdmission>("Student Data", parameters: dialogParam, options: fullScreen);
         var result = await dialog.Result;

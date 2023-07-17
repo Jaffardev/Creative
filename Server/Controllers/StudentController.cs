@@ -26,7 +26,18 @@ namespace Creative.Server.Controllers
         [HttpGet("GetNewCode")]
         public async Task<ApiResult<decimal>> GetNewCode()
         {
-            string code = (await _dbContext.AcpStudents.AsNoTracking().OrderByDescending(x => x.Id).FirstOrDefaultAsync())?.Code ?? "0";
+            string code = (await _dbContext.AcpStudents.AsNoTracking().Where(x => x.Code != null).OrderByDescending(x => x.Id).FirstOrDefaultAsync())?.Code ?? "0";
+
+            if (decimal.TryParse(code, out decimal _code))
+                return new ApiResult<decimal>().Success(_code + 1);
+
+            return new ApiResult<decimal>().Success(1);
+        }
+
+        [HttpGet("GetNewExamCode")]
+        public async Task<ApiResult<decimal>> GetNewExamCode()
+        {
+            string code = (await _dbContext.AcpStuExms.AsNoTracking().Where(x => x.Code != null).OrderByDescending(x => x.Id).FirstOrDefaultAsync())?.Code ?? "0";
 
             if (decimal.TryParse(code, out decimal _code))
                 return new ApiResult<decimal>().Success(_code + 1);
@@ -143,7 +154,7 @@ namespace Creative.Server.Controllers
                 //    ModifyDate = currentTime
                 //};
 
-             
+
                 if (model.Id > 0)
                 {
                     student.Id = model.Id;
@@ -192,7 +203,7 @@ namespace Creative.Server.Controllers
 
                     await _dbContext.SaveChangesAsync();
 
-                  
+
                 }
 
                 return result.Success(student.Id);
@@ -230,7 +241,7 @@ namespace Creative.Server.Controllers
 
                     //var deletedStudent = _dbContext.AcpStudents.FirstOrDefault(x => x.Id == studentId);
                     //if (deletedStudent != null)
-                    _dbContext.AcpStudents.Remove(new AcpStudent { Id=studentId });
+                    _dbContext.AcpStudents.Remove(new AcpStudent { Id = studentId });
 
                     await _dbContext.SaveChangesAsync();
                     await trans.CommitAsync();

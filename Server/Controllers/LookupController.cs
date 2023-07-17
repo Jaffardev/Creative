@@ -296,7 +296,7 @@ namespace Creative.Server.Controllers
 
 
         [HttpGet("Search")]
-        public async Task<ApiResult<IEnumerable<Item>>> Search(decimal branchId, string searchTerm, bool noStudent = false, int page = 1, int pageSize = 5)
+        public async Task<ApiResult<IEnumerable<Item>>> Search(decimal branchId, string searchTerm, bool noStudent = false, int page = 1, int pageSize = 50)
         {
             ApiResult<IEnumerable<Item>> result = new();
 
@@ -315,19 +315,19 @@ namespace Creative.Server.Controllers
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 parentQuery = parentQuery.Where(ps => ps.Name1.Contains(searchTerm) ||
-                ps.IdNo.Trim().Equals(searchTerm) ||
+                ps.IdNo.Trim().Contains(searchTerm) ||
                 ps.Name2.Trim().Contains(searchTerm) ||
-                ps.Code.Trim().Equals(searchTerm) ||
-                ps.Tel1.Trim().StartsWith(searchTerm) ||
-                ps.Tel2.Trim().StartsWith(searchTerm)
+                ps.Code.Trim().Contains(searchTerm) ||
+                ps.Tel1.Trim().Contains(searchTerm) ||
+                ps.Tel2.Trim().Contains(searchTerm)
                );
 
                 studentQuery = studentQuery.Where(ps => ps.Name1.Contains(searchTerm) ||
-                ps.IdNo.Trim().Equals(searchTerm) ||
+                ps.IdNo.Trim().Contains(searchTerm) ||
                 ps.Name2.Trim().Contains(searchTerm) ||
-                ps.Code.Trim().Equals(searchTerm) ||
-                ps.Tel1.Trim().StartsWith(searchTerm) ||
-                ps.Tel2.Trim().StartsWith(searchTerm)
+                ps.Code.Trim().Contains(searchTerm) ||
+                ps.Tel1.Trim().Contains(searchTerm) ||
+                ps.Tel2.Trim().Contains(searchTerm)
                );
             }
 
