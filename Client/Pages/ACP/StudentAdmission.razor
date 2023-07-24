@@ -29,15 +29,15 @@
                             <MudItem md="3">
                                 *
                                 <MudRadioGroup @bind-SelectedOption="model.Gender">
-                                    <MudRadio Option=1 Size="Size.Small" Color="Color.Primary" Dense="true">Male</MudRadio>
-                                    <MudRadio Option=3 Size="Size.Small" Color="Color.Secondary" Dense="true">Female</MudRadio>
+                                    <MudRadio Option=1 Size="Size.Small" tabindex="1" Color="Color.Primary" Dense="true">Male</MudRadio>
+                                    <MudRadio Option=3 Size="Size.Small" tabindex="-1" Color="Color.Secondary" Dense="true">Female</MudRadio>
                                 </MudRadioGroup>
                             </MudItem>
                             <MudItem md="2">
-                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Birth Date *" Margin="Margin.Dense" DateFormat="dd/MM/yyyy" TextChanged="CaculateAgeAtAdmission" @bind-Date="model.BirthDate" For="@(() => model.BirthDate)" IsDateDisabledFunc="@((DateTime dt)=>(dt.Year > DateTime.Now.Year ))" />
+                                <MudDatePicker IconSize="Size.Small" Editable=true tabindex="2" Label="Birth Date *" Margin="Margin.Dense" DateFormat="dd/MM/yyyy" TextChanged="CaculateAgeAtAdmission" @bind-Date="model.BirthDate" For="@(() => model.BirthDate)" IsDateDisabledFunc="@((DateTime dt)=>(dt.Year > DateTime.Now.Year ))" />
                             </MudItem>
                             <MudItem md="2">
-                                <MudSelect T="int?" @bind-Value="model.OnlineStatus" Label="Online Status" AnchorOrigin="Origin.BottomCenter">
+                                <MudSelect T="int?" @bind-Value="model.OnlineStatus" tabindex="3" Label="Online Status" AnchorOrigin="Origin.BottomCenter">
                                     @foreach (OnlineStatus item in Enum.GetValues(typeof(OnlineStatus)))
                                     {
                                         <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
@@ -45,7 +45,7 @@
                                 </MudSelect>
                             </MudItem>
                             <MudItem md="3">
-                                <MudSelect T="int?" @bind-Value="model.StuStatus" Label="Student Status" AnchorOrigin="Origin.BottomCenter">
+                                <MudSelect T="int?" @bind-Value="model.StuStatus" tabindex="4" Label="Student Status" AnchorOrigin="Origin.BottomCenter">
                                     @foreach (StudentStatus item in Enum.GetValues(typeof(StudentStatus)))
                                     {
                                         <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
@@ -56,19 +56,19 @@
                             <MudItem xs="12">
                                 <MudGrid>
                                     <MudItem xs="6" sm="3">
-                                        <MudTextField Label="Name in Arabic *" Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name11" For="@(() => model.Name11)" />
+                                        <MudTextField Margin="Margin.Dense" tabindex="9" OnBlur=@(async ()=>{ await inputfocusRef.FocusAsync(); }) InputType="InputType.Text" @bind-Value="model.Name15" For="@(() => model.Name15)" />
                                     </MudItem>
                                     <MudItem xs="6" sm="2">
-                                        <MudTextField Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name12" For="@(() => model.Name12)" />
+                                        <MudTextField Margin="Margin.Dense" tabindex="8" InputType="InputType.Text" @bind-Value="model.Name14" For="@(() => model.Name14)" />
                                     </MudItem>
                                     <MudItem xs="6" sm="2">
-                                        <MudTextField Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name13" For="@(() => model.Name13)" />
+                                        <MudTextField Margin="Margin.Dense" tabindex="7" InputType="InputType.Text" @bind-Value="model.Name13" For="@(() => model.Name13)" />
                                     </MudItem>
                                     <MudItem xs="6" sm="2">
-                                        <MudTextField Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name14" For="@(() => model.Name14)" />
+                                        <MudTextField Margin="Margin.Dense" tabindex="6" InputType="InputType.Text" @bind-Value="model.Name12" For="@(() => model.Name12)" />
                                     </MudItem>
                                     <MudItem xs="6" sm="3">
-                                        <MudTextField Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name15" For="@(() => model.Name15)" />
+                                        <MudTextField Label="Name in Arabic *" tabindex="5" Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name11" For="@(() => model.Name11)" />
                                     </MudItem>
                                 </MudGrid>
                             </MudItem>
@@ -76,7 +76,7 @@
                             <MudItem xs="12">
                                 <MudGrid>
                                     <MudItem xs="6" sm="3">
-                                        <MudTextField Label="Name in English" Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name21" For="@(() => model.Name21)" />
+                                        <MudTextField Label="Name in English" @ref=inputfocusRef Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name21" For="@(() => model.Name21)" />
                                     </MudItem>
                                     <MudItem xs="6" sm="2">
                                         <MudTextField Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name22" For="@(() => model.Name22)" />
@@ -240,7 +240,7 @@
 
                                             <MudItem xs="6">
 
-                                                <MudSelect T="int?" Label="Current Grade *"  For="@(() => model.CurGradeId)" SelectedValuesChanged="GetClasses" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurGradeId">
+                                                <MudSelect T="int?" Label="Current Grade *" For="@(() => model.CurGradeId)" SelectedValuesChanged="GetClasses" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurGradeId">
                                                     <MudItems DataStatus="lookups.Status" Lookups="lookups.Data.Grades"></MudItems>
 
                                                 </MudSelect>
@@ -249,7 +249,7 @@
 
                                             <MudItem xs="6">
 
-                                                <MudSelect T="int?" Label="Current Year *"  For="@(() => model.CurYearId)" SelectedValuesChanged="GetClasses" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurYearId">
+                                                <MudSelect T="int?" Label="Current Year *" For="@(() => model.CurYearId)" SelectedValuesChanged="GetClasses" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurYearId">
                                                     <MudItems DataStatus="lookups.Status" Lookups="lookups.Data.Years"></MudItems>
 
                                                 </MudSelect>
@@ -418,11 +418,11 @@
                                                 @if (model.ResEmp)
                                                 {
                                                     <MudSelect T="decimal?" Label="Employee" For="@(() => model.EmpId)" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.EmpId">
-                                                        <MudItems DT="ItemType.Decimal"  DataStatus="lookups.Status" Lookups="lookups.Data.Employees"></MudItems>
+                                                        <MudItems DT="ItemType.Decimal" DataStatus="lookups.Status" Lookups="lookups.Data.Employees"></MudItems>
 
-                                                </MudSelect>
+                                                    </MudSelect>
                                                 }
-                                                
+
                                             </MudItem>
                                             <MudItem xs="6">
                                                 <MudCheckBox @bind-Checked="@model.OnlineStatus" Label="Online Registration" Color="Color.Primary"></MudCheckBox>
@@ -479,7 +479,7 @@
 
 
     public DataItem<IEnumerable<Item>> ClassItems { get; set; } = new();
-
+    private MudTextField<string> inputfocusRef { get; set; }
 
     private async Task Delete()
     {
@@ -565,7 +565,7 @@
                 var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
                 DialogService.Show<CustomDialog>("Error", parameters, options);
                 return;
-            } 
+            }
         }
 
         bool? isConfirm = await DialogService.ShowMessageBox(

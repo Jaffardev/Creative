@@ -123,4 +123,8 @@ a,
     font-weight: 500 !important;
     line-height: 0.8 !important;
 }
- 
+
+
+.mud-input > input.mud-input-root.mud-input-root-margin-dense, div.mud-input-slot.mud-input-root.mud-input-root-margin-dense {
+    padding-bottom: 2px !important;
+}

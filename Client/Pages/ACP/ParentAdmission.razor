@@ -25,7 +25,7 @@
         </MudSelect>
 
         <MudCheckBox Label="InCompleted Entry" @bind-Checked="searchWithoutStudent" Color="Color.Primary"></MudCheckBox>
-        <MudAutocomplete IconSize="Size.Small" MaxItems="100"	 ProgressIndicatorColor="Color.Success" InputMode="InputMode.search"
+        <MudAutocomplete IconSize="Size.Small" MaxItems="100" ProgressIndicatorColor="Color.Success" InputMode="InputMode.search"
                          DebounceInterval="500" Clearable="true" AutoFocus="true" Immediate="false" Dense="true"
                          Margin="Margin.Dense" ResetValueOnEmptyText="true" MinCharacters="1" KeyDownPreventDefault="true"
                          KeyUpPreventDefault="true" T="Item" Placeholder="Type to search" Variant="Variant.Outlined"
@@ -36,7 +36,7 @@
             </ProgressIndicatorTemplate>
             <ItemTemplate Context="e">
                 <MudText Typo="Typo.subtitle2">
-                  @($"{e.Name} - {e.Identity.ToString()}")
+                    @($"{e.Name} - {e.Identity.ToString()}")
                 </MudText>
             </ItemTemplate>
             <NoItemsTemplate>
@@ -69,7 +69,7 @@
 
     </MudItem>
     <MudItem md="10">
-
+        <MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
         <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
             <DataAnnotationsValidator />
             <MudCard>
@@ -77,38 +77,36 @@
                     <MudGrid>
 
 
-
                         <MudItem xs="2">
-                            <MudTextField ReadOnly="true" Label="Code" InputType="InputType.Number" @bind-Value="model.Code"
+                            <MudTextField ReadOnly="true" Label="Code" tabindex="1" InputType="InputType.Number" @bind-Value="model.Code"
                                           For="@(() => model.Code)" HideSpinButtons="true" />
                         </MudItem>
 
                         <MudItem xs="12">
                             <MudGrid>
                                 <MudItem xs="6" sm="3">
-                                    <MudTextField Label="First Name (Ar) *" Margin="Margin.Dense" InputType="InputType.Text"
-                                    @bind-Value="model.Name11" For="@(() => model.Name11)" />
+                                    <MudTextField Label="Family Name (Ar)" tabindex="5" OnBlur=@(async ()=>{ await inputfocusRef.FocusAsync(); }) Margin="Margin.Dense" InputType="InputType.Text"
+                                    @bind-Value="model.Name14" For="@(() => model.Name14)" />
                                 </MudItem>
                                 <MudItem xs="6" sm="3">
-                                    <MudTextField Label="Mid Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                                    @bind-Value="model.Name12" For="@(() => model.Name12)" />
-                                </MudItem>
-                                <MudItem xs="6" sm="3">
-                                    <MudTextField Label="Last Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
+                                    <MudTextField Label="Last Name (Ar)" tabindex="4" Margin="Margin.Dense" InputType="InputType.Text"
                                     @bind-Value="model.Name13" For="@(() => model.Name13)" />
                                 </MudItem>
                                 <MudItem xs="6" sm="3">
-                                    <MudTextField Label="Family Name (Ar)" Margin="Margin.Dense" InputType="InputType.Text"
-                                    @bind-Value="model.Name14" For="@(() => model.Name14)" />
+                                    <MudTextField Label="Mid Name (Ar)" tabindex="3" Margin="Margin.Dense" InputType="InputType.Text"
+                                    @bind-Value="model.Name12" For="@(() => model.Name12)" />
                                 </MudItem>
-
+                                <MudItem xs="6" sm="3">
+                                        <MudTextField Label="First Name (Ar) *" @ref=nameArabicRef tabindex="2" Margin="Margin.Dense" InputType="InputType.Text"
+                                    @bind-Value="model.Name11" For="@(() => model.Name11)" />
+                                </MudItem>
                             </MudGrid>
                         </MudItem>
 
                         <MudItem xs="12">
                             <MudGrid>
                                 <MudItem xs="6" sm="3">
-                                    <MudTextField Label="First Name (En) *" Margin="Margin.Dense" InputType="InputType.Text"
+                                    <MudTextField Label="First Name (En) *" @ref=inputfocusRef Margin="Margin.Dense" InputType="InputType.Text"
                                     @bind-Value="model.Name21" For="@(() => model.Name21)" />
                                 </MudItem>
                                 <MudItem xs="6" sm="3">
@@ -196,6 +194,7 @@
                 </MudCardActions>
             </MudCard>
         </EditForm>
+        </MudFocusTrap>
         @if (model.Id > 0)
         {
             <MudCard Class="mt-3">
@@ -262,6 +261,8 @@
 
     public decimal? searchBranchId { get; set; } = 0;
     public bool searchWithoutStudent { get; set; } = false;
+    private MudTextField<string> inputfocusRef { get; set; }
+    private MudTextField<string> nameArabicRef { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -293,7 +294,7 @@
         if (string.IsNullOrEmpty(value))
             return Enumerable.Empty<Item>();
 
-        ApiResult<IEnumerable<Item>> parents = await lookupService.Search((decimal)searchBranchId, searchTerm: value, noStudent: searchWithoutStudent,pageSize:50);
+        ApiResult<IEnumerable<Item>> parents = await lookupService.Search((decimal)searchBranchId, searchTerm: value, noStudent: searchWithoutStudent, pageSize: 50);
 
         if (parents.IsSuccess)
             return parents.Data;
@@ -409,6 +410,7 @@
         {
             await SetFormData();
             model.Code = result.Data.ToString();
+            await nameArabicRef.FocusAsync();
         }
         else
         {
