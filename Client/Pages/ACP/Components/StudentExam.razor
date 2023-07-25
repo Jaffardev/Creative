@@ -22,7 +22,7 @@
         {
             <MudDataGrid T="ExamEditModel" ReadOnly=false Items="@model.Exams.Where(x=> x.State!=State.Delete)" Filterable="false" SortMode="@SortMode.None" Groupable="false" EditMode="DataGridEditMode.Cell" Dense=true CommittedItemChanges="@CommittedItemChanges">
                 <Columns>
-                    <PropertyColumn Property="x => x.Code" Title="Code" />
+                    <PropertyColumn Property="x => x.Code" Title="Code" IsEditable="false" />
                     <PropertyColumn Property="x => x.Schedule.Name" Title="Schedule">
                         <EditTemplate>
                             <MudAutocomplete T="ScheduleItem" @bind-Value="context!.Item!.Schedule"

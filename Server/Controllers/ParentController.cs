@@ -35,8 +35,6 @@ namespace Creative.Server.Controllers
         public async Task<ApiResult<List<ParentModel>>> GetRecentParents()
         {
             List<ParentModel> parents = await _dbContext.AcpResponsibiles.AsNoTracking().OrderByDescending(x => x.Id).Take(5).ProjectToType<ParentModel>().ToListAsync();
-
-
             return new ApiResult<List<ParentModel>>().Success(parents);
         }
 
@@ -76,7 +74,7 @@ namespace Creative.Server.Controllers
                                        Year = year.Name1
                                    });
 
-
+              
                 return result.Success(parent);
             }
             catch (Exception ex)

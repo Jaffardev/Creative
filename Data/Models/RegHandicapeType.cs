@@ -6,9 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Creative.Data.Models;
 
+public interface IEntity
+{
+    public decimal Id { get; set; }
+    public string? Name1 { get; set; }
+    public string? Name2 { get; set; }
+}
+
 [Keyless]
 [Table("reg_handicape_type")]
-public partial class RegHandicapeType
+public partial class RegHandicapeType : IEntity
 {
     [Column("id", TypeName = "decimal(18, 0)")]
     public decimal Id { get; set; }

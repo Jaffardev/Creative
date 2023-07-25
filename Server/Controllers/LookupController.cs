@@ -43,7 +43,7 @@ namespace Creative.Server.Controllers
             // If found, then return it
             return cachedResult;
         }
-        private async Task SetCache<T>(string key, T result)
+        private async Task<T> SetCache<T>(string key, T result)
         {
             // serialize the response
             byte[] objectToCache = JsonSerializer.SerializeToUtf8Bytes(result);
@@ -53,190 +53,113 @@ namespace Creative.Server.Controllers
 
             // Cache it
             await _distributedCache.SetAsync(key, objectToCache, cacheEntryOptions);
+            return result;
+        }
+
+        private async Task<T> SetCache<T>(T result)
+        {
+            // serialize the response
+            byte[] objectToCache = JsonSerializer.SerializeToUtf8Bytes(result);
+            var cacheEntryOptions = new DistributedCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromSeconds(30))
+                .SetAbsoluteExpiration(DateTime.Now.AddDays(1));
+
+            // Cache it
+            await _distributedCache.SetAsync(nameof(result), objectToCache, cacheEntryOptions);
+            return result;
         }
 
         [HttpGet]
-        public async Task<ApiResult<AcademicLookups>> Get(Lookup lookup, string? searchTerm = "", int page = 1, int pageSize = 5)
+        public async Task<ApiResult<List<Item>>> Get(Lookup lookup, string? searchTerm = "", int page = 1, int pageSize = 5)
         {
-            ApiResult<AcademicLookups> result = new();
+            ApiResult<List<Item>> result = new();
             try
             {
-                List<Item>? grades = null, branches = null, years = null, classes = null, parents = null,
-                    religions = null, nationals = null, employees = null, examTypes = null, Jobs = null, parentsAndStudent = null, handicapTypes = null;
 
-                Stopwatch stopwatch = Stopwatch.StartNew();
+                List<Item>? data = await GetCache<List<Item>>(lookup.ToString());
+                if (data is not null)
+                    return result.Success(data);
 
-                if (lookup is (Lookup.HandicapType or Lookup.All))
+
+                data = lookup switch
                 {
-                    handicapTypes = await GetCache<List<Item>>(nameof(handicapTypes));
-                    if (handicapTypes is null)
+
+                    Lookup.HandicapType => await _dbContext.RegHandicapeTypes.AsNoTracking().Select(x => new Item()
                     {
-                        handicapTypes = await _dbContext.RegHandicapeTypes.AsNoTracking().Select(x => new Item()
-                        {
-                            Id = x.Id,
-                            Name = x.Name1
-                        }).ToListAsync();
+                        Id = x.Id,
+                        Name = x.Name1
+                    }).ToListAsync(),
 
-                        await SetCache(nameof(handicapTypes), handicapTypes);
-                    }
-                }
-
-                if (lookup is (Lookup.Jobs or Lookup.All))
-                {
-                    Jobs = await GetCache<List<Item>>(nameof(Jobs));
-                    if (Jobs is null)
+                    Lookup.Jobs => await _dbContext.RegJobs.AsNoTracking().Select(x => new Item()
                     {
-                        Jobs = await _dbContext.RegJobs.AsNoTracking().Select(x => new Item()
-                        {
-                            Id = x.Id,
-                            Name = x.Name1
-                        }).ToListAsync();
+                        Id = x.Id,
+                        Name = x.Name1
+                    }).ToListAsync(),
 
-                        await SetCache(nameof(Jobs), Jobs);
-                    }
-                }
-
-                if (lookup is (Lookup.All or Lookup.Religions))
-                {
-                    religions = await GetCache<List<Item>>(nameof(religions));
-                    if (religions is null)
+                    Lookup.Religions => await _dbContext.RegRelegions.AsNoTracking().Select(x => new Item()
                     {
-                        religions = await _dbContext.RegRelegions.AsNoTracking().Select(x => new Item()
-                        {
-                            Id = x.Id,
-                            Name = x.Name1
-                        }).ToListAsync();
-                        await SetCache(nameof(religions), religions);
-                    }
-                }
+                        Id = x.Id,
+                        Name = x.Name1
+                    }).ToListAsync(),
 
-                if (lookup is (Lookup.All or Lookup.Grades))
-                {
-                    grades = await GetCache<List<Item>>(nameof(grades));
-                    if (grades is null)
+                    Lookup.Grades => await _dbContext.RegGreads.AsNoTracking().Select(x => new Item()
                     {
-                        grades = await _dbContext.RegGreads.AsNoTracking().Select(x => new Item()
-                        {
-                            Id = x.Id,
-                            Name = x.Name1
-                        }).ToListAsync();
-                        await SetCache(nameof(grades), grades);
-                    }
-                }
+                        Id = x.Id,
+                        Name = x.Name1
+                    }).ToListAsync(),
 
-                if (lookup is (Lookup.All or Lookup.Years))
-                {
-                    years = await GetCache<List<Item>>(nameof(years));
-                    if (years is null)
+                    Lookup.Years => await _dbContext.RegYears.AsNoTracking().Select(x => new Item()
                     {
-                        years = await _dbContext.RegYears.AsNoTracking().Select(x => new Item()
-                        {
-                            Id = x.Id,
-                            Name = x.Name1
-                        }).ToListAsync();
-                        await SetCache(nameof(years), years);
-                    }
-                }
+                        Id = x.Id,
+                        Name = x.Name1
+                    }).ToListAsync(),
 
-                if (lookup is (Lookup.All or Lookup.Branches))
-                {
-                    branches = await GetCache<List<Item>>(nameof(branches));
-                    if (branches is null)
-                    {
-                        branches = await (from branch in _dbContext.RegBranches.AsNoTracking()
-                                          select new Item()
-                                          {
-                                              Id = branch.Id,
-                                              Name = branch.Name1,
-                                          }).ToListAsync();
-                        await SetCache(nameof(branches), branches);
-                    }
-                }
+                    Lookup.Branches => await (from branch in _dbContext.RegBranches.AsNoTracking()
+                                              select new Item()
+                                              {
+                                                  Id = branch.Id,
+                                                  Name = branch.Name1,
+                                              }).ToListAsync(),
 
-                if (lookup is (Lookup.All or Lookup.Parents))
-                {
-                    parents = await _dbContext.AcpResponsibiles.AsNoTracking().Select(x => new { x.Id, x.Name1, x.Name2, x.Code, x.IdNo })
-                               .Union(_dbContext.RegResponsibiles.AsNoTracking().Select(x => new { x.Id, x.Name1, x.Name2, x.Code, x.IdNo }))
-                               .Where(x => searchTerm == "" || (searchTerm != null && (x.Name1.Contains(searchTerm) || x.IdNo.Contains(searchTerm) || x.Name2.Contains(searchTerm))))
-                               .Skip((page - 1) * pageSize)
-                               .Take(pageSize)
-                               .Select(x => new Item()
-                               {
-                                   Id = x.Id,
-                                   Name = x.Name1
-                               }).ToListAsync();
-                }
+                    Lookup.Parents => await _dbContext.AcpResponsibiles.AsNoTracking().Select(x => new { x.Id, x.Name1, x.Name2, x.Code, x.IdNo })
+                                   .Union(_dbContext.RegResponsibiles.AsNoTracking().Select(x => new { x.Id, x.Name1, x.Name2, x.Code, x.IdNo }))
+                                   .Where(x => searchTerm == "" || (searchTerm != null && (x.Name1.Contains(searchTerm) || x.IdNo.Contains(searchTerm) || x.Name2.Contains(searchTerm))))
+                                   .Skip((page - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .Select(x => new Item()
+                                   {
+                                       Id = x.Id,
+                                       Name = x.Name1
+                                   }).ToListAsync(),
 
-                if (lookup is (Lookup.All or Lookup.Nationals))
-                {
-                    // nationals = await GetCache<List<Item>>(nameof(nationals));
-
-                    // if (nationals is null)
-                    // {
-                    nationals = await _dbContext.RegNationals.AsNoTracking().Select(x => new Item()
+                    Lookup.Nationals => await _dbContext.RegNationals.AsNoTracking().Select(x => new Item()
                     {
                         Id = x.Id,
                         Name = x.Name2
-                    }).ToListAsync();
-                    await SetCache(nameof(nationals), nationals);
-                    // }
-                }
+                    }).ToListAsync(),
 
-                if (lookup is (Lookup.All or Lookup.Employees))
-                {
-                    employees = await GetCache<List<Item>>(nameof(employees));
-
-                    if (employees is null)
+                    Lookup.Employees => await _dbContext.RegEmps.AsNoTracking().Select(x => new Item()
                     {
+                        Id = x.Id,
+                        Name = x.Name1
+                    }).ToListAsync(),
 
-                        employees = await _dbContext.RegEmps.AsNoTracking().Select(x => new Item()
-                        {
-                            Id = x.Id,
-                            Name = x.Name1
-                        }).ToListAsync();
-                        await SetCache(nameof(employees), employees);
-                    }
-                }
-
-                if (lookup is (Lookup.All or Lookup.ExamTypes))
-                {
-                    examTypes = await GetCache<List<Item>>(nameof(examTypes));
-
-                    if (examTypes is null)
+                    Lookup.ExamTypes => await _dbContext.AcpExamTypes.AsNoTracking().Select(x => new Item()
                     {
-                        examTypes = await _dbContext.AcpExamTypes.AsNoTracking().Select(x => new Item()
-                        {
-                            Id = x.Id,
-                            Name = x.Name2
-                        }).ToListAsync();
-                        await SetCache(nameof(examTypes), examTypes);
-                    }
-                }
+                        Id = x.Id,
+                        Name = x.Name2
+                    }).ToListAsync()
+                } ;
 
-                stopwatch.Stop();
+                return result.Success(await SetCache(lookup.ToString(), data));
 
-                return result.Success(new AcademicLookups
-                {
-                    Jobs = Jobs,
-                    Classes = classes,
-                    Grades = grades,
-                    Years = years,
-                    Branches = branches,
-                    Parents = parents,
-                    Religions = religions,
-                    Nationals = nationals,
-                    Employees = employees,
-                    ExamTypes = examTypes,
-                    HandicapTypes = handicapTypes,
-                    ExecutedIn = stopwatch.ElapsedMilliseconds
-                });
             }
             catch (Exception ex)
             {
                 return result.Fail(ex.Message);
             }
         }
-
+         
         [HttpGet("GetClass")]
         public async Task<ApiResult<IEnumerable<Item>>> GetClass(decimal gradeId, decimal branchId, string gender)
         {

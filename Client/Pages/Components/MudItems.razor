@@ -1,12 +1,19 @@
 @using MudBlazor
 @using Creative.Shared.Models
-@if (DataStatus == DataStatus.Loading)
+
+@if (Lookups is null)
+{
+     <span>Loading..</span>
+    
+}else{
+
+@if (Lookups.Status == DataStatus.Loading)
 {
     <span>Loading..</span>
 }
-@if (DataStatus == DataStatus.Loaded)
+@if (Lookups.Status == DataStatus.Loaded)
 {
-    @foreach (var item in Lookups)
+    @foreach (var item in Lookups.Data)
     {
         if(DT==ItemType.Int){
         <MudSelectItem T="int?" Value="@((int)item.Id)">@item.Name</MudSelectItem>
@@ -17,11 +24,12 @@
 
     }
 }
+}
 
 @code {
     [Parameter] public ItemType DT { get; set; } = ItemType.Int;
-    [Parameter] public IEnumerable<Item> Lookups { get; set; }
-    [Parameter] public DataStatus DataStatus { get; set; } = new();
-
+    //[Parameter] public IEnumerable<Item> Lookups { get; set; }
+    //[Parameter] public DataStatus DataStatus { get; set; } = new();
+    [Parameter] public DataItem<IEnumerable<Item>>? Lookups { get; set; }  
  
 }
