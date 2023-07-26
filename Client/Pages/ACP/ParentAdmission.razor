@@ -488,6 +488,7 @@
         {
             Snackbar.Add($"Successfully {(model.Id > 0 ? "Updated" : "Saved")} ", Severity.Success);
             model.Id = result.Data;
+            LoadRecentParents();
         }
         else
         {

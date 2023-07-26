@@ -141,8 +141,11 @@
 
     private async Task AddNewExam()
     {
+        decimal _code = (await _studentService.GetNewExamCode())?.Data ?? 0;
 
-        editExamModel = new() { Code = (await _studentService.GetNewExamCode())?.Data.ToString(), State = State.Add };
+        int totalNew = model.Exams.Count(x => x.State == State.Add);
+
+        editExamModel = new() { Code = (_code + totalNew).ToString(), State = State.Add };
         ShowNewExamForm = true;
         await Task.CompletedTask;
     }
