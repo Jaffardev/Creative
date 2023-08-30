@@ -148,8 +148,69 @@ namespace Creative.Server.Controllers
                     {
                         Id = x.Id,
                         Name = x.Name2
-                    }).ToListAsync()
-                } ;
+                    }).ToListAsync(),
+
+                    Lookup.Goverment => await _dbContext.RegGovers.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Name2
+                    }).ToListAsync(),
+
+                    Lookup.Area => await _dbContext.RegAreas.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Name2
+                    }).ToListAsync(),
+                    Lookup.Part => await _dbContext.RegParts.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Name2
+                    }).ToListAsync(),
+
+                    Lookup.IdType => await _dbContext.RegIdTypes.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Name2
+                    }).ToListAsync(),
+
+                    Lookup.AccAccounts => await _dbContext.AccAccounts.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Name2
+                    }).ToListAsync(),
+
+                    Lookup.AccAnalyses => await _dbContext.AccAnalyses.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Name2
+                    }).ToListAsync(),
+
+                    Lookup.AccCost => await _dbContext.AccAccCosts.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Code
+                    }).ToListAsync(),
+                    Lookup.AccExpenses => await _dbContext.AccExpenses.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Code
+                    }).ToListAsync(),
+                    Lookup.BooksAccounts => await _dbContext.LibItemsBooks.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Code
+                    }).ToListAsync(),
+                    Lookup.BusAccount => await _dbContext.BusBus.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Code
+                    }).ToListAsync(),
+                    Lookup.AccAccCats => await _dbContext.AccAccCats.AsNoTracking().Select(x => new Item()
+                    {
+                        Id = x.Id,
+                        Name = x.Code
+                    }).ToListAsync(),
+                };
 
                 return result.Success(await SetCache(lookup.ToString(), data));
 
@@ -159,7 +220,7 @@ namespace Creative.Server.Controllers
                 return result.Fail(ex.Message);
             }
         }
-         
+
         [HttpGet("GetClass")]
         public async Task<ApiResult<IEnumerable<Item>>> GetClass(decimal gradeId, decimal branchId, string gender)
         {
