@@ -31,6 +31,13 @@ namespace Creative.Server.Controllers
             return new ApiResult<decimal>().Success(1);
         }
 
+        [HttpGet("GetRecentParents")]
+        public async Task<ApiResult<List<ParentModel>>> GetRecentParents()
+        {
+            List<ParentModel> parents = await _dbContext.AcpResponsibiles.AsNoTracking().OrderByDescending(x => x.Id).Take(5).ProjectToType<ParentModel>().ToListAsync();
+            return new ApiResult<List<ParentModel>>().Success(parents);
+        }
+
         [HttpGet("{parentId:decimal}")]
         public async Task<ApiResult<ParentModel>> GetParent(decimal parentId)
         {
@@ -61,13 +68,13 @@ namespace Creative.Server.Controllers
                                        Code = student.Code,
                                        Grade = grade.Name1,
                                        Id = student.Id,
-                                       Name2 = grade.Name2,
+                                       Name2 = student.Name2,
                                        Section = sg.Name1,
-                                       Status = student.StuStatus,
+                                       Status = Convert.ToInt16(student.TransferStatus ?? "0"),
                                        Year = year.Name1
                                    });
 
-
+              
                 return result.Success(parent);
             }
             catch (Exception ex)
@@ -78,8 +85,8 @@ namespace Creative.Server.Controllers
 
         }
 
-        [HttpPost("NewEditParent")]
-        public async Task<ApiResult<decimal>> NewEditParent([FromBody] ParentModel model)
+        [HttpPost]
+        public async Task<ApiResult<decimal>> Post([FromBody] ParentModel model)
         {
             ApiResult<decimal> result = new();
             if (!ModelState.IsValid)
@@ -110,6 +117,39 @@ namespace Creative.Server.Controllers
             }
 
             return result.Success(newParent.Id);
+        }
+
+
+        [HttpDelete("{parentId:decimal}")]
+        public async Task<ApiResult<bool>> Delete(decimal parentId)
+        {
+            using (var trans = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var deletedExams = _dbContext.AcpStuExms.Where(x => x.StuId == parentId);
+                    if (deletedExams.Any())
+                        _dbContext.AcpStuExms.RemoveRange(deletedExams);
+
+                    var deletedStudents = _dbContext.AcpStudents.FirstOrDefault(x => x.ParentId == parentId);
+                    if (deletedStudents != null)
+                        _dbContext.AcpStudents.RemoveRange(deletedStudents);
+
+                    var deletedParent = _dbContext.AcpResponsibiles.FirstOrDefault(x => x.Id == parentId);
+                    if (deletedParent != null)
+                        _dbContext.AcpResponsibiles.Remove(deletedParent);
+
+                    await _dbContext.SaveChangesAsync();
+                    await trans.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    return new ApiResult<bool>().Fail(ex.Message);
+                }
+            }
+
+            return new ApiResult<bool>().Success(true);
         }
 
         [HttpGet]

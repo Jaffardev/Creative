@@ -1,6 +1,8 @@
 using Creative.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,13 +18,15 @@ builder.Services.AddDbContext<ApplicationDbContext>((option) =>
     option.ConfigureWarnings(w => w.Ignore(SqlServerEventId.DecimalTypeKeyWarning));
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+ 
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.RegisterMapsterConfiguration();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -49,7 +53,6 @@ app.UseCors("openpolicy");
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.UseRouting();
-
 
 app.MapRazorPages();
 app.MapControllers();

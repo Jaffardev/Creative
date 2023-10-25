@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Creative.Shared.Models;
 
@@ -37,11 +38,20 @@ public class ParentModel
     public string? Address1 { get; set; }
     public string? Notes { get; set; }
     public IEnumerable<StudentModel>? Students { get; set; }
+
+    [JsonIgnore]
+    public bool Modified { get; set; }
+
+    public bool IsChanged(string? code)
+    {
+        return this.Code != code || Modified;
+    }
+
 }
 
 public class StudentModel
 {
-    public string? Status { get; set; }
+    public int? Status { get; set; }
     public string? Section { get; set; }
     public string? Grade { get; set; }
     public string? Branch { get; set; }

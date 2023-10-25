@@ -1,4 +1,5 @@
- public enum ItemType{
-        Int,
-        Decimal
-    }
+public enum ItemType
+{
+    Int,
+    Decimal
+}

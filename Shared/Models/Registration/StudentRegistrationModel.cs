@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Creative.Shared.Models;
 
-public class AdmissionModel
+public class StudentRegistrationModel
 {
     public decimal Id { get; set; }
     public string? Code { get; set; }
@@ -28,7 +28,7 @@ public class AdmissionModel
     public int? Result { get; set; }
     public int? NationalId { get; set; }
 
-    [Required(ErrorMessage ="Relegion is required")]
+    [Required(ErrorMessage = "Relegion is required")]
     public int? RelegionId { get; set; }
     public int? StudentType { get; set; }
     public string? AgeAtAdmission { get; set; }
@@ -124,4 +124,53 @@ public class AdmissionModel
     public bool? AcceptFees { get; set; }
     public bool? AcceptDebt { get; set; }
     public int? StuPayBy { get; set; }
+
+    public string? ManagementNotes { get; set; }
+    public DateTime? TravelDate { get; set; }
+    public DateTime? ReturnDate { get; set; }
+    public DateTime? WithdrawDate { get; set; }
+    public int? WithdrawReasonId { get; set; }
+    public string? WithdrawReasonEng { get; set; }
+
+    public string? WithdrawReasonArab { get; set; }
+
+    public string? ComeFromE { get; set; }
+    public int? Stay { get; set; }
+    public int? SchoolComeType { get; set; }
+
+    public int? ToSchoolId { get; set; }
+    public int? FromSchoolId { get; set; }
+    public int? SchoolGotype { get; set; }
+
+
+    public int? TransferStatus { get; set; }
+    public int? CurBranchIdD { get; set; }
+
+    public int? CurGradeIdD { get; set; }
+
+    public int? CurClassIdD { get; set; }
+
+    public string? Other9 { get; set; }
+    public int? ResidenceNo { get; set; }
+
+    public DateTime? ResidenceEndDate { get; set; }
+    public int? IdTypeId { get; set; }
+    public int? ImsNo { get; set; }
+
+    public int? IdNo { get; set; }
+    public DateTime? IdEndDate { get; set; }
+    public int? PassportType { get; set; }
+    public string? PassportNumber { get; set; }
+    public DateTime? PassportEndDate { get; set; }
+    public string? Fax { get; set; }
+    public string? EmergencyTel { get; set; }
+    public int? GovernId { get; set; }
+
+    public int? AreaId { get; set; }
+
+    public int? PartId { get; set; }
+    public int? HouseNo { get; set; }
+    public string? Address2 { get; set; }
+
+
 }

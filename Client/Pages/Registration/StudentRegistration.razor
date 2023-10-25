@@ -1,0 +1,788 @@
+﻿@using Creative.Client.Models;
+@using Creative.Client.Pages.ACP.Components
+@using Creative.Client.Pages.Components
+@using Creative.Client.Services;
+@using Creative.Client.Shared.Components;
+@using Creative.Shared.Models;
+@using Creative.Shared.Extensions;
+@using System.Collections.ObjectModel
+@using Creative.Shared;
+@using MudBlazor
+
+@inject NavigationManager navManager;
+@inject ILookupService _lookupService;
+@inject IParentService _parentService;
+@inject IStudentService _studentService;
+@inject IDialogService DialogService;
+@inject ISnackbar Snackbar
+<MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
+    <MudDialog>
+        <DialogContent>
+            <EditForm Model="model" OnSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+                <MudCard>
+                    <MudCardContent>
+                        <MudGrid>
+                            <MudItem md="2">
+                                <MudTextField ReadOnly="true" Label="Code" InputType="InputType.Number" @bind-Value="model.Code" For="@(() => model.Code)" HideSpinButtons="true" />
+                            </MudItem>
+                            <MudItem md="3">
+                                *
+                                <MudRadioGroup @bind-SelectedOption="model.Gender">
+                                    <MudRadio Option=1 Size="Size.Small" tabindex="1" Color="Color.Primary" Dense="true">Male</MudRadio>
+                                    <MudRadio Option=3 Size="Size.Small" tabindex="2" Color="Color.Secondary" Dense="true">Female</MudRadio>
+                                </MudRadioGroup>
+                            </MudItem>
+                            <MudItem md="2">
+                                <MudDatePicker IconSize="Size.Small" Editable=true tabindex="3" Label="Birth Date *" Margin="Margin.Dense" DateFormat="dd/MM/yyyy" TextChanged="CaculateAgeAtAdmission" @bind-Date="model.BirthDate" For="@(() => model.BirthDate)" IsDateDisabledFunc="@((DateTime dt)=>(dt.Year > DateTime.Now.Year ))" />
+                            </MudItem>
+                       @*      <MudItem md="2">
+                                <MudSelect T="int?" @bind-Value="model.OnlineStatus" tabindex="4" Label="Online Status" AnchorOrigin="Origin.BottomCenter">
+                                    @foreach (OnlineStatus item in Enum.GetValues(typeof(OnlineStatus)))
+                                    {
+                                        <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem> *@
+                            <MudItem md="3">
+                                <MudSelect T="int?" @bind-Value="model.StuStatus" tabindex="5" Label="Student Status" AnchorOrigin="Origin.BottomCenter">
+                                    @foreach (StudentStatus item in Enum.GetValues(typeof(StudentStatus)))
+                                    {
+                                        <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+
+                            <MudItem xs="12">
+                                <MudGrid>
+                                    <MudItem xs="6" sm="3">
+                                        <MudTextField Margin="Margin.Dense" tabindex="10" OnBlur=@(async ()=>{ await inputNameEnRef.FocusAsync(); }) InputType="InputType.Text" @bind-Value="model.Name15" For="@(() => model.Name15)" />
+                                    </MudItem>
+                                    <MudItem xs="6" sm="2">
+                                        <MudTextField Margin="Margin.Dense" tabindex="9" InputType="InputType.Text" @bind-Value="model.Name14" For="@(() => model.Name14)" />
+                                    </MudItem>
+                                    <MudItem xs="6" sm="2">
+                                        <MudTextField Margin="Margin.Dense" tabindex="8" InputType="InputType.Text" @bind-Value="model.Name13" For="@(() => model.Name13)" />
+                                    </MudItem>
+                                    <MudItem xs="6" sm="2">
+                                        <MudTextField Margin="Margin.Dense" tabindex="7" InputType="InputType.Text" @bind-Value="model.Name12" For="@(() => model.Name12)" />
+                                    </MudItem>
+                                    <MudItem xs="6" sm="3">
+                                        <MudTextField Label="Name in Arabic *" tabindex="6" Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name11" For="@(() => model.Name11)" />
+                                    </MudItem>
+                                </MudGrid>
+                            </MudItem>
+
+                            <MudItem xs="12">
+                                <MudGrid>
+                                    <MudItem xs="6" sm="3">
+                                        <MudTextField Label="Name in English" @ref=inputNameEnRef Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name21" For="@(() => model.Name21)" />
+                                    </MudItem>
+                                    <MudItem xs="6" sm="2">
+                                        <MudTextField Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name22" For="@(() => model.Name22)" />
+                                    </MudItem>
+                                    <MudItem xs="6" sm="2">
+                                        <MudTextField Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name23" For="@(() => model.Name23)" />
+                                    </MudItem>
+                                    <MudItem xs="6" sm="2">
+                                        <MudTextField Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name24" For="@(() => model.Name24)" />
+                                    </MudItem>
+                                    <MudItem xs="6" sm="3">
+                                        <MudTextField Margin="Margin.Dense" InputType="InputType.Text" @bind-Value="model.Name25" For="@(() => model.Name25)" />
+                                    </MudItem>
+                                </MudGrid>
+                            </MudItem>
+
+                            <MudItem xs="6">
+                                <MudTextField Label="Notes" Margin="Margin.Dense" Lines="2" @bind-Value="model.Notes" For="@(() => model.Notes)" InputType="InputType.Text" />
+                            </MudItem>
+                                    <MudItem xs="6">
+                                <MudSelect T="int?" @bind-Value="model.Result" Label="Student Result" AnchorOrigin="Origin.BottomCenter">
+                                    @foreach (StudentResult item in Enum.GetValues(typeof(StudentResult)))
+                                    {
+                                        <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+
+                            <MudItem xs="6">
+
+                                <MudSelect T="int?" Label="Nationality" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.NationalId">
+                                    <MudItems Lookups="lookups[Lookup.Nationals]"></MudItems>
+                                </MudSelect>
+
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudSelect T="int?" @bind-Value="model.StudentType" Label="Student Type" AnchorOrigin="Origin.BottomCenter">
+                                    @foreach (StudentType item in Enum.GetValues(typeof(StudentType)))
+                                    {
+                                        <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+                            <MudItem xs="6">
+
+                                <MudSelect T="int?" Label="Religions *" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.RelegionId" For="@(() => model.RelegionId)">
+                                    <MudItems Lookups="lookups[Lookup.Religions]"></MudItems>
+                                </MudSelect>
+
+                            </MudItem>
+
+                           
+                            <MudItem xs="6">
+                                <MudTextField ReadOnly="true" Label="Student Age" Margin="Margin.Dense" Value="model.Age" />
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudTextField ReadOnly="true" Label="Age At Admission" Margin="Margin.Dense" Value="model.AgeAtAdmission" />
+                            </MudItem>
+
+                      @*       <MudItem xs="6">
+                                <MudTextField ReadOnly="true" Label="Eligible Grade" Margin="Margin.Dense" Value="model.EligibleGrade" />
+                            </MudItem>
+ *@
+
+                             <MudItem xs="6">
+                                <MudTextField Label="Management Notes" Margin="Margin.Dense" Lines="2" @bind-Value="model.ManagementNotes" For="@(() => model.ManagementNotes)" InputType="InputType.Text" />
+                            </MudItem>
+
+                              <MudItem md="2">
+                                <MudDatePicker IconSize="Size.Small" Editable=true tabindex="3" Label="Travel Date *" Margin="Margin.Dense" DateFormat="dd/MM/yyyy" TextChanged="CaculateAgeAtAdmission" @bind-Date="model.TravelDate" For="@(() => model.TravelDate)" IsDateDisabledFunc="@((DateTime dt)=>(dt.Year > DateTime.Now.Year ))" />
+                            </MudItem>
+                              <MudItem md="2">
+                                <MudDatePicker IconSize="Size.Small" Editable=true tabindex="3" Label="Return Date *" Margin="Margin.Dense" DateFormat="dd/MM/yyyy" TextChanged="CaculateAgeAtAdmission" @bind-Date="model.ReturnDate" For="@(() => model.ReturnDate)" IsDateDisabledFunc="@((DateTime dt)=>(dt.Year > DateTime.Now.Year ))" />
+                            </MudItem>
+                    
+                            @if (model.StudentType == (int)StudentType.Merge || model.StudentType == (int)StudentType.SpecialNeeds)
+                            {
+                                <MudItem xs="12">
+                                    <MudRadioGroup T="int?" @bind-SelectedOption="model.StuPayBy">
+                                        <MudRadio Option=1 Size="Size.Small" Color="Color.Primary" Dense="true">Parent</MudRadio>
+                                        <MudRadio Option=2 Size="Size.Small" Color="Color.Secondary" Dense="true">Public Authority for Disablity Affairs</MudRadio>
+                                        <MudRadio Option=9 Size="Size.Small" Color="Color.Secondary" Dense="true">Other</MudRadio>
+                                    </MudRadioGroup>
+                                </MudItem>
+                            }
+
+@* 
+
+                            <MudItem xs="12">
+                                <MudRadioGroup @bind-SelectedOption="model.Accepted">
+                                    @foreach (AcceptedInitialValue item in Enum.GetValues(typeof(AcceptedInitialValue)))
+                                    {
+                                        <MudRadio Option=@(((int)item).ToString()) Color="Color.Primary" Dense="true">@item.ToString()</MudRadio>
+                                    }
+                                </MudRadioGroup>
+                            </MudItem>
+                            @if (model.Accepted == "0")
+                            {
+                                <MudItem xs="12">
+                                    <MudStack Row="true" Justify="Justify.FlexStart">
+                                        <MudCheckBox Label="Advance" @bind-Checked="model.AcceptPrepaid" Color="Color.Primary"></MudCheckBox>
+                                        <MudCheckBox Label="Fees" @bind-Checked="model.AcceptFees" Color="Color.Primary"></MudCheckBox>
+                                        <MudCheckBox Label="Old Debit" @bind-Checked="model.AcceptDebt" Color="Color.Primary"></MudCheckBox>
+                                        <MudTextField Label="Reject Person" Margin="Margin.Dense" @bind-Value="model.RejectPerson" For="@(() => model.RejectPerson)" InputType="InputType.Text" />
+                                        <MudTextField Label="Rejection Reason" Margin="Margin.Dense" @bind-Value="model.RejectReason" For="@(() => model.RejectReason)" InputType="InputType.Text" />
+                                    </MudStack>
+                                </MudItem>
+                            } *@
+                            <MudItem xs="12">
+                                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                                    <MudTabPanel Text="School Data">
+                                        <MudGrid>
+                                         @*    <MudItem xs="6">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Admission Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.AdmissionDate" For="@(() => model.AdmissionDate)" />
+                                            </MudItem>
+                                            <MudItem xs="6">
+
+                                            </MudItem> *@
+                                            <MudItem xs="6">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Registration Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.RegistrationDate" For="@(() => model.RegistrationDate)" />
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Join Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.JoinDate" For="@(() => model.JoinDate)" />
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+
+                                                <MudSelect T="int?" Label="Come Branch" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.ComeBranchId">
+                                                    <MudItems Lookups="lookups[Lookup.Branches]"></MudItems>
+                                                </MudSelect>
+
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+
+                                                <MudSelect T="decimal?" Label="Come Grade" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.ComeGradeId">
+                                                    <MudItems DT="@ItemType.Decimal"  Lookups="lookups[Lookup.Grades]"></MudItems>
+                                                </MudSelect>
+
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+
+                                                <MudSelect T="int?" Label="Come Year" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.ComeYearId">
+
+                                                    <MudItems  Lookups="lookups[Lookup.Years]"></MudItems>
+
+                                                </MudSelect>
+
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                @if (model.Result == (int)StudentResult.noob)
+                                                {
+                                                    <MudTextField Label="Come From School" Margin="Margin.Dense" @bind-Value="model.ComeFrom" For="@(() => model.ComeFrom)" InputType="InputType.Text" />
+                                                }
+                                            </MudItem>
+
+
+                                            <MudItem xs="6">
+                                                <MudSelect T="decimal?" Label="Current Branch *" For="@(() => model.CurBranchId)"  AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurBranchId">
+                                                    <MudItems DT="ItemType.Decimal" Lookups="lookups[Lookup.Branches]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudSelect T="int?" Label="Current Grade *" For="@(() => model.CurGradeId)"  AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurGradeId">
+                                                    <MudItems  Lookups="lookups[Lookup.Grades]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudSelect T="int?" Label="Current Year *" For="@(() => model.CurYearId)"  AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurYearId">
+                                                    <MudItems Lookups="lookups[Lookup.Years]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudSelect T="int?" Label="Current Section" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurClassId">
+                                                    <MudItems Lookups="ClassItems"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+                                            <MudItem xs="12">
+                                                <MudTextField Lines="2" Label="Stay Period Result" Margin="Margin.Dense"
+                                                @bind-Value="model.Stay" For="@(() => model.Stay)" InputType="InputType.Text" />
+                                            </MudItem>
+
+                                         
+                                                   <MudItem md="3">
+                                <MudSelect T="int?" @bind-Value="model.TransferStatus" tabindex="5" Label="Transfer Status" AnchorOrigin="Origin.BottomCenter">
+                                                    @foreach (TransferStatus item in Enum.GetValues(typeof(TransferStatus)))
+                                    {
+                                        <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudSelect T="int?" Label="Current Merge or special need branch" For="@(() => model.CurBranchIdD)"  AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurBranchIdD">
+                                                    <MudItems DT="ItemType.Int" Lookups="lookups[Lookup.Branches]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudSelect T="int?" Label="Current Merge or special need grade" For="@(() => model.CurGradeIdD)"  AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurGradeIdD">
+                                                    <MudItems DT="ItemType.Int" Lookups="lookups[Lookup.Grades]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+                                                <MudItem xs="6">
+                                                <MudSelect T="int?" Label="Current Merge or special need class" For="@(() => model.CurClassIdD)"  AnchorOrigin="Origin.BottomCenter" @bind-Value="model.CurClassIdD">
+                                                    <MudItems DT="ItemType.Int" Lookups="lookups[Lookup.Classes]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Attend School Until Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.ExaminationDate" For="@(() => model.ExaminationDate)" />
+                                            </MudItem>
+                                            <MudItem xs="12">
+                                                <MudTextField Lines="2" Label="Name of Transferring School" Margin="Margin.Dense"
+                                                @bind-Value="model.Other9" For="@(() => model.Other9)" InputType="InputType.Text" />
+                                            </MudItem>
+
+                                            <MudItem md="3">
+                                                <MudSelect T="int?" @bind-Value="model.SchoolGotype" tabindex="5" Label="The Type of school to which he is transferred" AnchorOrigin="Origin.BottomCenter">
+                                                    @foreach (SchoolGoType item in Enum.GetValues(typeof(SchoolGoType)))
+                                                    {
+                                                        <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Withdraw date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.WithdrawDate" For="@(() => model.WithdrawDate)" />
+                                            </MudItem>
+
+                                            <MudItem xs="12">
+                                                <MudTextField Lines="2" Label="Withdraw Reason" Margin="Margin.Dense"
+                                                @bind-Value="model.WithdrawReasonId" For="@(() => model.WithdrawReasonId)" InputType="InputType.Text" />
+                                            </MudItem>
+
+                                            <MudItem xs="12">
+                                                <MudTextField Lines="2" Label="Withdraw Reason In English" Margin="Margin.Dense"
+                                                @bind-Value="model.WithdrawReasonEng" For="@(() => model.WithdrawReasonEng)" InputType="InputType.Text" />
+                                            </MudItem>
+                                            <MudItem xs="12">
+                                                <MudTextField Lines="2" Label="Withdraw Reason In Arabic" Margin="Margin.Dense"
+                                                @bind-Value="model.WithdrawReasonArab" For="@(() => model.WithdrawReasonArab)" InputType="InputType.Text" />
+                                            </MudItem>
+
+                                            <MudItem xs="12">
+                                                <MudTextField Lines="2" Label="School Come or shift from English" Margin="Margin.Dense"
+                                                @bind-Value="model.ComeFromE" For="@(() => model.ComeFromE)" InputType="InputType.Text" />
+                                            </MudItem>
+
+                                               <MudItem xs="12">
+                                                <MudTextField Lines="2" Label="School Come or shift from Arabic" Margin="Margin.Dense"
+                                                @bind-Value="model.ComeFrom" For="@(() => model.ComeFrom)" InputType="InputType.Text" />
+                                            </MudItem>
+
+
+                                                <MudItem md="3">
+                                                <MudSelect T="int?" @bind-Value="model.SchoolComeType" tabindex="5" Label="Type of school" AnchorOrigin="Origin.BottomCenter">
+                                                    @foreach (SchoolGoType item in Enum.GetValues(typeof(SchoolGoType)))
+                                                    {
+                                                        <MudSelectItem T="int?" Value="@((int)item)">@item.ToString()</MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudSelect T="int?" Label="To School" For="@(() => model.ToSchoolId)" 
+                                                    AnchorOrigin="Origin.BottomCenter" @bind-Value="model.ToSchoolId">
+                                                    <MudItems DT="ItemType.Decimal" Lookups="lookups[Lookup.Classes]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudSelect T="int?" Label="From School" For="@(() => model.FromSchoolId)"
+                                                           AnchorOrigin="Origin.BottomCenter" @bind-Value="model.FromSchoolId">
+                                                    <MudItems DT="ItemType.Decimal" Lookups="lookups[Lookup.Classes]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+
+                                          @*   <MudItem xs="6">
+                                                <MudCheckBox Label="Health Status" @bind-Checked="model.HealthStatus" Color="Color.Primary"> Fit</MudCheckBox>
+                                            </MudItem>
+
+                                            <MudItem xs="12">
+                                                <MudTextField Lines="2" Label="Examination Result" Margin="Margin.Dense"
+                                                @bind-Value="model.ExaminationResult" For="@(() => model.ExaminationResult)" InputType="InputType.Text" />
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudTextField Label="Education Decision No" Margin="Margin.Dense"
+                                                @bind-Value="model.EducationDecisionNo" For="@(() => model.EducationDecisionNo)" InputType="InputType.Number" />
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudTextField Label="Healthy File Number" Margin="Margin.Dense"
+                                                @bind-Value="model.HealthFileNo" For="@(() => model.HealthFileNo)" InputType="InputType.Number" />
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudSelect T="decimal?" Label="Disablity As Per The Decision" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.DisablityAsPerTheDecisionId">
+                                                    <MudItems DT="@ItemType.Decimal"   Lookups="lookups[Lookup.HandicapType]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+
+                                                <MudSelect T="decimal?" Label="Disablity As The certificate" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.DisablityCertificateId">
+                                                    <MudItems DT="ItemType.Decimal" Lookups="lookups[Lookup.HandicapType]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Decision Start Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.EduDecisionDate" For="@(() => model.EduDecisionDate)" />
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Prove Certificate Start Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.EduProveDate" For="@(() => model.EduProveDate)" />
+                                            </MudItem>
+                                            <MudItem xs="6">
+
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Decision End Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.NextVisitDate" For="@(() => model.NextVisitDate)" />
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Prove Certificate End Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.EduProveEndDate" For="@(() => model.EduProveEndDate)" />
+                                            </MudItem>
+
+
+                                            <MudItem xs="12">
+                                                <MudTextField Label="Mother Name" Margin="Margin.Dense"
+                                                @bind-Value="model.MotherName" For="@(() => model.MotherName)" InputType="InputType.Text" />
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudTextField Label="Mother CivilID" Margin="Margin.Dense"
+                                                @bind-Value="model.MotherCivilID" For="@(() => model.MotherCivilID)" InputType="InputType.Number" />
+                                            </MudItem> *@
+                                        </MudGrid>
+                                    </MudTabPanel>
+                                    <MudTabPanel Text="Personal Data *">
+                                        <MudGrid>
+                                              <MudItem xs="3">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Passport Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Value="model.PassportDate" For="@(() => model.PassportDate)" />
+                                            </MudItem>
+
+                                             <MudItem xs="3">
+                                                <MudTextField Label="Birth Place" Margin="Margin.Dense"
+                                                @bind-Value="model.BirthPlace" For="@(() => model.BirthPlace)" InputType="InputType.Text" />
+                                            </MudItem>
+
+                                            <MudItem xs="3">
+                                                <MudTextField Label="CertificateNumber" Margin="Margin.Dense"
+                                                @bind-Value="model.CertificateNumber" For="@(() => model.CertificateNumber)" InputType="InputType.Text" />
+                                            </MudItem>
+
+                                                 <MudItem xs="3">
+                                                <MudTextField Label="Birth Doc Place" Margin="Margin.Dense"
+                                                @bind-Value="model.BirthDocPlace" For="@(() => model.BirthDocPlace)" InputType="InputType.Text" />
+                                            </MudItem>
+
+
+                                            <MudItem xs="3">
+                                                <MudNumericField HideSpinButtons="true" Label="Residence No" Margin="Margin.Dense"
+                                                @bind-Value="model.ResidenceNo" For="@(() => model.ResidenceNo)" InputType="InputType.Number" />
+                                            </MudItem>
+
+                                            <MudItem xs="3">
+                                                <MudDatePicker IconSize="Size.Small" Editable=true Label="Residence End Date" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Value="model.ResidenceEndDate" For="@(() => model.ResidenceEndDate)" />
+                                            </MudItem>
+
+                                                  <MudItem xs="3">
+                        <MudSelect T="int?" Label="ID Type" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.IdTypeId">
+                            <MudItems DT="ItemType.Int" Lookups="lookups[Lookup.IdType]"></MudItems>
+                        </MudSelect>
+                    </MudItem>
+
+                     <MudItem xs="3">
+                                                <MudNumericField HideSpinButtons="true" Label="Ims number" Margin="Margin.Dense"
+                                                @bind-Value="model.ImsNo" For="@(() => model.ImsNo)" InputType="InputType.Number" />
+                                            </MudItem>
+
+                                              <MudItem xs="3">
+                        <MudTextField Label="Id No" Margin="Margin.Dense" @bind-Value="model.IdNo" For="@(() => model.IdNo)" InputType="InputType.Text" />
+                    </MudItem>
+
+                    <MudItem xs="3">
+                        <MudDatePicker Editable="true" IconSize="Size.Small" Label="Id Ending Date *" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                       @bind-Date="model.IdEndDate" For="@(() => model.IdEndDate)" />
+                    </MudItem>
+
+
+                      <MudItem xs="3">
+                        <MudSelect T="int?" Label="Passport Type" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.PassportType">
+                            <MudItems DT="ItemType.Int" Lookups="lookups[Lookup.Nationals]"></MudItems>
+                        </MudSelect>
+                    </MudItem>
+
+
+
+                    <MudItem xs="3">
+                        <MudNumericField HideSpinButtons="true" Label="Passport Number" Margin="Margin.Dense" @bind-Value="model.PassportNumber" For="@(() => model.PassportNumber)" InputType="InputType.Number" />
+                    </MudItem>
+                                            <MudItem xs="3">
+                                                <MudDatePicker Editable="true" IconSize="Size.Small" Label="Passport EndDate*" Margin="Margin.Dense" DateFormat="dd/MM/yyyy"
+                                                @bind-Date="model.PassportEndDate" For="@(() => model.PassportEndDate)" />
+                                            </MudItem>
+
+
+
+                                            <MudItem xs="3">
+                                                <MudNumericField HideSpinButtons="true" Label="Tel1" Margin="Margin.Dense"
+                                                @bind-Value="model.Tel1" For="@(() => model.Tel1)" InputType="InputType.Number" />
+                                            </MudItem>
+                                            <MudItem xs="3">
+                                                <MudNumericField HideSpinButtons="true" Label="Tel2" Margin="Margin.Dense"
+                                                @bind-Value="model.Tel2" For="@(() => model.Tel2)" InputType="InputType.Number" />
+                                            </MudItem>
+                                          
+                                                 <MudItem xs="3">
+                                                <MudTextField Label="Fax" Margin="Margin.Dense"
+                                                @bind-Value="model.Fax" For="@(() => model.Fax)" />
+                                            </MudItem>
+                                            <MudItem xs="3">
+                                                <MudTextField Label="Emergency Tel" Margin="Margin.Dense"
+                                                @bind-Value="model.EmergencyTel" For="@(() => model.EmergencyTel)" I  />
+                                            </MudItem>
+
+                                              <MudItem xs="3">
+                                                <MudTextField Label="Email" Margin="Margin.Dense"
+                                                @bind-Value="model.Email" For="@(() => model.Email)" InputType="InputType.Email" />
+                                            </MudItem>
+
+
+
+                                            <MudItem xs="3">
+                                                <MudSelect T="int?" Label="GovernMent" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.GovernId">
+                                                    <MudItems DT="ItemType.Int" Lookups="lookups[Lookup.Goverment]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+                                            <MudItem xs="3">
+                                                <MudSelect T="int?" Label="Area" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.AreaId">
+                                                    <MudItems DT="ItemType.Int" Lookups="lookups[Lookup.Area]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+                                            <MudItem xs="3">
+                                                <MudSelect T="int?" Label="Part" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.PartId">
+                                                    <MudItems DT="ItemType.Int" Lookups="lookups[Lookup.Part]"></MudItems>
+                                                </MudSelect>
+                                            </MudItem>
+                                            <MudItem xs="3">
+                                                <MudNumericField HideSpinButtons="true" Label="House No" Margin="Margin.Dense"
+                                                @bind-Value="model.HouseNo" For="@(() => model.HouseNo)" InputType="InputType.Number" />
+                                            </MudItem>
+                                            <MudItem xs="3">
+                                                <MudTextField Label="Address 1" Margin="Margin.Dense"
+                                                @bind-Value="model.Address1" For="@(() => model.Address1)" InputType="InputType.Text" />
+                                            </MudItem>
+                                          
+
+                                                   <MudItem xs="3">
+                                                <MudTextField Label="Address 2" Margin="Margin.Dense"
+                                                @bind-Value="model.Address2" For="@(() => model.Address1)" InputType="InputType.Text" />
+                                            </MudItem>
+                                           
+                                        </MudGrid>
+                                    </MudTabPanel>
+                                    <MudTabPanel Text="Admission Data">
+                                        <MudGrid>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.AcpApprove" Label="Certificate of no objection" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.AcpDirect" Label="Direct Admission" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.AcpTransferCertificate" Label="Transfer Certificate" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.AcpRecommend" Label="Has Recomended" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.BrotherReg" Label="Has Sibling already registered" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.AcpEquivalencyCertificate" Label="Equivalancy Certificate" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.AcpClearance" Label="Clearance" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.BrotherAcp" Label="Has Sibling already admission in same time" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.AcpHealthFile" Label="Healthy life" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.ResEmp" Label="Employee Children" Color="Color.Primary"></MudCheckBox>
+                                                @if (model.ResEmp)
+                                                {
+                                                    <MudSelect T="decimal?" Label="Employee" For="@(() => model.EmpId)" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.EmpId">
+                                                        <MudItems DT="ItemType.Decimal" Lookups="lookups[Lookup.Employees]"></MudItems>
+
+                                                    </MudSelect>
+                                                }
+
+                                            </MudItem>
+                                            <MudItem xs="6">
+                                                <MudCheckBox @bind-Checked="@model.OnlineStatus" Label="Online Registration" Color="Color.Primary"></MudCheckBox>
+                                            </MudItem>
+                                        </MudGrid>
+                                    </MudTabPanel>
+                                    <MudTabPanel Text="Exams">
+                                      
+                                    </MudTabPanel>
+                                </MudTabs>
+                            </MudItem>
+
+                            <MudItem>
+                                <DataAnnotationsValidator></DataAnnotationsValidator>
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudStack Row="true" Justify="Justify.FlexStart">
+                            @if (decimal.TryParse(model.Code, out decimal _code) && _code > 0)
+                            {
+                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save</MudButton>
+                                if (model.Id > 0)
+                                {
+                                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(()=> Delete())" Class="ml-auto">Delete</MudButton>
+                                }
+                            }
+                            else
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> GetCode())" Class="ml-auto">New</MudButton>
+                            }
+                        </MudStack>
+                    </MudCardActions>
+                </MudCard>
+            </EditForm>
+        </DialogContent>
+    </MudDialog>
+</MudFocusTrap>
+@code {
+
+
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public StudentRegistrationModel model { get; set; } = new();
+
+    [Parameter]
+    public Dictionary<Lookup, DataItem<IEnumerable<Item>>> lookups { get; set; } = new();
+
+    [CascadingParameter]
+    public bool ShowOverlay { get; set; }
+
+
+    public DataItem<IEnumerable<Item>> ClassItems { get; set; } = new();
+    private MudTextField<string> inputNameEnRef { get; set; }
+
+    private async Task Delete()
+    {
+        bool? isConfirm = await DialogService.ShowMessageBox(
+        "Confirm",
+        "Are you sure, you want to delete?",
+        yesText: "Yes", cancelText: "Cancel", options: new DialogOptions() { DisableBackdropClick = true });
+
+        if (!(isConfirm ?? false)) return;
+
+        var response = await _studentService.Delete(model.Id);
+        if (response.IsSuccess)
+        {
+            Snackbar.Add("Successfully deleted", Severity.Success);
+            MudDialog.Close<CustomDialogResult>(new() { NeedReload = true });
+        }
+        else
+        {
+            Snackbar.Add(message: response.Message);
+        }
+    }
+
+    private async Task CaculateAgeAtAdmission()
+    {
+
+        if (model.BirthDate is not null && model.CurBranchId is not null)
+        {
+            var result = (await _lookupService.GetEligibleData((DateTime)model.BirthDate, (decimal)model.CurBranchId))?.Data;
+            if (result is not null)
+            {
+                model.AgeAtAdmission = result.AgeAtAdmission;
+                model.EligibleGrade = result.EliogibleGrade;
+            }
+        }
+
+    }
+
+
+
+
+
+    private async Task GetClasses()
+    {
+        var result = await _lookupService.GetClass((decimal)model.CurGradeId, (decimal)model.CurBranchId, model.Gender.ToString());
+        if (result.IsSuccess)
+        {
+            ClassItems.Success(result.Data);
+        }
+
+        CaculateAgeAtAdmission();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrEmpty(model.Code))
+            await GetCode();
+    }
+
+    private async Task GetCode()
+    {
+        var result = await _studentService.GetNewCode();
+        if (result.IsSuccess)
+        {
+            await SetFormData();
+            model.Code = result.Data.ToString();
+        }
+        else
+        {
+            Snackbar.Add("Unable to fetch new code !", Severity.Info);
+        }
+    }
+
+    private async void OnValidSubmit(EditContext context)
+    {
+        if (!context.Validate())
+        {
+            foreach (var item in context.GetValidationMessages())
+            {
+                var parameters = new DialogParameters<CustomDialog>();
+                parameters.Add(x => x.ContentText, @item);
+                parameters.Add(x => x.ButtonText, "Ok");
+                parameters.Add(x => x.Color, Color.Error);
+                var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+                DialogService.Show<CustomDialog>("Error", parameters, options);
+                return;
+            }
+        }
+
+        bool? isConfirm = await DialogService.ShowMessageBox(
+            "Confirm",
+            "Are you sure you want to save?",
+            yesText: "Yes", cancelText: "Cancel", options: new DialogOptions() { DisableBackdropClick = true });
+
+        if (!(isConfirm ?? false)) return;
+
+        ShowOverlay = true;
+        StateHasChanged();
+        // var result = await _studentService.Post(model);
+        // if (result.IsSuccess)
+        // {
+        //     Snackbar.Add("Successfully updated", Severity.Success);
+        //     model.Id = result.Data;
+        //     var copy = model.Exams.ToList();
+        //     foreach (var item in copy)
+        //     {
+        //         if (item.State == State.Delete)
+        //             model.Exams.Remove(item);
+        //     }
+        //     model.Exams.ForEach(x => x.State = State.Read);
+
+        //     MudDialog.Close<CustomDialogResult>(new() { NeedReload = true });
+        // }
+        // else
+        // {
+        //     Snackbar.Add(result.Message, Severity.Error);
+        // }
+        StateHasChanged();
+        ShowOverlay = false;
+    }
+
+    private async Task SetFormData(ParentModel? _model = null, RegStudentModel? studentModel = null)
+    {
+        //if (IsFirstRender)
+        //    await LoadDropDowns();
+
+        //IsDataLoaded = true;
+        studentModel = studentModel ?? new();
+        await Task.CompletedTask;
+    }
+
+}

@@ -21,7 +21,18 @@ namespace Creative.Shared.Models
         Employees,
         ExamTypes,
         ParentsAndStudent,
-        HandicapType
+        HandicapType,
+        Goverment,
+        Area,
+        Part,
+        IdType,
+        AccAccounts,
+        AccAnalyses,
+        AccCost,
+        AccExpenses,
+        BooksAccounts,
+        BusAccount,
+        AccAccCats,
     }
 
     public enum Identity
@@ -59,6 +70,8 @@ namespace Creative.Shared.Models
         ReEnlisted = 4,
         Transported = 5,
         ReRegistered = 6,
+        FinishedYearsOfFailure = 7,
+        ComingFromOutside = 8
     }
 
     ////stu_type intial value
@@ -78,4 +91,48 @@ namespace Creative.Shared.Models
         UnderTest = 2,
         Acceptable = 1,
     }
+
+    public enum TransferStatus
+    {
+        Pending = 0,
+        New = 1,
+        Started = 2,
+        Inprogress = 3,
+        Posted = 6,
+    }
+
+
+    public enum PassportType
+    {
+        Normal = 1,
+        Diplomat = 2,
+        Private = 3,
+        Temporary = 4,
+        Document = 5,
+        Other = 6
+
+    }
+
+
+    public enum StudentPay
+    {
+        OnParents = 1,
+        OnOrganization = 2,
+        Other = 3
+    }
+
+    public enum FinancialType
+    {
+        Father = 1,
+        Mother = 2,
+        Other = 3
+    }
+
+    public enum SchoolGoType
+    {
+        Father = 1,
+        Mother = 2,
+        Other = 3
+    }
 }
+
