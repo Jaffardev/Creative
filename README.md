@@ -1,8 +1,8 @@
-Handling concurrency exceptions in Entity Framework Core (EF Core) can be achieved by implementing a generic method that retries operations when a `DbUpdateConcurrencyException` is thrown. Here's how you can create such a method:
+The generic method I provided is designed to handle concurrency exceptions by setting the entity's original values to those currently in the database, which is necessary for EF Core's optimistic concurrency control to work properly. However, this approach alone won't automatically apply the updated values from your operation; it will simply allow the save operation to retry with the original values updated to reflect the current state of the database.
 
-### Step 1: Create the Generic Method
+If you want to apply your current updates while still handling concurrency, you'll need to merge the database values with your updated values. Here’s how you can modify the method to achieve that:
 
-This method will attempt to save changes to the database and retry a few times if a concurrency exception is caught.
+### Updated Generic Method
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -48,7 +48,7 @@ public static class DbContextExtensions
                 {
                     if (entry.Entity is IConcurrencyHandledEntity concurrencyEntity)
                     {
-                        // Get the current values and reload the entity's values from the database
+                        // Get the current database values
                         var databaseValues = await entry.GetDatabaseValuesAsync();
 
                         if (databaseValues == null)
@@ -56,11 +56,18 @@ public static class DbContextExtensions
                             throw new InvalidOperationException("The entity being updated no longer exists in the database.");
                         }
 
-                        // Set the original values to the database values
-                        entry.OriginalValues.SetValues(databaseValues);
+                        // Merge the database values with the current values
+                        foreach (var property in entry.Metadata.GetProperties())
+                        {
+                            var proposedValue = entry.CurrentValues[property];
+                            var databaseValue = databaseValues[property];
 
-                        // Optionally, you can merge the database values with the current values (optional)
-                        // entry.CurrentValues.SetValues(databaseValues);
+                            // You can choose a strategy here. For example, keep the user's proposed value:
+                            entry.CurrentValues[property] = proposedValue ?? databaseValue;
+                        }
+
+                        // Set the original values to the database values to allow retry
+                        entry.OriginalValues.SetValues(databaseValues);
                     }
                     else
                     {
@@ -78,25 +85,15 @@ public interface IConcurrencyHandledEntity
 }
 ```
 
-### Step 2: Implement the `IConcurrencyHandledEntity` Interface
+### Explanation of the Updated Method
 
-Ensure that entities that should handle concurrency exceptions implement a marker interface. This is an optional step, but it helps you identify which entities should be handled by the generic method.
+- **Merge Strategy**: The method now includes a loop that iterates through each property of the entity and merges the database values with the current values. The current implementation prioritizes the proposed values (the values you've just updated), but you can modify the logic to handle conflicts differently if needed.
+  
+- **Set Original Values**: After merging, the method updates the original values with the current database values, so EF Core is aware that the entity's original state has changed. This allows EF Core to retry the save operation without throwing a concurrency exception again.
 
-```csharp
-public class YourEntity : IConcurrencyHandledEntity
-{
-    public int Id { get; set; }
+### Usage in Your Service
 
-    [ConcurrencyCheck]
-    public string Name { get; set; }
-    
-    // Other properties
-}
-```
-
-### Step 3: Use the Generic Method in Your Code
-
-Now, you can use the `SaveChangesWithRetryAsync` method in your application to handle concurrency exceptions.
+This updated method allows your changes to be applied while still handling concurrency exceptions. Here’s how you would use it:
 
 ```csharp
 public class YourService
@@ -119,10 +116,6 @@ public class YourService
 }
 ```
 
-### Explanation:
+### Summary
 
-- **Retry Logic**: The method tries to save changes, and if a `DbUpdateConcurrencyException` is caught, it retries up to a specified number of times.
-- **Concurrency Handling**: The method retrieves the current database values for the conflicting entity and updates the original values in the entity, which is necessary for EF Core to retry the operation.
-- **Marker Interface**: `IConcurrencyHandledEntity` is used to identify which entities should handle concurrency exceptions.
-
-This approach provides a robust way to handle concurrency exceptions in EF Core, making your application more resilient to data conflicts.# Creative
+This method will ensure that your current updates are preserved even when handling concurrency exceptions. It merges the current values with the database values, allowing your updates to be applied while also updating the original values to reflect the latest state of the database. This way, EF Core can retry the save operation without triggering another concurrency exception.
